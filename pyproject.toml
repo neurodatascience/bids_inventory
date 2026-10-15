@@ -42,6 +42,9 @@ bids_inventory = "bids_inventory._cli:cli"
 "Bug tracker" = "https://github.com/neurodatascience/bids_inventory/issues"
 Homepage = "https://github.com/neurodatascience/bids_inventory"
 
+[tool.codespell]
+skip = "./.git,env,venv,.venv,outputs,htmlcov,./tests/data/tmp,*openneuro.jsonl,*institutions.json,*institution_matches.tsv"
+
 [tool.hatch.build.hooks.vcs]
 version-file = "bids_inventory/_version.py"
 
@@ -52,9 +55,47 @@ packages = ["bids_inventory"]
 [tool.hatch.version]
 source = "vcs"
 
+[tool.pyrefly]
+ignore-missing-imports = [
+    "bids_inventory._version",
+    "datalad.*",
+    "geopy.*",
+    "marimo",
+    "matplotlib",
+    "mne.*",
+    "plotly.*",
+    "rapidfuzz.*",
+    "rich.*",
+    "rich_argparse",
+    "unidecode"
+]
+project-excludes = ["bids_inventory/_version.py"]
+project-includes = ["bids_inventory"]
+search-path = ["."]
+
 [tool.pytest.ini_options]
 addopts = "-ra -q -vv --showlocals --strict-markers --strict-config --cov bids_inventory --cov-report=html"
 minversion = "6.0.0"
 norecursedirs = "data"
 testpaths = ["tests/"]
 xfail_strict = true
+
+[tool.ruff]
+extend-exclude = ["bids_inventory/_version.py", "tests/data"]
+line-length = 100
+src = ["."]
+target-version = "py311"
+
+[tool.ruff.lint]
+ignore = ["D101", "D103", "E501"]
+mccabe = { max-complexity = 12 }
+# E, W: pycodestyle / F: pyflakes / C90: mccabe / D: pydocstyle
+# I: isort / UP: pyupgrade / FLY: flynt
+select = ["C90", "D", "E", "F", "FLY", "I", "UP", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*" = ["D100", "D104"]
+"__init__.py" = ["D104"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
