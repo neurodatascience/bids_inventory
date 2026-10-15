@@ -17,7 +17,7 @@ after changing the model, regenerate it with `python -m bids_inventory.models`.
 ## Installation
 
 ```bash
-pip install ./packages/bids_inventory
+pip install .
 ```
 
 The base install is enough to load the listing.
@@ -40,7 +40,7 @@ eeg_datasets = filter_data(df, config={"datatypes": ["eeg"]})
 To browse the listing in a dashboard (a [marimo](https://marimo.io/) app) in the browser:
 
 ```bash
-pip install './packages/bids_inventory[browse]'
+pip install '.[browse]'
 bids_inventory browse
 ```
 
@@ -53,7 +53,7 @@ The dashboard is the marimo notebook `bids_inventory/browse_app.py`:
 ## Updating the inventory
 
 ```bash
-pip install -e './packages/bids_inventory[update]'
+pip install -e '.[update]'
 bids_inventory update
 ```
 
@@ -145,7 +145,7 @@ otherwise from GitHub.
 in the folder set by `local_paths.non_openneuro`:
 
 ```bash
-packages/bids_inventory/tools/install_extra_datasets.sh ~/non_openneuro
+tools/install_extra_datasets.sh ~/non_openneuro
 ```
 
 There are many datasets: make sure you have enough disk space.
@@ -189,7 +189,7 @@ the commands below never change the institutions already in it,
 they only add new names.
 
 ```bash
-pip install -e './packages/bids_inventory[institutions]'
+pip install -e '.[institutions]'
 
 # geocode the institution names of the inventory that are not in the file yet
 # (OpenStreetMap, 1 request per second; if stopped, run it again to continue)

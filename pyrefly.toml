@@ -1,0 +1,16 @@
+ignore-missing-imports = [
+    "bids_inventory._version",
+    "datalad.*",
+    "geopy.*",
+    "marimo",
+    "matplotlib",
+    "mne.*",
+    "plotly.*",
+    "rapidfuzz.*",
+    "rich.*",
+    "rich_argparse",
+    "unidecode"
+]
+project-excludes = ["bids_inventory/_version.py"]
+project-includes = ["bids_inventory"]
+search-path = ["."]

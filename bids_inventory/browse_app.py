@@ -2,7 +2,7 @@
 
 Opened by ``bids_inventory browse`` (``bids_inventory browse --edit`` to edit it).
 
-Needs: pip install './packages/bids_inventory[browse]'
+Needs: pip install 'bids-inventory[browse]'
 """
 
 import marimo
@@ -298,11 +298,11 @@ def _(mo, version):
     mo.md(f"""
     bids_inventory version: {version}
 
-    [Github repo](https://github.com/neurodatascience/cohort_creator.git)
+    [Github repo](https://github.com/neurodatascience/bids_inventory)
 
     Dashboard maintained by the [origami lab](https://neurodatascience.github.io/)
 
-    [Report a BUG](https://github.com/neurodatascience/cohort_creator/issues/new?assignees=&labels=bug&projects=&template=bug_report.yml&title=%5BBUG%5D+)
+    [Report a BUG](https://github.com/neurodatascience/bids_inventory/issues/new)
     """)
     return
 

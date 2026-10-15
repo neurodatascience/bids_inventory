@@ -1,0 +1,18 @@
+extend-exclude = ["bids_inventory/_version.py", "tests/data"]
+line-length = 100
+src = ["."]
+target-version = "py311"
+
+[lint]
+ignore = ["D101", "D103", "E501"]
+mccabe = { max-complexity = 12 }
+# E, W: pycodestyle / F: pyflakes / C90: mccabe / D: pydocstyle
+# I: isort / UP: pyupgrade / FLY: flynt
+select = ["C90", "D", "E", "F", "FLY", "I", "UP", "W"]
+
+[lint.per-file-ignores]
+"**/tests/*" = ["D100", "D104"]
+"__init__.py" = ["D104"]
+
+[lint.pydocstyle]
+convention = "numpy"

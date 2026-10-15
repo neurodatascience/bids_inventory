@@ -39,8 +39,8 @@ update = ["datalad", "datalad-fuse", "mne", "nibabel", "pydantic>=2", "pyyaml", 
 bids_inventory = "bids_inventory._cli:cli"
 
 [project.urls]
-"Bug tracker" = "https://github.com/neurodatascience/cohort_creator/issues"
-Homepage = "https://github.com/neurodatascience/cohort_creator"
+"Bug tracker" = "https://github.com/neurodatascience/bids_inventory/issues"
+Homepage = "https://github.com/neurodatascience/bids_inventory"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "bids_inventory/_version.py"
@@ -50,7 +50,6 @@ exclude = ["bids_inventory/data/tmp"]
 packages = ["bids_inventory"]
 
 [tool.hatch.version]
-raw-options = { root = "../.." }
 source = "vcs"
 
 [tool.pytest.ini_options]
