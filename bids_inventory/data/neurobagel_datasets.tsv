@@ -188,7 +188,7 @@ ds001705	used		participant_id		age	sex		5	5	5
 ds001715	skipped	no participants.json and no participants.tsv									
 ds001720	used		participant_id			gender		255	0	105	
 ds001722	used		participant_id			sex		19	0	19	
-ds001725	used		participant_id			gender		40	0	40	
+ds001725	used		participant_id			gender		40	0	40	mus musculus
 ds001728	used		participant_id					1	0	0	
 ds001734	used		participant_id		age	gender		108	108	108	
 ds001740	used		participant_id		age	sex		27	27	27	
@@ -221,7 +221,7 @@ ds001868	used		participant_id		age	sex		1	1	1
 ds001875	skipped	no participants.json and no participants.tsv									
 ds001882	used		participant_id		age	sex		20	20	20	
 ds001883	used		participant_id		age	sex		21	21	21	
-ds001890	used		participant_id		Age	sex		30	53	53	
+ds001890	used		participant_id		Age	sex		30	53	53	mus musculus
 ds001894	used		participant_id			sex		188	0	188	
 ds001907	skipped	no participants.json and no participants.tsv									
 ds001912	skipped	no participants.json and no participants.tsv									
@@ -257,11 +257,11 @@ ds002087	skipped	no participants.json and no participants.tsv
 ds002094	skipped	no participants.json									
 ds002105	used		participant_id		age	sex		24	24	24	
 ds002116	used		participant_id		age	sex		65	65	65	
-ds002134	used		participant_id		age	sex		31	49	49	
+ds002134	used		participant_id		age	sex		31	49	49	mus musculus
 ds002144	skipped	no participants.json and no participants.tsv									
 ds002149	used		participant_id					20	0	0	
 ds002153	skipped	no participants.json and no participants.tsv									
-ds002154	used		participant_id			gender		24	0	48	
+ds002154	used		participant_id			gender		24	0	48	mus musculus
 ds002155	skipped	no participants.json and no participants.tsv									
 ds002156	skipped	no participants.json and no participants.tsv									
 ds002158	used		participant_id		age	sex		20	20	20	
@@ -321,7 +321,7 @@ ds002543	used		participant_id		age	sex		49	49	49
 ds002547	used		participant_id		age	sex		26	21	26	
 ds002549	skipped	no participants.json and no participants.tsv									
 ds002550	used		participant_id			sex		22	0	22	
-ds002551	used		participant_id			gender		7	0	7	
+ds002551	used		participant_id			gender		7	0	7	mus musculus
 ds002574	skipped	no participants.json and no participants.tsv									
 ds002578	used		participant_id		age	gender		2	2	2	
 ds002596	skipped	no participants.json and no participants.tsv									
@@ -525,7 +525,7 @@ ds003463	skipped	no participants.json and no participants.tsv
 ds003464	used		participant_id			sex		18	0	18	
 ds003465	used		participant_id		age	sex		55	24	24	
 ds003466	used		participant_id		age	sex		21	21	21	
-ds003468	used		participant_id			Sex		27	0	26	
+ds003468	used		participant_id			Sex		27	0	26	mus musculus
 ds003469	used		participant_id		age	sex		81	81	81	
 ds003470	used		participant_id			sex		22	0	22	
 ds003474	used		participant_id		age	sex		122	120	121	
@@ -782,7 +782,7 @@ ds004228	skipped	no participants.json and no participants.tsv
 ds004229	used		participant_id		age	sex	sex column annotated without levels	2	1	0	
 ds004230	used		participant_id		age	sex		17	17	17	
 ds004252	skipped	participants.json not updated by Neurobagel									
-ds004254	used		participant_id			mouse_sex		15	0	15	
+ds004254	used		participant_id			mouse_sex		15	0	15	mus musculus
 ds004256	used		participant_id		age	sex		53	30	23	
 ds004259	skipped	no participants.json and no participants.tsv									
 ds004261	used		participant_id		age	sex		57	57	57	
@@ -1107,7 +1107,7 @@ ds005069	used		participant_id		age	sex		1	1	1
 ds005072	used		participant_id		age	sex		1	1	1	
 ds005073	used		participant_id			gender		32	0	31	
 ds005075	skipped	no participants.json and no participants.tsv									
-ds005077	used		participant_id		age	sex		14	11	11	
+ds005077	used		participant_id		age	sex		14	11	11	mus musculus
 ds005079	skipped	participants.json not updated by Neurobagel									
 ds005083	skipped	no participants.json and no participants.tsv									
 ds005085	used		participant_id		age	sex		10	10	10	
@@ -1217,7 +1217,7 @@ ds005386	skipped	no participants.json and no participants.tsv
 ds005397	used		participant_id		age	sex		26	26	26	
 ds005398	used		participant_id		age	sex		185	185	185	
 ds005401	skipped	participants.json not updated by Neurobagel									
-ds005402	used		participant_id			sex		34	0	34	
+ds005402	used		participant_id			sex		34	0	34	mus musculus
 ds005403	used		participant_id		age	sex		32	0	32	
 ds005405	used		participant_id		age	sex	sex column annotated without levels	101	101	0	
 ds005406	used		participant_id		age	sex	sex column annotated without levels	29	0	0	
@@ -1314,7 +1314,7 @@ ds005600	skipped	no participants.json and no participants.tsv
 ds005602	skipped	no participants.json and no participants.tsv									
 ds005603	used		participant_id			sex	sex column annotated without levels	8	0	0	
 ds005604	skipped	no participants.json and no participants.tsv									
-ds005605	used		participant_id			sex		18	0	18	
+ds005605	used		participant_id			sex		18	0	18	mus musculus, rattus norvegicus
 ds005613	used		participant_id		age	sex		101	101	101	
 ds005616	used		participant_id		age	sex		62	50	50	homo sapiens
 ds005619	used		participant_id			sex		7	0	7	
@@ -1479,7 +1479,7 @@ ds006260	used		participant_id		Age	Gender		76	76	76
 ds006265	used		participant_id		age	sex		20	20	20	
 ds006266	used		participant_id		age	sex		20	20	20	
 ds006267	used		participant_id		age	sex		24	24	24	
-ds006269	used		participant_id			sex		24	0	24	
+ds006269	used		participant_id			sex		24	0	24	rattus norvegicus
 ds006303	used		participant_id		age	sex	sex column annotated without levels	149	149	0	
 ds006317	used		participant_id		age	sex	sex column annotated without levels	2	0	0	
 ds006318	used		participant_id					86	0	0	

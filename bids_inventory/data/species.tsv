@@ -1,4 +1,15 @@
 dataset_id	species	comment
 ds001529	mus musculus	Mouse_rest_anesthesia
 ds001653	mus musculus	Mouse_rest_awake
+ds001725	mus musculus	Mouse_rest_psilocybin
+ds001890	mus musculus	Mouse_rest_3xTG
+ds002134	mus musculus	Mouse_opto_3xTG
+ds002154	mus musculus	Mouse_rest_psilocybin_pilot
+ds002551	mus musculus	Mouse_rest_awake (C57BL/6J mice, in the README)
+ds003468	mus musculus	IQSEC2 mutant mice (README)
 ds004161	ovis aries	Turone Sheep Chronic Stress (TSCS)
+ds004254	mus musculus	Germ-free_MRI (mice, in the README)
+ds005077	mus musculus	optofMRI_DRN: optogenetic fMRI of dorsal raphe serotonin neurons in mice (ages in weeks)
+ds005402	mus musculus	MPTP mouse
+ds005605	mus musculus, rattus norvegicus	COX-2 PET in rodents: sub-m* are mice, sub-r* are rats
+ds006269	rattus norvegicus	Tethered EEG Recordings in Syngap1 rats
