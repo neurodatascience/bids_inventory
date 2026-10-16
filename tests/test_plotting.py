@@ -6,10 +6,12 @@ import pytest
 pytest.importorskip("plotly")
 
 from bids_inventory._plotting import (  # noqa: E402
+    hours_per_datatype,
     neurobagel_age_distribution,
     neurobagel_bar_per_dataset,
     neurobagel_female_ratio_vs_participants,
     neurobagel_per_dataset,
+    plot_hours_vs_time,
 )
 
 
@@ -48,3 +50,32 @@ def test_neurobagel_plots(participants):
     # one row per participant, with age and sex
     assert sorted(fig.data[1].x) == [40, 50]
     assert not any(math.isnan(x) for x in fig.data[0].x)
+
+
+def test_hours_per_datatype():
+    df = pd.DataFrame(
+        {
+            "name": ["ds000001", "ds000002", "ds000003"],
+            "created_on": pd.to_datetime(["2020-01-01", "2019-01-01", "2021-01-01"]),
+            "nb_subjects": [10, 2, 5],
+            "duration": [
+                # per task, one task without known duration
+                {"func": {"a": [360.0, 360.0], "b": None}},
+                {"eeg": [1800.0, float("nan")], "func": {"a": [720.0]}},
+                {},
+            ],
+        }
+    )
+    hours = hours_per_datatype(df)
+    assert hours[["name", "datatype"]].values.tolist() == [
+        ["ds000001", "func"],
+        ["ds000002", "func"],
+        ["ds000002", "eeg"],
+    ]
+    # duration of the first participant times the number of participants
+    assert hours["hours"].tolist() == pytest.approx([2, 0.4, 1])
+
+    fig = plot_hours_vs_time(df)
+    assert [trace.name.split(":")[0] for trace in fig.data] == ["func", "eeg"]
+    # cumulative, by creation date
+    assert list(fig.data[0].y) == pytest.approx([0.4, 2.4])

@@ -29,6 +29,12 @@ def test_convert_duration_unknown():
     assert _convert_duration(duration) == {"func": {"a": [360.0], "b": None}}
 
 
+def test_convert_duration_repetition_time_in_milliseconds():
+    """180 volumes of 2000 'seconds' are 6 minutes, not 100 hours (only for func)."""
+    duration = {"func": {"rest": [360000.0, (180, 2000.0)]}, "eeg": [72000.0]}
+    assert _convert_duration(duration) == {"func": {"rest": [360.0, 360.0]}, "eeg": [72000.0]}
+
+
 def test_save_known_datasets_round_trip(tmp_path):
     """Loading and saving a listing must not change it."""
     output_file = tmp_path / "openneuro.jsonl"
