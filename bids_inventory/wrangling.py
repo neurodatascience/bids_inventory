@@ -1,11 +1,13 @@
 """Add summary columns to the listing of datasets and filter it."""
 
+import re
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
 import numpy as np
 import pandas as pd
 
+from bids_inventory.institutions import dataset_institutions, known_names, load_institutions
 from bids_inventory.listing import KNOWN_DATATYPES, dataset_species
 from bids_inventory.logger import bi_logger
 
@@ -38,6 +40,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``mean_size``: size per subject in kilobytes
     - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype.
     - ``total_duration``: Total "scanned" duration per participant (combines runs from: ``func``, ``eeg``, ``ieeg``)
+    - ``institution_names``: :obj:`list[str]` Institutions of the dataset,
+      as named in the keys of ``bids_inventory/data/institutions.json``.
+    - ``countries``: :obj:`list[str]` Countries of these institutions.
     - ``species``: :obj:`list[str]` Species of the participants (for example ``["mus musculus"]``),
       empty if not specified: see :func:`bids_inventory.listing.dataset_species`.
     """
@@ -91,6 +96,12 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
 
     species = dataset_species()
     df["species"] = df["name"].apply(lambda x: species.get(x, []))
+
+    institutions = load_institutions()
+    known = known_names(institutions)
+    located = [dataset_institutions(institutions, x, known) for x in df["institutions"]]
+    df["institution_names"] = [keys for keys, _ in located]
+    df["countries"] = [countries for _, countries in located]
 
     # new_cols = {
     #     "author_male": [],
@@ -203,6 +214,13 @@ class FilterConfig(TypedDict):
     physio: bool | None
     participants: bool | None
     task: str
+    task_regex: bool
+    institution: str
+    institution_regex: bool
+    country: str
+    country_regex: bool
+    author: str
+    author_regex: bool
     datatypes: list[str]
     datatypes_and_or: str
     sources: list[str] | None
@@ -216,6 +234,13 @@ DEFAULT_CONFIG: FilterConfig = {
     "physio": None,
     "participants": None,
     "task": "",
+    "task_regex": False,
+    "institution": "",
+    "institution_regex": False,
+    "country": "",
+    "country_regex": False,
+    "author": "",
+    "author_regex": False,
     "datatypes": KNOWN_DATATYPES,
     "datatypes_and_or": "OR",
     "sources": None,
@@ -225,6 +250,38 @@ DEFAULT_CONFIG: FilterConfig = {
 
 # in the species filter: the datasets whose species is not specified (most are about humans)
 NOT_SPECIFIED = "not specified"
+
+# text filters: (key of the configuration, column of lists of strings to search)
+TEXT_FILTERS = {
+    "task": "tasks",
+    "institution": "institution_names",
+    "country": "countries",
+    "author": "authors",
+}
+
+
+def _text_mask(values: pd.Series, query: str, regex: bool) -> pd.Series:
+    """Keep the rows where one of the strings of the lists in ``values`` matches ``query``.
+
+    Case insensitive: ``query`` is a substring, or a regular expression if ``regex``.
+    Raises ``ValueError`` if the regular expression is invalid.
+    """
+    if regex:
+        try:
+            pattern = re.compile(query, re.IGNORECASE)
+        except re.error as e:
+            raise ValueError(f"Invalid regular expression {query!r}: {e}") from e
+
+        def match(x: str) -> bool:
+            return pattern.search(x) is not None
+    else:
+
+        def match(x: str) -> bool:
+            return query.lower() in x.lower()
+
+    return values.apply(
+        lambda x: any(match(str(v)) for v in x) if isinstance(x, (list, tuple)) else False
+    )
 
 
 def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
@@ -240,7 +297,15 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     - ``"fmriprep"`` : None | bool
     - ``"mriqc"`` : None | bool
     - ``"physio"`` : None | bool
-    - ``"task"``: str
+    - ``"task"``: str: keeps the datasets with a task containing this text (case insensitive)
+    - ``"task_regex"``: bool: ``"task"`` is a regular expression
+    - ``"institution"``: str: same for the institutions
+      (as named in the keys of ``bids_inventory/data/institutions.json``)
+    - ``"institution_regex"``: bool
+    - ``"country"``: str: same for the countries of the institutions
+    - ``"country_regex"``: bool
+    - ``"author"``: str: same for the authors
+    - ``"author_regex"``: bool
     - ``"datatypes"`` : list[str] of any of the BIDS datatypes
     - ``"datatypes_and_or"`` : "OR" | "AND" if any or all of the datatypes must be present
     - ``"sources"`` : list[str] source of the dataset (openneuro, abide...)
@@ -271,9 +336,14 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
 
     # better filtering should make sure
     # that the one of the requested datatypes has the task of interest
-    mask_task = ALL_TRUE
-    if config["task"] != "":
-        mask_task = df["tasks"].apply(lambda x: config["task"] in "".join(x).lower())
+    mask_text = ALL_TRUE
+    # keys built from the names of the text filters
+    text_config: dict[str, Any] = dict(config)
+    for key, column in TEXT_FILTERS.items():
+        if text_config[key]:
+            mask_text = mask_text & _text_mask(
+                df[column], text_config[key], text_config[f"{key}_regex"]
+            )
 
     mask_physio = ALL_TRUE
     if config["physio"] is not None:
@@ -305,7 +375,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
 
     all_filters = pd.concat(
         (
-            mask_task,
+            mask_text,
             mask_physio,
             mask_fmriprep,
             mask_mriqc,
@@ -333,7 +403,9 @@ def _check_config(config: None | dict[str, Any]) -> FilterConfig:
     config = {**DEFAULT_CONFIG, **config}
 
     for key, value in config.items():
-        config[key] = booleanify(value)
+        # "true" is a valid text to search
+        if key not in TEXT_FILTERS:
+            config[key] = booleanify(value)
 
     if isinstance(config["datatypes"], bool):
         config["datatypes"] = KNOWN_DATATYPES

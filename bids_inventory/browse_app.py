@@ -138,7 +138,18 @@ def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
 
     datatypes = checklist(KNOWN_DATATYPES)
     datatypes_and_or = mo.ui.radio(options=["AND", "OR"], value="OR", inline=True)
+
+    def regex_checkbox() -> mo.ui.checkbox:
+        return mo.ui.checkbox(label="regular expression", value=False)
+
     task = mo.ui.text(value="")
+    task_regex = regex_checkbox()
+    institution = mo.ui.text(value="", placeholder="for example: McGill")
+    institution_regex = regex_checkbox()
+    country = mo.ui.text(value="", placeholder="for example: Canada")
+    country_regex = regex_checkbox()
+    author = mo.ui.text(value="", placeholder="for example: Poldrack")
+    author_regex = regex_checkbox()
     sources = checklist(SOURCES)
     sources_and_or = mo.ui.radio(options=["AND", "OR"], value="OR", inline=True)
     fmriprep = true_false_both()
@@ -150,9 +161,15 @@ def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
         [mo.ui.checkbox(label=x, value=x in {"homo sapiens", NOT_SPECIFIED}) for x in SPECIES]
     )
     return (
+        author,
+        author_regex,
+        country,
+        country_regex,
         datatypes,
         datatypes_and_or,
         fmriprep,
+        institution,
+        institution_regex,
         mriqc,
         participants,
         physio,
@@ -160,14 +177,21 @@ def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
         sources_and_or,
         species,
         task,
+        task_regex,
     )
 
 
 @app.cell
 def _(
+    author,
+    author_regex,
+    country,
+    country_regex,
     datatypes,
     datatypes_and_or,
     fmriprep,
+    institution,
+    institution_regex,
     mo,
     mriqc,
     participants,
@@ -176,6 +200,7 @@ def _(
     sources_and_or,
     species,
     task,
+    task_regex,
 ):
     def section(title: str, description: str | None, *elements: object) -> mo.Html:
         return mo.vstack(
@@ -193,7 +218,39 @@ def _(
                     align="start",
                 ),
             ),
-            section("task", None, task),
+            mo.hstack(
+                [
+                    section(
+                        "task",
+                        "Keep datasets with a task containing this text (case insensitive)",
+                        mo.hstack([task, task_regex], justify="start"),
+                    ),
+                    section(
+                        "author",
+                        "Keep datasets with an author containing this text",
+                        mo.hstack([author, author_regex], justify="start"),
+                    ),
+                ],
+                justify="start",
+                gap=4,
+            ),
+            mo.hstack(
+                [
+                    section(
+                        "institution",
+                        "Keep datasets from an institution containing this text "
+                        "(names as in bids_inventory/data/institutions.json)",
+                        mo.hstack([institution, institution_regex], justify="start"),
+                    ),
+                    section(
+                        "country",
+                        "Keep datasets from an institution in a country containing this text",
+                        mo.hstack([country, country_regex], justify="start"),
+                    ),
+                ],
+                justify="start",
+                gap=4,
+            ),
             section(
                 "sources",
                 "Keep datasets from...",
@@ -230,11 +287,17 @@ def _(
     KNOWN_DATATYPES,
     SOURCES,
     SPECIES,
+    author,
+    author_regex,
+    country,
+    country_regex,
     datatypes,
     datatypes_and_or,
     df,
     filter_data,
     fmriprep,
+    institution,
+    institution_regex,
     mriqc,
     participants,
     physio,
@@ -242,27 +305,39 @@ def _(
     sources_and_or,
     species,
     task,
+    task_regex,
 ):
-    filtered_df = filter_data(
-        df,
-        config={
-            "datatypes": [x for x, keep in zip(KNOWN_DATATYPES, datatypes.value) if keep],
-            "datatypes_and_or": datatypes_and_or.value,
-            "sources": [x for x, keep in zip(SOURCES, sources.value) if keep],
-            "sources_and_or": sources_and_or.value,
-            "task": task.value,
-            "fmriprep": fmriprep.value,
-            "mriqc": mriqc.value,
-            "physio": physio.value,
-            "participants": participants.value,
-            "species": [x for x, keep in zip(SPECIES, species.value) if keep],
-        },
-    )
-    return (filtered_df,)
+    filter_config = {
+        "datatypes": [x for x, keep in zip(KNOWN_DATATYPES, datatypes.value) if keep],
+        "datatypes_and_or": datatypes_and_or.value,
+        "sources": [x for x, keep in zip(SOURCES, sources.value) if keep],
+        "sources_and_or": sources_and_or.value,
+        "task": task.value,
+        "task_regex": task_regex.value,
+        "institution": institution.value,
+        "institution_regex": institution_regex.value,
+        "country": country.value,
+        "country_regex": country_regex.value,
+        "author": author.value,
+        "author_regex": author_regex.value,
+        "fmriprep": fmriprep.value,
+        "mriqc": mriqc.value,
+        "physio": physio.value,
+        "participants": participants.value,
+        "species": [x for x, keep in zip(SPECIES, species.value) if keep],
+    }
+    # for example an invalid regular expression: keep no dataset and say why
+    filter_error = ""
+    try:
+        filtered_df = filter_data(df, config=filter_config)
+    except ValueError as e:
+        filter_error = str(e)
+        filtered_df = df.iloc[0:0]
+    return filter_error, filtered_df
 
 
 @app.cell
-def _(Path, contextlib, filtered_df, mo, save_dataset_listing, tempfile):
+def _(Path, contextlib, filter_error, filtered_df, mo, save_dataset_listing, tempfile):
     def table_to_show(dataframe):
         sub_df = dataframe[["name", "nb_subjects", "nb_sessions", "datatypes", "tasks"]].copy()
         # convert list to string
@@ -279,6 +354,7 @@ def _(Path, contextlib, filtered_df, mo, save_dataset_listing, tempfile):
     mo.vstack(
         [
             mo.md("---"),
+            *([mo.callout(mo.md(filter_error), kind="danger")] if filter_error else []),
             mo.ui.table(
                 table_to_show(filtered_df),
                 page_size=15,

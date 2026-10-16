@@ -129,6 +129,23 @@ def known_names(institutions: dict[str, dict[str, Any]]) -> dict[str, str]:
     return names
 
 
+def dataset_institutions(
+    institutions: dict[str, dict[str, Any]], names: Any, known: dict[str, str] | None = None
+) -> tuple[list[str], list[str]]:
+    """Return the institutions of a dataset (their names in institutions.json) and their countries.
+
+    ``names``: the institutions of the dataset, as found in its sidecars.
+    ``known``: ``known_names(institutions)``, to compute it only once for many datasets.
+    The institutions that could not be located are left out.
+    """
+    if known is None:
+        known = known_names(institutions)
+    names = names if isinstance(names, list) else []
+    keys = sorted({known[x] for x in names if x in known and known[x] != UNLOCATED})
+    countries = sorted({institutions[key]["Country"] for key in keys} - {"", None})
+    return keys, countries
+
+
 def institutions_locations(
     institutions: dict[str, dict[str, Any]], counts: pd.DataFrame
 ) -> pd.DataFrame:
