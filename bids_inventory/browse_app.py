@@ -62,13 +62,18 @@ def _(bids_inventory_installed):
     from bids_inventory.listing import (
         KNOWN_DATATYPES,
         known_datasets_df,
-        neurobagel_datasets_df,
         neurobagel_participants_df,
     )
-    from bids_inventory.wrangling import filter_data, save_dataset_listing, wrangle_data
+    from bids_inventory.wrangling import (
+        NOT_SPECIFIED,
+        filter_data,
+        save_dataset_listing,
+        wrangle_data,
+    )
 
     return (
         KNOWN_DATATYPES,
+        NOT_SPECIFIED,
         Path,
         contextlib,
         count_institutions,
@@ -82,7 +87,6 @@ def _(bids_inventory_installed):
         mo,
         neurobagel_age_distribution,
         neurobagel_bar_per_dataset,
-        neurobagel_datasets_df,
         neurobagel_female_ratio_vs_participants,
         neurobagel_participants_df,
         neurobagel_per_dataset,
@@ -98,18 +102,19 @@ def _(bids_inventory_installed):
 
 @app.cell
 def _(
+    NOT_SPECIFIED,
     known_datasets_df,
     load_institutions,
-    neurobagel_datasets_df,
     neurobagel_participants_df,
     wrangle_data,
 ):
     df = wrangle_data(known_datasets_df())
     SOURCES = sorted(df["source"].unique().tolist())
+    # a dataset may have several species
+    SPECIES = sorted({x for species in df["species"] for x in species} | {NOT_SPECIFIED})
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
-    neurobagel_datasets = neurobagel_datasets_df()
-    return SOURCES, df, institutions, neurobagel_datasets, neurobagel_participants
+    return SOURCES, SPECIES, df, institutions, neurobagel_participants
 
 
 @app.cell
@@ -121,7 +126,7 @@ def _(mo):
 
 
 @app.cell
-def _(KNOWN_DATATYPES, SOURCES, mo):
+def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
     def checklist(options: list[str]) -> mo.ui.array:
         """Return a list of checkboxes, all checked."""
         return mo.ui.array([mo.ui.checkbox(label=x, value=True) for x in options])
@@ -138,6 +143,10 @@ def _(KNOWN_DATATYPES, SOURCES, mo):
     mriqc = true_false_both()
     physio = true_false_both()
     participants = true_false_both()
+    # most datasets whose species is not specified are about humans
+    species = mo.ui.array(
+        [mo.ui.checkbox(label=x, value=x in {"homo sapiens", NOT_SPECIFIED}) for x in SPECIES]
+    )
     return (
         datatypes,
         datatypes_and_or,
@@ -147,6 +156,7 @@ def _(KNOWN_DATATYPES, SOURCES, mo):
         physio,
         sources,
         sources_and_or,
+        species,
         task,
     )
 
@@ -162,6 +172,7 @@ def _(
     physio,
     sources,
     sources_and_or,
+    species,
     task,
 ):
     def section(title: str, description: str | None, *elements: object) -> mo.Html:
@@ -188,6 +199,14 @@ def _(
                     [mo.vstack(list(sources)), sources_and_or], justify="start", align="start"
                 ),
             ),
+            section(
+                "species",
+                """Keep datasets about these species: a dataset is kept only if all its species
+                are selected (for example a dataset with humans and a phantom needs both).
+                The species are from the species column of the participants.tsv,
+                or from bids_inventory/data/species.tsv for some datasets without one.""",
+                mo.vstack(list(species)),
+            ),
             mo.hstack(
                 [
                     section("fmriprep", "Keep datasets with fmriprep data", fmriprep),
@@ -208,6 +227,7 @@ def _(
 def _(
     KNOWN_DATATYPES,
     SOURCES,
+    SPECIES,
     datatypes,
     datatypes_and_or,
     df,
@@ -218,6 +238,7 @@ def _(
     physio,
     sources,
     sources_and_or,
+    species,
     task,
 ):
     filtered_df = filter_data(
@@ -232,6 +253,7 @@ def _(
             "mriqc": mriqc.value,
             "physio": physio.value,
             "participants": participants.value,
+            "species": [x for x, keep in zip(SPECIES, species.value) if keep],
         },
     )
     return (filtered_df,)
@@ -341,45 +363,16 @@ def _(
 
 
 @app.cell
-def _(mo, neurobagel_datasets):
-    NOT_SPECIFIED = "not specified"
-    # species of the datasets used, a dataset may have several (for example "a, b")
-    _used = neurobagel_datasets[neurobagel_datasets["status"] == "used"]
-    dataset_species = _used.set_index("dataset_id")["species"].map(
-        lambda x: x.split(", ") if x else [NOT_SPECIFIED]
-    )
-    SPECIES = sorted({x for species in dataset_species for x in species})
-    # most datasets without a species column are about humans
-    species = mo.ui.array(
-        [mo.ui.checkbox(label=x, value=x in {"homo sapiens", NOT_SPECIFIED}) for x in SPECIES]
-    )
-    return SPECIES, dataset_species, species
-
-
-@app.cell
-def _(
-    SPECIES,
-    dataset_species,
-    filtered_df,
-    neurobagel_participants,
-    neurobagel_unique_participants,
-    species,
-):
-    # participants of the selected datasets annotated by Neurobagel,
-    # whose species are all selected
-    _selected = {x for x, keep in zip(SPECIES, species.value) if keep}
-    _datasets = dataset_species[dataset_species.map(lambda x: set(x) <= _selected)].index
+def _(filtered_df, neurobagel_participants, neurobagel_unique_participants):
+    # participants of the selected datasets annotated by Neurobagel
     nb_participants = neurobagel_unique_participants(
-        neurobagel_participants[
-            neurobagel_participants["dataset_id"].isin(filtered_df["name"])
-            & neurobagel_participants["dataset_id"].isin(_datasets)
-        ]
+        neurobagel_participants[neurobagel_participants["dataset_id"].isin(filtered_df["name"])]
     )
     return (nb_participants,)
 
 
 @app.cell
-def _(mo, nb_participants, species):
+def _(mo, nb_participants):
     def _count(mask) -> str:
         return f"{mask.sum()} ({mask.mean() * 100:0.1f} %)" if len(mask) else "0"
 
@@ -391,13 +384,6 @@ def _(mo, nb_participants, species):
     Participants of the selected datasets whose participants.tsv was annotated by
     [Neurobagel](https://neurobagel.org/) (OpenNeuro datasets only),
     with their age and sex standardized across datasets.
-
-    {mo.hstack([mo.md("**species**"), mo.vstack(list(species))], justify="start", align="start")}
-
-    The species are from the species column of the participants.tsv,
-    or from bids_inventory/data/species.tsv for some datasets without one.
-    A dataset is shown only if all its species are selected
-    (for example a dataset with humans and a phantom needs both).
 
     - number of datasets: {nb_participants["dataset_id"].nunique()}
     - number of participants: {len(nb_participants)}

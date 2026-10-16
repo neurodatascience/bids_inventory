@@ -76,6 +76,25 @@ def neurobagel_datasets_df() -> pd.DataFrame:
     )
 
 
+def dataset_species() -> dict[str, list[str]]:
+    """Return the species of the participants of the datasets, when they are known.
+
+    From the species column of the participants.tsv of the datasets annotated by Neurobagel
+    (``neurobagel_datasets_df``), and from bids_inventory/data/species.tsv
+    for datasets without one. Most datasets are about humans but do not say so:
+    they are not listed.
+    """
+    datasets = neurobagel_datasets_df()
+    species = dict(zip(datasets["dataset_id"], datasets["species"]))
+    listed = pd.read_csv(_species_file(), sep="\t", dtype=str, keep_default_na=False)
+    species.update(zip(listed["dataset_id"], listed["species"]))
+    return {name: x.split(", ") for name, x in species.items() if x}
+
+
+def _species_file() -> Path:
+    return _data_dir() / "species.tsv"
+
+
 def _data_dir() -> Path:
     return Path(__file__).parent / "data"
 

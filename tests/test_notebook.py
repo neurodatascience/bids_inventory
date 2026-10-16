@@ -5,21 +5,28 @@ pytest.importorskip("marimo")
 
 
 def test_browse_app_runs():
-    """The dashboard notebook runs, and keeps all the datasets with a datatype by default."""
+    """The dashboard notebook runs.
+
+    By default, it keeps all the datasets with a datatype, about humans
+    (or whose species is not specified).
+    """
     from bids_inventory import browse_app
 
     _, defs = browse_app.app.run()
 
     df, filtered_df = defs["df"], defs["filtered_df"]
-    assert len(filtered_df) == (df["datatypes"].apply(len) > 0).sum()
+    keep = (df["datatypes"].apply(len) > 0) & df["species"].apply(
+        lambda x: set(x) <= {"homo sapiens"}
+    )
+    assert len(filtered_df) == keep.sum()
 
     # one row per participant of the selected datasets annotated by Neurobagel
     nb_participants = defs["nb_participants"]
     assert set(nb_participants["dataset_id"]) <= set(filtered_df["name"])
     assert not nb_participants.duplicated(subset=["dataset_id", "participant_id"]).any()
-    # by default, only the datasets about humans (or without species)
-    species = defs["dataset_species"][nb_participants["dataset_id"].unique()]
-    assert {x for x in species for x in x} <= {"homo sapiens", "not specified"}
+    # by default, only the datasets about humans (or whose species is not specified)
+    assert {x for species in filtered_df["species"] for x in species} == {"homo sapiens"}
+    assert "ds004161" in set(df["name"]) - set(filtered_df["name"])  # sheep
 
 
 @pytest.mark.parametrize("edit, mode", [(False, "run"), (True, "edit")])

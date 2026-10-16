@@ -6,7 +6,7 @@ from typing import Any, TypedDict, cast
 import numpy as np
 import pandas as pd
 
-from bids_inventory.listing import KNOWN_DATATYPES
+from bids_inventory.listing import KNOWN_DATATYPES, dataset_species
 from bids_inventory.logger import bi_logger
 
 cc_log = bi_logger()
@@ -38,6 +38,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``mean_size``: size per subject in kilobytes
     - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype.
     - ``total_duration``: Total "scanned" duration per participant (combines runs from: ``func``, ``eeg``, ``ieeg``)
+    - ``species``: :obj:`list[str]` Species of the participants (for example ``["mus musculus"]``),
+      empty if not specified: see :func:`bids_inventory.listing.dataset_species`.
     """
     # do not modify the input (for example the cached output of known_datasets_df)
     df = df.copy()
@@ -86,6 +88,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     df["has_physio"] = df["nb_physio_files"] > 0
 
     df["total_duration"] = df.apply(_compute_total_duration, axis=1)
+
+    species = dataset_species()
+    df["species"] = df["name"].apply(lambda x: species.get(x, []))
 
     # new_cols = {
     #     "author_male": [],
@@ -200,6 +205,7 @@ class FilterConfig(TypedDict):
     datatypes_and_or: str
     sources: list[str] | None
     sources_and_or: str
+    species: list[str] | None
 
 
 DEFAULT_CONFIG: FilterConfig = {
@@ -212,7 +218,11 @@ DEFAULT_CONFIG: FilterConfig = {
     "datatypes_and_or": "OR",
     "sources": None,
     "sources_and_or": "OR",
+    "species": None,
 }
+
+# in the species filter: the datasets whose species is not specified (most are about humans)
+NOT_SPECIFIED = "not specified"
 
 
 def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
@@ -233,6 +243,9 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     - ``"datatypes_and_or"`` : "OR" | "AND" if any or all of the datatypes must be present
     - ``"sources"`` : list[str] source of the dataset (openneuro, abide...)
     - ``"sources_and_or"`` : "OR" | "AND" if any or all of the sources must be present
+    - ``"species"`` : list[str] | None species of the participants (``"homo sapiens"``...),
+      ``"not specified"`` for the datasets whose species is not known:
+      keeps the datasets whose species are all in the list
 
     If ``None`` is passed will default to the DEFAULT_CONFIG.
 
@@ -276,6 +289,11 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     if config["participants"] is not None:
         mask_participants = df["useful_participants_tsv"] == config["participants"]
 
+    mask_species = ALL_TRUE
+    species = config["species"]
+    if species is not None:
+        mask_species = df["species"].apply(lambda x: set(x or [NOT_SPECIFIED]) <= set(species))
+
     datatypes = config["datatypes"]
     mask_datatypes = df["datatypes"].apply(lambda x: len(set(x).intersection(datatypes)) > 0)
     if config["datatypes_and_or"] == "AND":
@@ -292,6 +310,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_participants,
             mask_datatypes,
             mask_sources,
+            mask_species,
         ),
         axis=1,
     ).all(axis=1)
@@ -321,6 +340,8 @@ def _check_config(config: None | dict[str, Any]) -> FilterConfig:
 
     if isinstance(config["sources"], str):
         config["sources"] = [config["sources"]]
+    if isinstance(config["species"], str):
+        config["species"] = [config["species"]]
 
     return cast(FilterConfig, config)
 

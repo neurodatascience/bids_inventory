@@ -39,7 +39,7 @@ from typing import Any
 import pandas as pd
 import requests
 
-from bids_inventory.listing import _data_dir
+from bids_inventory.listing import _data_dir, _species_file
 from bids_inventory.logger import bi_logger
 
 bi_log = bi_logger()
@@ -62,7 +62,7 @@ PARTICIPANTS_FILE = _data_dir() / "neurobagel_participants.tsv"
 NOT_ANNOTATED = "participants.json not updated by Neurobagel"
 
 # species of the datasets whose participants.tsv has no species column
-SPECIES_FILE = _data_dir() / "species.tsv"
+SPECIES_FILE = _species_file()
 
 # spellings found in the species columns
 SPECIES = {
