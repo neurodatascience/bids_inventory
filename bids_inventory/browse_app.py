@@ -396,6 +396,8 @@ def _(mo, nb_participants, species):
 
     The species are from the species column of the participants.tsv,
     or from bids_inventory/data/species.tsv for some datasets without one.
+    A dataset is shown only if all its species are selected
+    (for example a dataset with humans and a phantom needs both).
 
     - number of datasets: {nb_participants["dataset_id"].nunique()}
     - number of participants: {len(nb_participants)}
