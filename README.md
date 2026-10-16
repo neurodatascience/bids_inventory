@@ -45,6 +45,11 @@ bids_inventory browse
 ```
 
 The filtered list of datasets can be downloaded from it as `datasets_results.tsv`.
+
+The dashboard is also deployed on GitHub Pages, where it runs in the browser (WebAssembly):
+https://neurodatascience.github.io/bids_inventory/
+(by the `deploy_dashboard.yml` workflow, after each change on `main`).
+To build it locally: `tools/build_dashboard.sh` (needs `pip install build marimo uv`).
 It also shows the institutions of the filtered datasets on a world map
 (from `bids_inventory/data/institutions.json`, see [Institutions](#institutions)).
 The dashboard is the marimo notebook `bids_inventory/browse_app.py`:

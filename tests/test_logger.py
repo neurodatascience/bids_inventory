@@ -58,3 +58,16 @@ def test_log_files_only_created_if_needed(logger, tmp_path):
     logging.getLogger("bids_inventory").info("only info")
     assert not warnings_log.exists()
     assert not errors_log.exists()
+
+
+def test_plain_handler_in_the_browser(monkeypatch):
+    """Rich cannot be used in the browser (WebAssembly)."""
+    import sys
+
+    from rich.logging import RichHandler
+
+    from bids_inventory.logger import _handler
+
+    assert isinstance(_handler(), RichHandler)
+    monkeypatch.setattr(sys, "platform", "emscripten")
+    assert not isinstance(_handler(), RichHandler)
