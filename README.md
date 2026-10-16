@@ -24,7 +24,8 @@ The base install is enough to load the listing.
 The commands need optional dependencies:
 
 - `bids-inventory[browse]`: `bids_inventory browse`, a dashboard to browse and filter the listing
-- `bids-inventory[update]`: `bids_inventory update`, to update the listing
+- `bids-inventory[update]`: `bids_inventory update`, to update the listing,
+  and `bids_inventory neurobagel`, to combine the participants of the datasets annotated by Neurobagel
 - `bids-inventory[institutions]`: `bids_inventory institutions`, to locate the institutions
 
 ## Usage
@@ -206,3 +207,41 @@ bids_inventory institutions suggest
 # review it ('y' in the 'accept' column of the pairs to merge), then merge them
 bids_inventory institutions apply-matches
 ```
+
+## Participants of the datasets annotated by Neurobagel
+
+`bids_inventory/data/neurobagel_participants.tsv` combines the `participants.tsv`
+of the datasets of [OpenNeuroDatasets-JSONLD](https://github.com/OpenNeuroDatasets-JSONLD)
+annotated by [Neurobagel](https://neurobagel.org/),
+with the age (in years) and the sex (`female`, `male`, `other`) standardized across datasets
+using the annotations of their `participants.json`:
+
+```python
+from bids_inventory.listing import neurobagel_participants_df
+
+participants = neurobagel_participants_df()
+```
+
+`bids_inventory/data/neurobagel_datasets.tsv` (`neurobagel_datasets_df()`) lists the repositories:
+used or not, why, the problems found in their annotations (`notes` column),
+and the species of their participants (`species` column).
+Some datasets are not about humans (mice, rats, sheep...),
+and the dashboard only shows those about humans by default.
+The species comes from the `species` column of `participants.tsv`;
+most datasets do not have one (`species` is then empty),
+so the species of some of them is listed in `bids_inventory/data/species.tsv`:
+add the non-human datasets you find there.
+
+To update them:
+
+```bash
+pip install -e '.[update]'
+# only processes the new repositories and those not annotated yet
+# (--reindex to process all of them again)
+bids_inventory neurobagel --config my_config.yml
+```
+
+The GitHub token is the same as for `bids_inventory update`
+(see [GitHub API tokens](#github-api-tokens)):
+the `GITHUB_TOKEN` environment variable, or `auth.token_file` in the configuration file.
+The downloaded files are cached in `tmp/neurobagel_cache` (ignored by git).

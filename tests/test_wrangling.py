@@ -38,3 +38,19 @@ def test_load_inventory():
     df = load_inventory()
     assert len(df) == len(known_datasets_df())
     assert {"has_fmriprep", "nb_tasks", "total_duration", "source"} <= set(df.columns)
+
+
+def test_filter_data_species():
+    df = wrangle_data(known_datasets_df())
+    species = dict(zip(df["name"], df["species"]))
+    assert species["ds004161"] == ["ovis aries"]
+    assert species["ds000001"] == []
+
+    humans = filter_data(df, config={"species": ["homo sapiens", "not specified"]})
+    assert "ds004161" not in set(humans["name"])
+    assert "ds000001" in set(humans["name"])
+    # a dataset is kept only if all its species are selected
+    assert "ds005605" not in set(filter_data(df, config={"species": "mus musculus"})["name"])
+    assert "ds005605" in set(
+        filter_data(df, config={"species": ["mus musculus", "rattus norvegicus"]})["name"]
+    )

@@ -12,6 +12,8 @@ logs
 my_config.yml
 # dashboard built by tools/build_dashboard.sh
 _site
+# outputs of tools/combine_neurobagel_participants.py
+neurobagel_cache
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

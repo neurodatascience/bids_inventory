@@ -46,6 +46,55 @@ def known_datasets_df() -> pd.DataFrame:
     return pd.concat([openneuro_df, non_opnenneuro_df])
 
 
+def neurobagel_participants_df() -> pd.DataFrame:
+    """Return the participants of the datasets annotated by Neurobagel.
+
+    One row per participant (and session) of each dataset of
+    https://github.com/OpenNeuroDatasets-JSONLD annotated by Neurobagel,
+    with the age (in years) and the sex (female, male, other)
+    standardized across datasets.
+
+    Updated with ``bids_inventory neurobagel``.
+    """
+    return pd.read_csv(
+        _data_dir() / "neurobagel_participants.tsv",
+        sep="\t",
+        dtype={"dataset_id": str, "participant_id": str, "session_id": str, "sex": str},
+    )
+
+
+def neurobagel_datasets_df() -> pd.DataFrame:
+    """Return the repositories of https://github.com/OpenNeuroDatasets-JSONLD.
+
+    With why they were used or not in ``neurobagel_participants_df``,
+    and the species of their participants (empty if not specified).
+
+    Updated with ``bids_inventory neurobagel``.
+    """
+    return pd.read_csv(
+        _data_dir() / "neurobagel_datasets.tsv", sep="\t", dtype=str, keep_default_na=False
+    )
+
+
+def dataset_species() -> dict[str, list[str]]:
+    """Return the species of the participants of the datasets, when they are known.
+
+    From the species column of the participants.tsv of the datasets annotated by Neurobagel
+    (``neurobagel_datasets_df``), and from bids_inventory/data/species.tsv
+    for datasets without one. Most datasets are about humans but do not say so:
+    they are not listed.
+    """
+    datasets = neurobagel_datasets_df()
+    species = dict(zip(datasets["dataset_id"], datasets["species"]))
+    listed = pd.read_csv(_species_file(), sep="\t", dtype=str, keep_default_na=False)
+    species.update(zip(listed["dataset_id"], listed["species"]))
+    return {name: x.split(", ") for name, x in species.items() if x}
+
+
+def _species_file() -> Path:
+    return _data_dir() / "species.tsv"
+
+
 def _data_dir() -> Path:
     return Path(__file__).parent / "data"
 

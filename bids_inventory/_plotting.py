@@ -116,3 +116,87 @@ def institutions_map(locations: pd.DataFrame) -> go.Figure:
         size="count",
         title="institutions",
     )
+
+
+NEUROBAGEL_LABELS = {
+    "dataset_id": "dataset",
+    "nb_participants": "number of participants",
+    "missing_age": "participants with missing age (%)",
+    "missing_sex": "participants with missing sex (%)",
+    "female_ratio": "proportion of females",
+}
+
+
+def neurobagel_unique_participants(participants: pd.DataFrame) -> pd.DataFrame:
+    """Keep one row per participant of each dataset (the first one, for example its first session).
+
+    ``participants``: as returned by ``bids_inventory.listing.neurobagel_participants_df``.
+    """
+    return participants.drop_duplicates(subset=["dataset_id", "participant_id"])
+
+
+def neurobagel_per_dataset(participants: pd.DataFrame) -> pd.DataFrame:
+    """Return statistics about the participants of each dataset.
+
+    Their number, the percentage of them with missing age and sex,
+    and the proportion of females among those with a known sex.
+    """
+    participants = neurobagel_unique_participants(participants).assign(
+        missing_age=lambda x: x["age"].isna() * 100,
+        missing_sex=lambda x: x["sex"].isna() * 100,
+        female=lambda x: (x["sex"] == "female").where(x["sex"].notna()),
+    )
+    return participants.groupby("dataset_id", as_index=False).agg(
+        nb_participants=("participant_id", "count"),
+        missing_age=("missing_age", "mean"),
+        missing_sex=("missing_sex", "mean"),
+        female_ratio=("female", "mean"),
+    )
+
+
+def neurobagel_bar_per_dataset(per_dataset: pd.DataFrame, column: str) -> go.Figure:
+    """Bar plot of a column of ``neurobagel_per_dataset``, sorted, without the zeros."""
+    per_dataset = per_dataset[per_dataset[column].fillna(0) != 0].sort_values(by=column)
+    return px.bar(
+        per_dataset,
+        x="dataset_id",
+        y=column,
+        hover_data=["nb_participants"],
+        labels=NEUROBAGEL_LABELS,
+        title=f"{NEUROBAGEL_LABELS[column]} for each dataset",
+    )
+
+
+def neurobagel_female_ratio_vs_participants(per_dataset: pd.DataFrame) -> go.Figure:
+    return px.scatter(
+        per_dataset.dropna(subset=["female_ratio"]),
+        x="nb_participants",
+        y="female_ratio",
+        log_x=True,
+        hover_name="dataset_id",
+        marginal_x="box",
+        marginal_y="box",
+        labels=NEUROBAGEL_LABELS,
+        title="proportion of females VS number of participants for each dataset",
+    )
+
+
+def neurobagel_age_distribution(participants: pd.DataFrame) -> go.Figure:
+    """Histograms of the age of the participants, for each sex."""
+    participants = neurobagel_unique_participants(participants).dropna(subset=["age", "sex"])
+    fig = go.Figure()
+    for sex in ["female", "male", "other"]:
+        ages = participants.loc[participants["sex"] == sex, "age"]
+        if len(ages):
+            fig.add_trace(go.Histogram(x=ages.round(), name=sex, xbins={"size": 1}))
+    fig.update_layout(
+        barmode="overlay",
+        title=(
+            f"Age distribution ({len(participants)} participants "
+            f"of {participants['dataset_id'].nunique()} datasets)"
+        ),
+        xaxis_title={"text": "age (years)"},
+        yaxis_title={"text": "count"},
+    )
+    fig.update_traces(opacity=0.5)
+    return fig
