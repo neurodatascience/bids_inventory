@@ -13,6 +13,11 @@ def test_browse_app_runs():
     df, filtered_df = defs["df"], defs["filtered_df"]
     assert len(filtered_df) == (df["datatypes"].apply(len) > 0).sum()
 
+    # one row per participant of the selected datasets annotated by Neurobagel
+    nb_participants = defs["nb_participants"]
+    assert set(nb_participants["dataset_id"]) <= set(filtered_df["name"])
+    assert not nb_participants.duplicated(subset=["dataset_id", "participant_id"]).any()
+
 
 @pytest.mark.parametrize("edit, mode", [(False, "run"), (True, "edit")])
 def test_browse_command(monkeypatch, edit, mode):

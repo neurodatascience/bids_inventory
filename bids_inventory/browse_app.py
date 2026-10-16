@@ -45,6 +45,11 @@ def _(bids_inventory_installed):
         datatypes_histogram,
         histogram_tasks,
         institutions_map,
+        neurobagel_age_distribution,
+        neurobagel_bar_per_dataset,
+        neurobagel_female_ratio_vs_participants,
+        neurobagel_per_dataset,
+        neurobagel_unique_participants,
         plot_dataset_size_vs_time,
         scatter_subject_vs,
     )
@@ -54,7 +59,11 @@ def _(bids_inventory_installed):
         institutions_locations,
         load_institutions,
     )
-    from bids_inventory.listing import KNOWN_DATATYPES, known_datasets_df
+    from bids_inventory.listing import (
+        KNOWN_DATATYPES,
+        known_datasets_df,
+        neurobagel_participants_df,
+    )
     from bids_inventory.wrangling import filter_data, save_dataset_listing, wrangle_data
 
     return (
@@ -70,6 +79,12 @@ def _(bids_inventory_installed):
         known_datasets_df,
         load_institutions,
         mo,
+        neurobagel_age_distribution,
+        neurobagel_bar_per_dataset,
+        neurobagel_female_ratio_vs_participants,
+        neurobagel_participants_df,
+        neurobagel_per_dataset,
+        neurobagel_unique_participants,
         plot_dataset_size_vs_time,
         save_dataset_listing,
         scatter_subject_vs,
@@ -80,11 +95,12 @@ def _(bids_inventory_installed):
 
 
 @app.cell
-def _(known_datasets_df, load_institutions, wrangle_data):
+def _(known_datasets_df, load_institutions, neurobagel_participants_df, wrangle_data):
     df = wrangle_data(known_datasets_df())
     SOURCES = sorted(df["source"].unique().tolist())
     institutions = load_institutions()
-    return SOURCES, df, institutions
+    neurobagel_participants = neurobagel_participants_df()
+    return SOURCES, df, institutions, neurobagel_participants
 
 
 @app.cell
@@ -310,6 +326,79 @@ def _(
         [
             mo.md("---"),
             institutions_map(institutions_locations(institutions, count_institutions(filtered_df))),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(filtered_df, neurobagel_participants, neurobagel_unique_participants):
+    # participants of the selected datasets annotated by Neurobagel
+    nb_participants = neurobagel_unique_participants(
+        neurobagel_participants[neurobagel_participants["dataset_id"].isin(filtered_df["name"])]
+    )
+    return (nb_participants,)
+
+
+@app.cell
+def _(mo, nb_participants):
+    def _count(mask) -> str:
+        return f"{mask.sum()} ({mask.mean() * 100:0.1f} %)" if len(mask) else "0"
+
+    mo.md(f"""
+    ---
+
+    ## Participants of the datasets annotated by Neurobagel
+
+    Participants of the selected datasets whose participants.tsv was annotated by
+    [Neurobagel](https://neurobagel.org/) (OpenNeuro datasets only),
+    with their age and sex standardized across datasets.
+
+    - number of datasets: {nb_participants["dataset_id"].nunique()}
+    - number of participants: {len(nb_participants)}
+    - females: {_count(nb_participants["sex"] == "female")}
+    - males: {_count(nb_participants["sex"] == "male")}
+    - missing age: {_count(nb_participants["age"].isna())}
+    - missing sex: {_count(nb_participants["sex"].isna())}
+    """)
+    return
+
+
+@app.cell
+def _(mo, nb_participants, neurobagel_age_distribution):
+    mo.vstack([neurobagel_age_distribution(nb_participants)])
+    return
+
+
+@app.cell
+def _(mo):
+    neurobagel_per_dataset_column = mo.ui.radio(
+        options={
+            "proportion of females": "female_ratio",
+            "missing age": "missing_age",
+            "missing sex": "missing_sex",
+        },
+        value="proportion of females",
+        inline=True,
+    )
+    return (neurobagel_per_dataset_column,)
+
+
+@app.cell
+def _(
+    mo,
+    nb_participants,
+    neurobagel_bar_per_dataset,
+    neurobagel_female_ratio_vs_participants,
+    neurobagel_per_dataset,
+    neurobagel_per_dataset_column,
+):
+    _per_dataset = neurobagel_per_dataset(nb_participants)
+    mo.vstack(
+        [
+            neurobagel_female_ratio_vs_participants(_per_dataset),
+            neurobagel_bar_per_dataset(_per_dataset, neurobagel_per_dataset_column.value),
+            mo.hstack([neurobagel_per_dataset_column], justify="center"),
         ]
     )
     return
