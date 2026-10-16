@@ -6,7 +6,7 @@
 # Usage, from the root of the repository:
 #   tools/build_dashboard.sh [output_dir]   (default: _site)
 #
-# Needs: pip install build marimo
+# Needs: pip install build marimo uv
 # To look at it locally: python -m http.server --directory _site
 
 set -eu
