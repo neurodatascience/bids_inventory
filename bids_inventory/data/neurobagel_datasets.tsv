@@ -157,7 +157,7 @@ ds001521	skipped	no participants.json and no participants.tsv
 ds001525	used		participant_id		age	sex		17	17	17	
 ds001529	used		participant_id			gender		38	0	38	mus musculus
 ds001534	used		participant_id		age	gender		42	42	42	
-ds001541	used		participant_id			gender		16	0	52	
+ds001541	used		participant_id			gender		16	0	52	mus musculus
 ds001545	used		participant_id		age	sex		30	30	30	
 ds001547	used		participant_id		age	sex		5	5	5	
 ds001551	skipped	no participants.json and no participants.tsv									
@@ -184,9 +184,9 @@ ds001634	skipped	no participants.json and no participants.tsv
 ds001635	skipped	no participants.json and no participants.tsv									
 ds001652	used		participant_id		age	sex		8	8	8	
 ds001653	used		participant_id			gender		29	0	57	mus musculus
-ds001705	used		participant_id		age	sex		5	5	5	
+ds001705	used		participant_id		age	sex		5	5	5	phantom
 ds001715	skipped	no participants.json and no participants.tsv									
-ds001720	used		participant_id			gender		255	0	105	
+ds001720	used		participant_id			gender		255	0	105	mus musculus
 ds001722	used		participant_id			sex		19	0	19	
 ds001725	used		participant_id			gender		40	0	40	mus musculus
 ds001728	used		participant_id					1	0	0	
@@ -238,7 +238,7 @@ ds001966	skipped	no participants.json
 ds001971	used		participant_id			sex		20	0	20	
 ds001972	skipped	no participants.json and no participants.tsv									
 ds001978	skipped	no participants.json and no participants.tsv									
-ds001981	used		participant_id					24	0	0	
+ds001981	used		participant_id					24	0	0	rattus norvegicus
 ds001984	skipped	no participants.json and no participants.tsv									
 ds002000	used		participant_id		age	sex	sex column annotated without levels; sex column annotated with a numerical format	21	0	0	
 ds002001	skipped	no participants.json and no participants.tsv									
@@ -287,7 +287,7 @@ ds002293	skipped	no participants.json and no participants.tsv
 ds002294	skipped	no participants.json and no participants.tsv									
 ds002295	skipped	no participants.json and no participants.tsv									
 ds002306	skipped	no participants.json and no participants.tsv									
-ds002307	used		participant_id					19	0	0	
+ds002307	used		participant_id					19	0	0	mus musculus
 ds002311	skipped	no participants.json and no participants.tsv									
 ds002312	used		participant_id		age	sex	sex column annotated without levels	19	0	0	
 ds002316	skipped	no participants.json and no participants.tsv									
@@ -486,7 +486,7 @@ ds003357	used		participant_id			gender		32	0	0
 ds003358	used		participant_id		age	sex		35	35	35	
 ds003367	skipped	no participants.json and no participants.tsv									
 ds003374	used		participant_id		age	sex		9	9	9	
-ds003380	used		participant_id					12	0	0	
+ds003380	used		participant_id					12	0	0	sus scrofa
 ds003381	used		participant_id		age	sex		21	21	21	
 ds003382	used		participant_id		age	sex		10	10	10	
 ds003392	used		participant_id		age	sex		12	0	0	
@@ -522,7 +522,7 @@ ds003455	skipped	no participants.json and no participants.tsv
 ds003458	used		participant_id		age	sex	sex column annotated without levels	23	23	0	
 ds003459	used		participant_id			sex		34	0	34	
 ds003463	skipped	no participants.json and no participants.tsv									
-ds003464	used		participant_id			sex		18	0	18	
+ds003464	used		participant_id			sex		18	0	18	mus musculus
 ds003465	used		participant_id		age	sex		55	24	24	
 ds003466	used		participant_id		age	sex		21	21	21	
 ds003468	used		participant_id			Sex		27	0	26	mus musculus
@@ -584,7 +584,7 @@ ds003642	skipped	no participants.json and no participants.tsv
 ds003643	used		participant_id		age	sex		112	112	112	
 ds003645	used		participant_id		age	gender		18	13	13	
 ds003646	skipped	no participants.json and no participants.tsv									
-ds003647	used		participant_id					34	0	0	
+ds003647	used		participant_id					34	0	0	rattus norvegicus
 ds003653	used		participant_id		age	sex		87	87	87	
 ds003655	used		participant_id		Age	Sex		156	156	156	
 ds003659	skipped	no participants.tsv									
@@ -650,7 +650,7 @@ ds003822	used		participant_id		age	sex		25	25	25
 ds003823	used		participant_id			gender		193	0	193	
 ds003825	used		participant_id		age	gender		50	50	50	
 ds003826	used		participant_id		age	sex		113	113	113	
-ds003830	used		participant_id		age (years)			37	37	0	
+ds003830	used		participant_id		age (years)			37	37	0	canis lupus familiaris
 ds003831	used		participant_id		age	sex		77	77	77	
 ds003834	used		participant_id		age	sex		14	14	14	
 ds003835	used		participant_id		age	gender		24	24	24	
@@ -673,8 +673,8 @@ ds003892	skipped	no participants.json and no participants.tsv
 ds003900	skipped	no participants.json and no participants.tsv									
 ds003922	used		participant_id		age	sex		14	14	14	
 ds003927	skipped	no participants.json and no participants.tsv									
-ds003928	used		participant_id		age	sex		10	10	10	
-ds003929	used		participant_id		age	sex		9	9	9	
+ds003928	used		participant_id		age	sex		10	10	10	rattus norvegicus
+ds003929	used		participant_id		age	sex		9	9	9	rattus norvegicus
 ds003944	used		participant_id		age	gender		82	82	82	
 ds003947	used		participant_id		age	gender		61	61	61	
 ds003949	used		participant_id					284	0	0	
@@ -723,7 +723,7 @@ ds004080	used		participant_id		age	sex		74	74	74
 ds004081	skipped	no participants.json and no participants.tsv									
 ds004086	skipped	no participants.json and no participants.tsv									
 ds004091	used		participant_id		age	sex		8	8	8	
-ds004092	used		participant_id					27	0	0	
+ds004092	used		participant_id					27	0	0	rattus norvegicus
 ds004094	used		participant_id		age	sex		37	37	37	
 ds004097	skipped	no participants.json and no participants.tsv									
 ds004100	used		participant_id		age	sex		58	58	58	
@@ -734,8 +734,8 @@ ds004105	used		participant_id					17	0	0
 ds004106	used		participant_id					27	0	0	
 ds004107	used		participant_id		age	sex		9	2	0	
 ds004109	used		participant_id		age	sex		31	31	31	
-ds004114	used		participant_id			rat_sex		646	0	751	
-ds004116	used		participant_id		rat_age	rat_sex		209	149	209	
+ds004114	used		participant_id			rat_sex		646	0	751	rattus norvegicus
+ds004116	used		participant_id		rat_age	rat_sex		209	149	209	rattus norvegicus
 ds004117	used		participant_id		age	sex		23	23	13	
 ds004118	used		participant_id					156	0	0	
 ds004119	used		participant_id					21	0	0	
@@ -753,7 +753,7 @@ ds004134	used		participant_id		age	sex		35	36	36
 ds004141	used		participant_id		age	sex		20	20	20	
 ds004142	used		participant_id		age	sex		10	10	10	
 ds004144	skipped	no participants.json and no participants.tsv									
-ds004145	used		participant_id			mouse_strain		49	0	0	
+ds004145	used		participant_id			mouse_strain		49	0	0	mus musculus
 ds004146	used		participant_id		age	sex		417	417	417	
 ds004147	skipped	participants.json not updated by Neurobagel									
 ds004148	used		participant_id		age	sex		60	60	60	
@@ -927,14 +927,14 @@ ds004592	used		participant_id		age	sex		27	27	27
 ds004594	skipped	no participants.json and no participants.tsv									
 ds004595	used		participant_id		age	sex		53	53	53	
 ds004597	used		participant_id		age	sex		27	27	27	
-ds004598	used		participant_id					9	0	0	
+ds004598	used		participant_id					9	0	0	rattus norvegicus
 ds004602	used		participant_id		Age	Gender		182	182	182	
 ds004603	used		participant_id		age	sex		37	37	37	
 ds004604	skipped	participants.json not updated by Neurobagel									
 ds004605	used		participant_id		age	sex		583	583	583	
 ds004611	used		participant_id			sex		73	0	73	
 ds004616	used		participant_id		age	sex		26	26	26	
-ds004620	used		participant_id					8	0	0	
+ds004620	used		participant_id					8	0	0	macaca
 ds004621	used		participant_id		age	sex		42	42	42	
 ds004624	used		participant_id			sex		3	0	3	
 ds004625	used		participant_id		age	gender		32	32	32	
@@ -948,7 +948,7 @@ ds004636	used		participant_id		Age	Gender		110	110	109
 ds004639	skipped	participants.json not updated by Neurobagel									
 ds004640	skipped	no participants.json and no participants.tsv									
 ds004642	used		participant_id		age	sex		10	10	10	
-ds004644	used		participant_id			sex		24	0	24	
+ds004644	used		participant_id			sex		24	0	24	mus musculus
 ds004645	used		participant_id		age	sex		15	15	15	
 ds004647	used		participant_id		age	sex		44	44	44	
 ds004648	skipped	participants.json not updated by Neurobagel									
@@ -983,7 +983,7 @@ ds004730	used		participant_id		age	sex		10	10	10
 ds004731	used		participant_id		age	sex		35	35	35	
 ds004733	used		participant_id		age	sex		18	18	18	
 ds004737	used		participant_id		age	sex		20	16	20	
-ds004738	used		participant_id					4	0	0	
+ds004738	used		participant_id					4	0	0	phantom
 ds004742	skipped	no participants.json and no participants.tsv									
 ds004743	used		participant_id		age	sex		19	19	19	
 ds004744	skipped	no participants.json and no participants.tsv									
@@ -998,7 +998,7 @@ ds004774	used		participant_id		age	sex		14	14	14
 ds004775	used		participant_id		age	sex		28	28	28	
 ds004776	used		participant_id		age	sex		1	1	1	
 ds004783	used		participant_id		age	sex		26	26	26	
-ds004784	used		participant_id		age	gender	sex column annotated without levels	1	0	0	
+ds004784	used		participant_id		age	gender	sex column annotated without levels	1	0	0	phantom
 ds004785	skipped	participants.json not updated by Neurobagel									
 ds004786	used		participant_id		age	sex		40	40	40	
 ds004787	used		participant_id		age	sex		5	5	5	
@@ -1006,7 +1006,7 @@ ds004789	used		participant_id		age	sex		280	280	280
 ds004791	used		participant_id					68	0	0	
 ds004795	used		participant_id		age	sex		148	148	148	
 ds004796	used		participant_id		age	sex		192	192	192	
-ds004797	used		participant_id			Sex		10	0	10	
+ds004797	used		participant_id			Sex		10	0	10	rattus norvegicus
 ds004798	used		participant_id		age	sex		15	15	15	
 ds004802	used		participant_id			gender		38	0	37	
 ds004808	used		participant_id		age	sex		24	24	24	
@@ -1071,7 +1071,7 @@ ds004952	used		participant_id			sex		10	0	10
 ds004956	used		participant_id		age	sex		15	15	15	
 ds004957	skipped	no participants.json and no participants.tsv									
 ds004958	used		participant_id		age	sex		34	34	34	
-ds004959	used		participant_id					10	0	0	
+ds004959	used		participant_id					10	0	0	mus musculus
 ds004962	skipped	participants.json not updated by Neurobagel									
 ds004965	used		participant_id		age	sex		133	133	133	
 ds004973	used		participant_id		age			20	20	0	
@@ -1144,7 +1144,7 @@ ds005169	used		participant_id		age	sex		22	22	22
 ds005170	used		participant_id		age	sex		5	5	5	
 ds005178	skipped	no participants.json and no participants.tsv									
 ds005185	used		participant_id		age	sex		20	20	20	
-ds005186	used		participant_id			sex		16	0	16	
+ds005186	used		participant_id			sex		16	0	16	mus musculus
 ds005188	skipped	participants.json not updated by Neurobagel									
 ds005189	used		participant_id		age	sex		30	30	30	
 ds005191	skipped	no participants.json and no participants.tsv									
@@ -1157,7 +1157,7 @@ ds005226	used		participant_id		age	sex		65	65	65
 ds005230	used		participant_id					46	0	0	
 ds005233	skipped	no participants.json and no participants.tsv									
 ds005234	used		participant_id		age	sex		74	74	74	
-ds005236	used		participant_id			sex		59	0	59	
+ds005236	used		participant_id			sex		59	0	59	mus musculus
 ds005237	used		participant_id		age	sex		245	245	241	homo sapiens
 ds005238	used		participant_id		age	sex		11	11	11	
 ds005239	used		participant_id		age	sex	sex column annotated without levels	4	0	0	
@@ -1232,7 +1232,7 @@ ds005416	used		participant_id		Age	Gender		23	23	23
 ds005418	used		participant_id		age	sex		35	35	35	
 ds005420	used		participant_id		age	sex	sex column annotated without levels	37	0	0	
 ds005422	skipped	no participants.json and no participants.tsv									
-ds005424	used		participant_id					23	0	0	
+ds005424	used		participant_id					23	0	0	papio
 ds005427	skipped	no participants.json and no participants.tsv									
 ds005429	used		participant_id		age	sex		15	13	14	
 ds005431	skipped	no participants.json and no participants.tsv									
@@ -1274,15 +1274,15 @@ ds005515	used		participant_id		age	sex		533	533	533
 ds005516	used		participant_id		age	sex		430	430	430	
 ds005518	used		participant_id		age	sex		50	50	50	
 ds005520	used		participant_id		age	gender		23	23	23	
-ds005521	used		participant_id		age	sex	sex column annotated without levels	2	0	0	
+ds005521	used		participant_id		age	sex	sex column annotated without levels	2	0	0	macaca mulatta
 ds005522	used		participant_id		age	sex		58	58	58	
 ds005523	used		participant_id		age	sex		22	22	22	
 ds005525	used		participant_id		age	sex		11	11	11	
 ds005529	skipped	no participants.json and no participants.tsv									
 ds005530	used		participant_id		age	sex		18	18	18	
 ds005531	used		participant_id		age	sex		6	6	6	
-ds005533	used		participant_id		age	sex	sex column annotated without levels	9	0	0	
-ds005534	used		participant_id					217	0	0	
+ds005533	used		participant_id		age	sex	sex column annotated without levels	9	0	0	homo sapiens, phantom
+ds005534	used		participant_id					217	0	0	rattus norvegicus
 ds005540	used		participant_id		age	gender		60	60	60	
 ds005545	used		participant_id		age	sex		106	106	106	
 ds005551	used		participant_id		age	sex		47	47	47	
@@ -1324,8 +1324,8 @@ ds005624	used		participant_id		age	sex	sex column annotated without levels	24	0	
 ds005625	used		participant_id		age	sex		1	1	1	
 ds005628	used		participant_id					102	0	0	
 ds005630	skipped	no participants.json and no participants.tsv									
-ds005635	used		participant_id			sex		18	0	18	
-ds005636	used		participant_id			sex		78	0	78	
+ds005635	used		participant_id			sex		18	0	18	mus musculus
+ds005636	used		participant_id			sex		78	0	78	mus musculus
 ds005639	skipped	no participants.json and no participants.tsv									
 ds005642	used		participant_id		age	gender		21	21	21	
 ds005648	used		participant_id		age	sex		21	21	21	
@@ -1336,7 +1336,7 @@ ds005670	used		participant_id		age	sex		2	2	2
 ds005672	used		participant_id		Age	Gender		3	3	3	
 ds005684	used		participant_id		age	sex		35	35	35	
 ds005687	used		participant_id					38	0	0	rattus norvegicus
-ds005688	used		participant_id					20	0	0	
+ds005688	used		participant_id					20	0	0	mus musculus
 ds005691	used		participant_id		age	sex		8	8	8	
 ds005692	used		participant_id		age	sex		30	30	30	
 ds005697	used		participant_id		Age	Gender		50	50	50	
@@ -1361,7 +1361,7 @@ ds005795	used		participant_id		age	sex		34	34	34
 ds005810	used		participant_id		age	sex		31	30	30	
 ds005811	used		participant_id		age	sex		19	19	19	
 ds005815	skipped	no participants.json and no participants.tsv									
-ds005839	used		participant_id					25	0	0	
+ds005839	used		participant_id					25	0	0	rattus norvegicus
 ds005841	used		participant_id		age	sex		48	48	48	
 ds005849	skipped	no participants.json and no participants.tsv									
 ds005850	skipped	no participants.json and no participants.tsv									
@@ -1433,7 +1433,7 @@ ds006107	used		participant_id		age	sex		166	166	166
 ds006108	skipped	no participants.json									
 ds006110	skipped	participants.json not updated by Neurobagel									
 ds006111	skipped	no participants.json and no participants.tsv									
-ds006123	used		participant_id					1	0	0	
+ds006123	used		participant_id					1	0	0	phantom
 ds006126	used		participant_id		age	sex		6	6	6	
 ds006128	skipped	no participants.json and no participants.tsv									
 ds006131	used		participant_id		age	sex		51	51	50	
@@ -1485,7 +1485,7 @@ ds006317	used		participant_id		age	sex	sex column annotated without levels	2	0	0
 ds006318	used		participant_id					86	0	0	
 ds006319	skipped	no participants.json and no participants.tsv									
 ds006334	used		participant_id		age	sex		30	30	30	
-ds006366	used		participant_id					92	0	0	
+ds006366	used		participant_id					92	0	0	mus musculus
 ds006367	skipped	no participants.json									
 ds006373	used		participant_id		age	sex		2	2	2	
 ds006374	used		participant_id		age	sex	sex column annotated without levels	36	0	0	
@@ -1556,8 +1556,8 @@ ds006647	used		participant_id					4	0	0
 ds006648	used		participant_id					47	0	0	
 ds006654	used		participant_id		age	sex		10	10	10	
 ds006661	skipped	no participants.json and no participants.tsv									
-ds006663	used		participant_id			sex		69	0	69	
-ds006670	used		participant_id			sex		39	0	39	
+ds006663	used		participant_id			sex		69	0	69	mus musculus
+ds006670	used		participant_id			sex		39	0	39	mus musculus
 ds006673	used		participant_id		age	sex		17	16	17	
 ds006676	skipped	no participants.json and no participants.tsv									
 ds006683	skipped	participants.json not updated by Neurobagel									
@@ -1575,7 +1575,7 @@ ds006731	used		participant_id		age			39	39	0
 ds006735	skipped	no participants.json and no participants.tsv									
 ds006736	skipped	no participants.json and no participants.tsv									
 ds006744	skipped	no participants.json and no participants.tsv									
-ds006746	used		participant_id		age	sex		24	24	24	
+ds006746	used		participant_id		age	sex		24	24	24	mus musculus
 ds006756	used		participant_id		age	sex		33	33	33	
 ds006761	used		participant_id					31	0	0	
 ds006768	used		participant_id		age			30	30	0	

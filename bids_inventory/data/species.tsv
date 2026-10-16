@@ -1,15 +1,52 @@
 dataset_id	species	comment
 ds001529	mus musculus	Mouse_rest_anesthesia
+ds001541	mus musculus	Mouse_opto_DRN
 ds001653	mus musculus	Mouse_rest_awake
+ds001705	phantom	NRM2018 PET Grand Challenge: simulated subjects
+ds001720	mus musculus	Mouse_rest_multicentre
 ds001725	mus musculus	Mouse_rest_psilocybin
 ds001890	mus musculus	Mouse_rest_3xTG
+ds001981	rattus norvegicus	fMRI in medetomidine-anesthetized Wistar rats
 ds002134	mus musculus	Mouse_opto_3xTG
 ds002154	mus musculus	Mouse_rest_psilocybin_pilot
+ds002307	mus musculus	individual_dMRI_fMRI: 19 male F1 B6/129P mice (README)
 ds002551	mus musculus	Mouse_rest_awake (C57BL/6J mice, in the README)
+ds003380	sus scrofa	gradual cerebral ischemia in juvenile pigs
+ds003464	mus musculus	Mouse_opto_INS
 ds003468	mus musculus	IQSEC2 mutant mice (README)
+ds003647	rattus norvegicus	scopolamine rat model
+ds003830	canis lupus familiaris	resting state fMRI of epileptic and healthy dogs
+ds003928	rattus norvegicus	Rat_rest_standardRAT
+ds003929	rattus norvegicus	Rat_rest_awake
+ds004092	rattus norvegicus	resiniferatoxin rat model
+ds004114	rattus norvegicus	MultiRat_rest
+ds004116	rattus norvegicus	StandardRat
+ds004145	mus musculus	GDMOffspring_MRI: mouse_strain column (C57BL6N)
 ds004161	ovis aries	Turone Sheep Chronic Stress (TSCS)
 ds004254	mus musculus	Germ-free_MRI (mice, in the README)
+ds004598	rattus norvegicus	TgF344-AD rats
+ds004620	macaca	Macaque angiography dataset (species not given)
+ds004644	mus musculus	Dp1Tyb mouse model of Down Syndrome
+ds004738	phantom	sfb_meg_phantom: MEG phantom with DBS devices
+ds004784	phantom	Phantom EEG dataset (conductive head phantom)
+ds004797	rattus norvegicus	susceptibility compensation fMRI in rats
+ds004959	mus musculus	experimental temporal lobe epilepsy (Haas lab, Freiburg): animal study, species not given in the README, probably intrahippocampal kainate mice
 ds005077	mus musculus	optofMRI_DRN: optogenetic fMRI of dorsal raphe serotonin neurons in mice (ages in weeks)
+ds005186	mus musculus	environmental enrichment in C58 mice
+ds005236	mus musculus	environmental enrichment in C58 mice
 ds005402	mus musculus	MPTP mouse
+ds005424	papio	BaBa21: longitudinal MRI of baboons (species not given)
+ds005521	macaca mulatta	two rhesus macaques
+ds005533	homo sapiens, phantom	sub-01 is a phantom, the others are humans
+ds005534	rattus norvegicus	MultiRat_se
 ds005605	mus musculus, rattus norvegicus	COX-2 PET in rodents: sub-m* are mice, sub-r* are rats
+ds005635	mus musculus	environmental enrichment in C58 mice
+ds005636	mus musculus	environmental enrichment in C58 mice
+ds005688	mus musculus	visStim: ultrasound and visual stimulation in mice
+ds005839	rattus norvegicus	GABA Pain fMRI: male Sprague-Dawley rats
+ds006123	phantom	2024Phantom3D: 3D printed phantom
 ds006269	rattus norvegicus	Tethered EEG Recordings in Syngap1 rats
+ds006366	mus musculus	Mouse Sleep Staging Validation dataset
+ds006663	mus musculus	longitudinal MRI of C57BL6J mice
+ds006670	mus musculus	adulthood MRI of C57BL6J mice
+ds006746	mus musculus	Mn-enhanced MRI of C57BL/6J mice
