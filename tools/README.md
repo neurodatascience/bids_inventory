@@ -9,3 +9,6 @@ and for the institutions `bids_inventory institutions`: see the package README.
   in `target_dir` (default: `./tmp`).
   Then set `local_paths.non_openneuro` to `target_dir` in your configuration
   and run `bids_inventory update --source non-openneuro`.
+- `build_dashboard.sh [output_dir]`:
+  builds the dashboard as a static website that runs in the browser (default: `_site`),
+  as deployed on GitHub Pages.

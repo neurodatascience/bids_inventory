@@ -3,6 +3,9 @@
 Opened by ``bids_inventory browse`` (``bids_inventory browse --edit`` to edit it).
 
 Needs: pip install 'bids-inventory[browse]'
+
+Also deployed on GitHub Pages, where it runs in the browser (WebAssembly):
+see .github/workflows/deploy_dashboard.yml.
 """
 
 import marimo
@@ -12,7 +15,26 @@ app = marimo.App(width="full", app_title="BIDS inventory")
 
 
 @app.cell
-def _():
+async def _():
+    import sys
+
+    if sys.platform == "emscripten":
+        # in the browser (WebAssembly, on GitHub Pages):
+        # bids_inventory is not on PyPI, install the wheel deployed next to the notebook
+        import marimo as _mo
+        import micropip
+        from pyodide.http import pyfetch
+
+        _public = _mo.notebook_location() / "public"
+        _wheel = (await (await pyfetch(str(_public / "wheel.txt"))).string()).strip()
+        await micropip.install([str(_public / _wheel), "plotly"])
+    bids_inventory_installed = True
+    return (bids_inventory_installed,)
+
+
+@app.cell
+def _(bids_inventory_installed):
+    assert bids_inventory_installed
     import contextlib
     import tempfile
     from pathlib import Path

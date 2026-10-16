@@ -10,6 +10,8 @@ OpenNeuroDerivatives.tsv
 # logs of `bids_inventory update`
 logs
 my_config.yml
+# dashboard built by tools/build_dashboard.sh
+_site
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

@@ -1,6 +1,7 @@
 """General logger for the bids_inventory package."""
 
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -17,13 +18,25 @@ def bi_logger(log_level: str = "INFO") -> logging.Logger:
         level=log_level,
         format=FORMAT,
         datefmt="[%X]",
-        handlers=[RichHandler()],
+        handlers=[_handler()],
     )
 
     logger = logging.getLogger("bids_inventory")
     if not any(isinstance(f, _DatasetContext) for f in logger.filters):
         logger.addFilter(_DatasetContext())
     return logger
+
+
+def _handler() -> logging.Handler:
+    """Return the handler to print the logs: rich in a terminal.
+
+    In the browser (WebAssembly, for the dashboard on GitHub Pages),
+    rich cannot create its console with marimo's threading support:
+    use a plain handler.
+    """
+    if sys.platform == "emscripten":
+        return logging.StreamHandler()
+    return RichHandler()
 
 
 def set_current_dataset(label: str | None) -> None:
