@@ -60,12 +60,6 @@ Only processes the new repositories and those not annotated yet, unless --reinde
         formatter_class=parser.formatter_class,
     )
     neurobagel_parser.add_argument(
-        "--token-file",
-        help="""Text file with a GitHub token (the GitHub API is rate limited without one).
-Defaults to the GITHUB_TOKEN environment variable.""",
-        type=Path,
-    )
-    neurobagel_parser.add_argument(
         "--reindex",
         action="store_true",
         help="Process all the repositories again, not only the new and not yet annotated ones.",
@@ -79,10 +73,15 @@ Defaults to the GITHUB_TOKEN environment variable.""",
         "--jobs", default=8, type=int, help="Number of parallel downloads (default: %(default)s)."
     )
     neurobagel_parser.add_argument(
-        "--cache-dir",
-        default=Path("neurobagel_cache"),
+        "--config",
+        help="""
+        YAML file with local settings: the GitHub token is read from 'auth.token_file'
+        (unless the GITHUB_TOKEN environment variable is set).
+        See bids_inventory/data/config.yml for the available settings.
+        Can also be set with the BIDS_INVENTORY_CONFIG environment variable.
+        """,
+        required=False,
         type=Path,
-        help="Where to cache the downloaded files (default: %(default)s).",
     )
     _add_verbosity(neurobagel_parser)
 
@@ -277,21 +276,21 @@ def _run_neurobagel(args: Any) -> None:
     """Run the 'neurobagel' subcommand."""
     with _check_extra("update"):
         from bids_inventory._neurobagel import update_neurobagel
+        from bids_inventory._update import CONFIG_ENV_VAR, get_auth
 
-    token = os.getenv("GITHUB_TOKEN")
-    if args.token_file is not None:
-        if not args.token_file.expanduser().is_file():
-            bi_log.error(f"Token file not found: {args.token_file}")
+    if args.config is not None:
+        if not args.config.is_file():
+            bi_log.error(f"Config file not found: {args.config}")
             sys.exit(1)
-        token = args.token_file.expanduser().read_text().strip()
-    if not token:
-        bi_log.warning("No GitHub token: the GitHub API may rate limit the update.")
+        os.environ[CONFIG_ENV_VAR] = str(args.config.resolve())
+
+    # same token as 'bids_inventory update': GITHUB_TOKEN, or auth.token_file in the config
+    auth = get_auth()
     update_neurobagel(
-        token=token,
+        token=auth[1] if auth else None,
         reindex=args.reindex,
         datasets=args.datasets,
         jobs=args.jobs,
-        cache_dir=args.cache_dir,
     )
 
 

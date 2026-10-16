@@ -18,7 +18,8 @@ saved in bids_inventory/data/:
 When these files exist, only the new repositories, and those whose participants.json
 had not been updated by Neurobagel yet, are processed: the others keep their rows.
 
-Downloaded files are cached: running it again only downloads what changed.
+Downloaded files are cached in tmp/neurobagel_cache, at the root of the repository:
+running it again only downloads what changed.
 
 Needs the 'update' extra.
 """
@@ -47,6 +48,9 @@ RAW = "https://raw.githubusercontent.com"
 NEUROBAGEL_COMMIT = "Update participants.json"
 NEUROBAGEL_BOT = "neurobagel-bot[bot]"
 
+# downloaded files, in the tmp folder (git-ignored) at the root of the repository
+CACHE_DIR = Path(__file__).parents[1] / "tmp" / "neurobagel_cache"
+
 DATASETS_FILE = _data_dir() / "neurobagel_datasets.tsv"
 PARTICIPANTS_FILE = _data_dir() / "neurobagel_participants.tsv"
 
@@ -65,7 +69,6 @@ def update_neurobagel(
     reindex: bool = False,
     datasets: list[str] | None = None,
     jobs: int = 8,
-    cache_dir: Path = Path("neurobagel_cache"),
 ) -> None:
     """Update the combined participants of the datasets annotated by Neurobagel.
 
@@ -83,8 +86,7 @@ def update_neurobagel(
     jobs : int
         Number of parallel downloads.
 
-    cache_dir : Path
-        Where to cache the downloaded files.
+    The downloaded files are cached in tmp/neurobagel_cache at the root of the repository.
     """
     session = requests.Session()
     if token:
@@ -101,7 +103,7 @@ def update_neurobagel(
 
     with ThreadPoolExecutor(max_workers=jobs) as executor:
         results = list(
-            executor.map(lambda repo: process_repo(session, repo, cache_dir), to_process)
+            executor.map(lambda repo: process_repo(session, repo, CACHE_DIR), to_process)
         )
 
     # keep the previous rows of the repositories that were not processed again,

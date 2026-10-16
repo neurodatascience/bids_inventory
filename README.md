@@ -231,8 +231,10 @@ To update them:
 pip install -e '.[update]'
 # only processes the new repositories and those not annotated yet
 # (--reindex to process all of them again)
-bids_inventory neurobagel --token-file ~/tokens/github_token.txt
+bids_inventory neurobagel --config my_config.yml
 ```
 
-Without `--token-file`, the `GITHUB_TOKEN` environment variable is used.
-The downloaded files are cached in `neurobagel_cache`.
+The GitHub token is the same as for `bids_inventory update`
+(see [GitHub API tokens](#github-api-tokens)):
+the `GITHUB_TOKEN` environment variable, or `auth.token_file` in the configuration file.
+The downloaded files are cached in `tmp/neurobagel_cache` (ignored by git).

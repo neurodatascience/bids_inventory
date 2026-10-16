@@ -8,6 +8,7 @@ import pytest
 
 # needs the 'update' extra
 pytest.importorskip("requests")
+pytest.importorskip("datalad")
 
 from bids_inventory import _neurobagel  # noqa: E402
 from bids_inventory._cli import cli  # noqa: E402
@@ -134,6 +135,7 @@ def fake_github(tmp_path, monkeypatch):
         "annotated_by_neurobagel",
         lambda session, repo, cache_dir: repos[repo["name"]]["annotated"],
     )
+    monkeypatch.setattr(_neurobagel, "CACHE_DIR", tmp_path / "cache")
     monkeypatch.setattr(_neurobagel, "DATASETS_FILE", tmp_path / "neurobagel_datasets.tsv")
     monkeypatch.setattr(_neurobagel, "PARTICIPANTS_FILE", tmp_path / "neurobagel_participants.tsv")
     monkeypatch.setenv("GITHUB_TOKEN", "fake")
@@ -152,7 +154,7 @@ def test_cli_neurobagel(fake_github, monkeypatch):
         ),
     )
 
-    cli(["bids_inventory", "neurobagel", "--cache-dir", str(tmp_path / "cache")])
+    cli(["bids_inventory", "neurobagel"])
 
     datasets = pd.read_csv(tmp_path / "neurobagel_datasets.tsv", sep="\t", keep_default_na=False)
     participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
@@ -164,17 +166,41 @@ def test_cli_neurobagel(fake_github, monkeypatch):
     # ds000002 gets annotated: only it is processed again
     repos["ds000002"]["annotated"] = True
     processed.clear()
-    cli(["bids_inventory", "neurobagel", "--cache-dir", str(tmp_path / "cache")])
+    cli(["bids_inventory", "neurobagel"])
     assert processed == ["ds000002"]
     participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
     assert participants["dataset_id"].tolist() == ["ds000001"] * 2 + ["ds000002"] * 2
 
     # --reindex processes everything again
     processed.clear()
-    cli(["bids_inventory", "neurobagel", "--reindex", "--cache-dir", str(tmp_path / "cache")])
+    cli(["bids_inventory", "neurobagel", "--reindex"])
     assert processed == ["ds000001", "ds000002"]
 
 
-def test_cli_neurobagel_token_file_not_found(tmp_path):
+def test_cli_neurobagel_config_not_found(tmp_path):
     with pytest.raises(SystemExit):
-        cli(["bids_inventory", "neurobagel", "--token-file", str(tmp_path / "missing.txt")])
+        cli(["bids_inventory", "neurobagel", "--config", str(tmp_path / "missing.yml")])
+
+
+def test_cli_neurobagel_token_from_config(fake_github, tmp_path, monkeypatch):
+    """The token is read from auth.token_file, as for 'bids_inventory update'."""
+    from bids_inventory._update import CONFIG_ENV_VAR, config
+
+    monkeypatch.delenv("GITHUB_TOKEN")
+    token_file = tmp_path / "token.txt"
+    token_file.write_text("token_from_file\n")
+    user_config = tmp_path / "config.yml"
+    user_config.write_text(f"auth:\n    token_file: {token_file}\n")
+    tokens = []
+    monkeypatch.setattr(
+        _neurobagel,
+        "update_neurobagel",
+        lambda token, **kwargs: tokens.append(token),
+    )
+    monkeypatch.delenv(CONFIG_ENV_VAR, raising=False)
+    config.cache_clear()
+
+    cli(["bids_inventory", "neurobagel", "--config", str(user_config)])
+
+    config.cache_clear()
+    assert tokens == ["token_from_file"]
