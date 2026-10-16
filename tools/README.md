@@ -20,3 +20,6 @@ and for the institutions `bids_inventory institutions`: see the package README.
   using the annotations of their `participants.json`
   (`python tools/combine_neurobagel_participants.py --token-file <file with a GitHub token>`).
   It also writes a summary of the datasets: used or not, why, and problems found in the annotations.
+  Both are saved in `bids_inventory/data/` (`neurobagel_participants.tsv`, `neurobagel_datasets.tsv`).
+  Running it again only processes the new repositories and those not annotated yet
+  (`--reindex` to process all of them again).

@@ -13,6 +13,8 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+        # empty last columns of TSV files end with a tab
+        exclude: \.tsv$
 
 -   repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8

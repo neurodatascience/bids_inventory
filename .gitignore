@@ -14,8 +14,6 @@ my_config.yml
 _site
 # outputs of tools/combine_neurobagel_participants.py
 neurobagel_cache
-neurobagel_participants.tsv
-neurobagel_datasets.tsv
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

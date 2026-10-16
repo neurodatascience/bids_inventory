@@ -13,11 +13,15 @@ Usage:
 
     python tools/combine_neurobagel_participants.py --token-file ~/tokens/github.txt
 
-Outputs (in --output-dir, default: the current directory):
+Outputs, in bids_inventory/data/:
 
 - neurobagel_participants.tsv: one row per participant (and session) of each dataset
   (dataset_id, participant_id, session_id, age, sex, and their raw values);
 - neurobagel_datasets.tsv: one row per repository, with why it was used or not.
+
+When these files exist, only the new repositories, and those whose participants.json
+had not been updated by Neurobagel yet, are processed:
+the others keep their rows. Use --reindex to process all the repositories again.
 
 Downloaded files are cached in --cache-dir (default: neurobagel_cache):
 run the script again to only download what changed.
@@ -44,6 +48,13 @@ RAW = "https://raw.githubusercontent.com"
 NEUROBAGEL_COMMIT = "Update participants.json"
 NEUROBAGEL_BOT = "neurobagel-bot[bot]"
 
+DATA_DIR = Path(__file__).parents[1] / "bids_inventory" / "data"
+DATASETS_FILE = DATA_DIR / "neurobagel_datasets.tsv"
+PARTICIPANTS_FILE = DATA_DIR / "neurobagel_participants.tsv"
+
+# reason why a repository is not used yet, but could be after a new Neurobagel annotation
+NOT_ANNOTATED = "participants.json not updated by Neurobagel"
+
 SEX = {
     "snomed:248152002": "female",
     "snomed:248153007": "male",
@@ -58,7 +69,11 @@ def main(argv: list[str] | None = None) -> None:
         type=Path,
         help="Text file with a GitHub token (the GitHub API is rate limited without one).",
     )
-    parser.add_argument("--output-dir", type=Path, default=Path.cwd())
+    parser.add_argument(
+        "--reindex",
+        action="store_true",
+        help="Process all the repositories again, not only the new and not yet annotated ones.",
+    )
     parser.add_argument("--cache-dir", type=Path, default=Path("neurobagel_cache"))
     parser.add_argument(
         "--datasets", nargs="+", help="Only these datasets (for example: ds000001 ds000002)."
@@ -72,35 +87,82 @@ def main(argv: list[str] | None = None) -> None:
         session.headers["Authorization"] = f"Bearer {token}"
 
     repos = list_repos(session)
-    if args.datasets:
-        repos = [r for r in repos if r["name"] in set(args.datasets)]
     print(f"{len(repos)} repositories in {ORGANIZATION}")
+
+    previous_datasets, previous_participants = load_previous()
+    to_process = repos_to_process(repos, previous_datasets, args.reindex)
+    if args.datasets:
+        to_process = [r for r in to_process if r["name"] in set(args.datasets)]
+    print(f"{len(to_process)} repositories to process")
 
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         results = list(
-            executor.map(lambda repo: process_repo(session, repo, args.cache_dir), repos)
+            executor.map(lambda repo: process_repo(session, repo, args.cache_dir), to_process)
         )
 
-    datasets = pd.DataFrame([summary for summary, _ in results])
+    # keep the previous rows of the repositories that were not processed again,
+    # and drop those of the repositories that are not in the organization anymore
+    processed = {r["name"] for r in to_process}
+    kept = {r["name"] for r in repos} - processed
+    datasets = pd.concat(
+        [
+            previous_datasets[previous_datasets["dataset_id"].isin(kept)],
+            pd.DataFrame([summary for summary, _ in results]),
+        ],
+        ignore_index=True,
+    )
+    participants = pd.concat(
+        [
+            previous_participants[previous_participants["dataset_id"].isin(kept)],
+            *(rows for _, rows in results if rows is not None and len(rows)),
+        ],
+        ignore_index=True,
+    )
+    datasets = datasets.sort_values("dataset_id", ignore_index=True)
     for column in ["nb_participants", "nb_age", "nb_sex"]:
         if column in datasets:
-            datasets[column] = datasets[column].astype("Int64")
-    participants = pd.concat(
-        [rows for _, rows in results if rows is not None and len(rows)], ignore_index=True
-    )
+            datasets[column] = pd.to_numeric(datasets[column]).astype("Int64")
+    participants = participants.sort_values("dataset_id", kind="stable", ignore_index=True)
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    datasets.to_csv(args.output_dir / "neurobagel_datasets.tsv", sep="\t", index=False)
-    participants.to_csv(args.output_dir / "neurobagel_participants.tsv", sep="\t", index=False)
+    datasets.to_csv(DATASETS_FILE, sep="\t", index=False)
+    participants.to_csv(PARTICIPANTS_FILE, sep="\t", index=False)
 
     used = datasets[datasets["status"] == "used"]
     print(datasets["status"].value_counts().to_string())
+    age = pd.to_numeric(participants["age"], errors="coerce")
+    sex = participants["sex"].replace("", None)
     print(
         f"{len(participants)} participants from {len(used)} datasets "
-        f"(age known for {participants['age'].notna().sum()}, "
-        f"sex known for {participants['sex'].notna().sum()})"
+        f"(age known for {age.notna().sum()}, sex known for {sex.notna().sum()})"
     )
-    print(f"Saved to {args.output_dir / 'neurobagel_participants.tsv'}")
+    print(f"Saved to {PARTICIPANTS_FILE} and {DATASETS_FILE}")
+
+
+def load_previous() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load the outputs of a previous run (empty if there are none)."""
+    if not (DATASETS_FILE.exists() and PARTICIPANTS_FILE.exists()):
+        return pd.DataFrame({"dataset_id": []}), pd.DataFrame({"dataset_id": []})
+    datasets = pd.read_csv(DATASETS_FILE, sep="\t", dtype=str, keep_default_na=False)
+    participants = pd.read_csv(PARTICIPANTS_FILE, sep="\t", dtype=str, keep_default_na=False)
+    return datasets, participants
+
+
+def repos_to_process(
+    repos: list[dict[str, Any]], previous_datasets: pd.DataFrame, reindex: bool
+) -> list[dict[str, Any]]:
+    """Return the repositories to process.
+
+    All of them with ``reindex``. Otherwise, those that were not processed before,
+    and those whose participants.json had not been updated by Neurobagel:
+    they may be annotated now.
+    """
+    if reindex:
+        return repos
+    done = set(previous_datasets["dataset_id"])
+    if "reason" in previous_datasets:
+        not_annotated = previous_datasets["reason"] == NOT_ANNOTATED
+        done -= set(previous_datasets.loc[not_annotated, "dataset_id"])
+    return [r for r in repos if r["name"] not in done]
 
 
 def list_repos(session: requests.Session) -> list[dict[str, Any]]:
@@ -155,7 +217,7 @@ def process_repo(
             return {
                 **summary,
                 "status": "skipped",
-                "reason": "participants.json not updated by Neurobagel",
+                "reason": NOT_ANNOTATED,
             }, None
 
         annotations = json.loads(sidecar)
