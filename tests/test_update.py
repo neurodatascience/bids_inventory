@@ -939,3 +939,140 @@ def test_get_scan_durations_other_errors(tmp_path, monkeypatch):
 
     assert durations[files[0]][0] == 0
     assert durations[files[1]] == (180, 2.0)
+
+
+def _touch(path, content=""):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+    return path
+
+
+def test_runs_one_file_per_run(tmp_path):
+    """BrainVision runs are represented by their .vhdr, sidecars and companions are left out."""
+    from bids_inventory._update import _runs
+
+    eeg = tmp_path / "sub-01" / "eeg"
+    files = [
+        _touch(eeg / f"sub-01_task-a_run-1_eeg{ext}") for ext in [".eeg", ".vhdr", ".vmrk", ".json"]
+    ]
+    files += [_touch(eeg / f"sub-01_task-a_run-2_eeg{ext}") for ext in [".set", ".fdt"]]
+
+    assert [x.name for x in _runs(files, "eeg")] == [
+        "sub-01_task-a_run-1_eeg.vhdr",
+        "sub-01_task-a_run-2_eeg.set",
+    ]
+
+
+def test_sidecar_duration_inheritance(tmp_path):
+    """The closest sidecar whose entities are all in the run is used."""
+    import json
+
+    from bids_inventory._update import _sidecar_duration
+
+    meg = tmp_path / "sub-01" / "ses-1" / "meg"
+    run_1 = _touch(meg / "sub-01_ses-1_task-a_run-1_meg.fif")
+    run_2 = _touch(meg / "sub-01_ses-1_task-a_run-2_meg.fif")
+    other_task = _touch(meg / "sub-01_ses-1_task-b_meg.fif")
+    _touch(meg / "sub-01_ses-1_task-a_run-1_meg.json", json.dumps({"RecordingDuration": 300}))
+    # at the root: for all the runs of task a
+    _touch(tmp_path / "task-a_meg.json", json.dumps({"RecordingDuration": 600.5}))
+
+    assert _sidecar_duration(tmp_path, run_1) == 300
+    assert _sidecar_duration(tmp_path, run_2) == 600.5
+    assert _sidecar_duration(tmp_path, other_task) is None
+
+
+def test_sidecar_duration_pet_and_func(tmp_path):
+    import json
+
+    from bids_inventory._update import _sidecar_duration
+
+    pet = _touch(tmp_path / "sub-01" / "pet" / "sub-01_pet.nii.gz")
+    _touch(pet.with_name("sub-01_pet.json"), json.dumps({"FrameDuration": [60, 60, 120]}))
+    assert _sidecar_duration(tmp_path, pet) == 240
+
+    # func durations are read from the NIfTI headers
+    bold = _touch(tmp_path / "sub-01" / "func" / "sub-01_task-a_bold.nii.gz")
+    _touch(bold.with_name("sub-01_task-a_bold.json"), json.dumps({"RecordingDuration": 10}))
+    assert _sidecar_duration(tmp_path, bold) is None
+
+    # a malformed sidecar is not an error
+    nirs = _touch(tmp_path / "sub-01" / "nirs" / "sub-01_task-a_nirs.snirf")
+    _touch(nirs.with_name("sub-01_task-a_nirs.json"), "{not json")
+    assert _sidecar_duration(tmp_path, nirs) is None
+
+
+def test_get_duration_from_sidecars(tmp_path, monkeypatch):
+    """The durations of MEG, NIRS and motion runs are read from their sidecars."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    for datatype, ext in [("meg", ".fif"), ("nirs", ".snirf"), ("motion", ".tsv")]:
+        run = _touch(tmp_path / "sub-01" / datatype / f"sub-01_task-a_{datatype}{ext}")
+        _touch(
+            run.with_name(f"sub-01_task-a_{datatype}.json"), json.dumps({"RecordingDuration": 60})
+        )
+
+    assert _update.get_duration(tmp_path, ["meg", "nirs", "motion"], ["a"]) == {
+        datatype: {"a": [(1, 60.0)]} for datatype in ["meg", "nirs", "motion"]
+    }
+
+
+def test_update_durations(tmp_path, monkeypatch):
+    """Only the durations of the requested datatypes of the installed datasets change."""
+    import pandas as pd
+
+    from bids_inventory import _update
+
+    listing = pd.DataFrame(
+        {
+            "name": ["ds000001", "ds000002", "ds000003"],
+            "datatypes": [["func", "meg"], ["meg"], ["anat"]],
+            "tasks": [["a"], ["b"], []],
+            "duration": [{"func": {"a": [360.0]}, "meg": {"a": None}}, {"meg": {"b": None}}, {}],
+        }
+    )
+    saved = {}
+    monkeypatch.setattr(_update, "_load_known_datasets", lambda _: listing.copy())
+    monkeypatch.setattr(
+        _update, "save_known_datasets", lambda df, output_file: saved.update(df=df.copy())
+    )
+    # ds000002 is not installed
+    monkeypatch.setattr(
+        _update,
+        "_local_openneuro_dataset",
+        lambda name: tmp_path / name if name == "ds000001" else None,
+    )
+    monkeypatch.setattr(
+        _update,
+        "get_duration",
+        lambda dataset_pth, datatypes, tasks, jobs: {"meg": {"a": [(1, 120.0)]}},
+    )
+
+    _update.update_durations(["meg"], debug=False)
+
+    assert saved["df"]["duration"].tolist() == [
+        {"func": {"a": [360.0]}, "meg": {"a": [(1, 120.0)]}},
+        {"meg": {"b": None}},
+        {},
+    ]
+
+
+def test_get_duration_pet_without_task(tmp_path, monkeypatch):
+    """PET runs without task entity are listed together."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    for session in ["baseline", "rescan"]:
+        run = _touch(
+            tmp_path / "sub-01" / f"ses-{session}" / "pet" / f"sub-01_ses-{session}_pet.nii.gz"
+        )
+        _touch(
+            run.with_name(f"sub-01_ses-{session}_pet.json"), json.dumps({"FrameDuration": [60, 30]})
+        )
+
+    assert _update.get_duration(tmp_path, ["anat", "pet"], []) == {"pet": [(1, 90.0), (1, 90.0)]}

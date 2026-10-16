@@ -71,6 +71,7 @@ Everything is done with `bids_inventory update` (see `bids_inventory update --he
 |---|---|
 | `bids_inventory update` | installs and indexes the OpenNeuro datasets that are not in the listing yet |
 | `bids_inventory update --reindex` | indexes again all the OpenNeuro datasets, for example after new fields were added to the listing (also installs the datasets missing locally) |
+| `bids_inventory update --durations eeg meg` | only gets again the duration of the runs of these datatypes, for the OpenNeuro datasets already listed and installed locally |
 | `bids_inventory update --source non-openneuro` | indexes the datasets that are not on OpenNeuro (ABIDE, ABIDE 2, ADHD-200, CoRR, CNeuroMod) that are not in `non_openneuro.jsonl` yet |
 | `bids_inventory update --source non-openneuro --reindex` | indexes again all of them |
 | `bids_inventory remove ds000001 ds000002` | removes datasets from the listing, so that the next `bids_inventory update` indexes them again (`--source non-openneuro` for the other listing) |
@@ -85,6 +86,12 @@ Useful options:
 The listing is saved after each dataset is indexed:
 if an update is stopped, run the same command again to continue where it stopped.
 With `--reindex`, each entry is replaced in place, so the listing stays complete.
+
+The durations of the runs are those of the first participant:
+from the NIfTI headers for func,
+and from the JSON sidecars for the other datatypes
+(`RecordingDuration` for eeg, ieeg, meg, nirs and motion, the sum of `FrameDuration` for pet),
+or else from the headers of the files when they can be read (NIfTI for pet, BrainVision for eeg and ieeg).
 
 ### Configuration
 

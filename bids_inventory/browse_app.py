@@ -51,6 +51,7 @@ def _(bids_inventory_installed):
         neurobagel_per_dataset,
         neurobagel_unique_participants,
         plot_dataset_size_vs_time,
+        plot_hours_vs_time,
         scatter_subject_vs,
     )
     from bids_inventory._version import version
@@ -92,6 +93,7 @@ def _(bids_inventory_installed):
         neurobagel_per_dataset,
         neurobagel_unique_participants,
         plot_dataset_size_vs_time,
+        plot_hours_vs_time,
         save_dataset_listing,
         scatter_subject_vs,
         tempfile,
@@ -341,6 +343,24 @@ def _(filtered_df, histogram_tasks, mo):
 @app.cell
 def _(filtered_df, mo, plot_dataset_size_vs_time):
     mo.vstack([mo.md("---"), plot_dataset_size_vs_time(filtered_df)])
+    return
+
+
+@app.cell
+def _(mo):
+    hours_log_y = mo.ui.checkbox(label="logarithmic scale", value=True)
+    return (hours_log_y,)
+
+
+@app.cell
+def _(filtered_df, hours_log_y, mo, plot_hours_vs_time):
+    mo.vstack(
+        [
+            mo.md("---"),
+            plot_hours_vs_time(filtered_df, log_y=hours_log_y.value),
+            mo.hstack([hours_log_y], justify="center"),
+        ]
+    )
     return
 
 

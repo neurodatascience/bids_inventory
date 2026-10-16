@@ -141,6 +141,15 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         action="store_true",
     )
     update_parser.add_argument(
+        "--durations",
+        help="""
+        Only get again the duration of the runs of these datatypes,
+        for the OpenNeuro datasets already listed and installed locally.
+        """,
+        nargs="+",
+        choices=["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"],
+    )
+    update_parser.add_argument(
         "--log-dir",
         help="""
         Folder where to save the warnings and the errors of the update,
@@ -272,6 +281,33 @@ def _run_institutions(args: Any) -> None:
     bi_log.info(f"Saved {INSTITUTIONS_FILE}")
 
 
+def _run_update(args: Any) -> None:
+    """Run the 'update' subcommand."""
+    with _check_extra("update"):
+        from bids_inventory._update import CONFIG_ENV_VAR, update, update_durations
+
+    if args.jobs < 1:
+        bi_log.error(f"--jobs must be at least 1, got {args.jobs}")
+        sys.exit(1)
+
+    if args.config is not None:
+        if not args.config.is_file():
+            bi_log.error(f"Config file not found: {args.config}")
+            sys.exit(1)
+        os.environ[CONFIG_ENV_VAR] = str(args.config.resolve())
+
+    warnings_log, errors_log = add_log_files(args.log_dir)
+    try:
+        if args.durations:
+            update_durations(args.durations, debug=args.debug, jobs=args.jobs)
+        else:
+            update(debug=args.debug, jobs=args.jobs, reindex=args.reindex, source=args.source)
+    finally:
+        for log_file in [warnings_log, errors_log]:
+            if log_file.exists():
+                bi_log.info(f"See {log_file}")
+
+
 def _run_neurobagel(args: Any) -> None:
     """Run the 'neurobagel' subcommand."""
     with _check_extra("update"):
@@ -362,23 +398,4 @@ def cli(argv: Sequence[str] = sys.argv) -> None:
             bi_log.warning(f"Not in the listing: {' '.join(not_found)}")
 
     elif args.command == "update":
-        with _check_extra("update"):
-            from bids_inventory._update import CONFIG_ENV_VAR, update
-
-        if args.jobs < 1:
-            bi_log.error(f"--jobs must be at least 1, got {args.jobs}")
-            sys.exit(1)
-
-        if args.config is not None:
-            if not args.config.is_file():
-                bi_log.error(f"Config file not found: {args.config}")
-                sys.exit(1)
-            os.environ[CONFIG_ENV_VAR] = str(args.config.resolve())
-
-        warnings_log, errors_log = add_log_files(args.log_dir)
-        try:
-            update(debug=args.debug, jobs=args.jobs, reindex=args.reindex, source=args.source)
-        finally:
-            for log_file in [warnings_log, errors_log]:
-                if log_file.exists():
-                    bi_log.info(f"See {log_file}")
+        _run_update(args)

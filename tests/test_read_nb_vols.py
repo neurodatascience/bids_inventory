@@ -31,3 +31,28 @@ def test_read_nb_vols(tmp_path, extension, image_class, header_extension):
     )
 
     assert result.stdout.decode().split() == ["7", "1.5"]
+
+
+@pytest.mark.parametrize(
+    "unit, repetition_time, expected",
+    [("sec", 1.5, "1.5"), ("msec", 1500.0, "1.5"), ("usec", 1.5e6, "1.5"), ("sec", 2000.0, "2.0")],
+)
+def test_read_nb_vols_time_unit(tmp_path, unit, repetition_time, expected):
+    """The repetition time is in seconds, whatever the time unit of the header.
+
+    Some headers say seconds but have the repetition time in milliseconds.
+    """
+    img = nb.Nifti1Image(np.zeros((4, 4, 4, 7), dtype=np.int16), affine=np.eye(4))
+    img.header.set_zooms((2.0, 2.0, 2.0, repetition_time))
+    img.header.set_xyzt_units("mm", unit)
+    filename = tmp_path / "sub-01_task-rest_bold.nii"
+    nb.save(img, filename)
+
+    result = subprocess.run(
+        [sys.executable, str(_data_dir() / "read_nb_vols")],
+        input=filename.read_bytes()[:1024],
+        capture_output=True,
+        check=True,
+    )
+
+    assert result.stdout.decode().split() == ["7", expected]

@@ -1,5 +1,8 @@
 """Tools for basic figures about the known datasets."""
 
+from typing import Any
+
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
@@ -84,6 +87,84 @@ def plot_dataset_size_vs_time(df: pd.DataFrame) -> go.Figure:
     fig.update_yaxes(title_text="number of subjects", secondary_y=True, nticks=10)
     fig.update_xaxes(title_text="time")
 
+    return fig
+
+
+# datatypes whose duration is in the listing
+DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet"]
+
+
+def _runs_duration(runs: Any) -> float:
+    """Return the total duration of the runs of a datatype (in seconds, NaN if unknown)."""
+    if isinstance(runs, dict):
+        runs = [run for task_runs in runs.values() for run in task_runs or []]
+    # unknown durations are NaN, or null in the listing
+    runs = [run for run in runs or [] if run is not None and run == run]
+    return float(sum(runs)) if runs else np.nan
+
+
+def hours_per_datatype(df: pd.DataFrame) -> pd.DataFrame:
+    """Return the number of hours of data of each dataset, for each datatype with durations.
+
+    Estimated as the duration of the runs of the first participant
+    times the number of participants
+    (only the runs of the first participant are in the listing).
+
+    One row per dataset and datatype with a known duration:
+    ``name``, ``created_on``, ``datatype``, ``hours``.
+    """
+    rows = []
+    for _, dataset in df.iterrows():
+        for datatype in DURATION_DATATYPES:
+            seconds = _runs_duration((dataset["duration"] or {}).get(datatype))
+            if seconds == seconds and seconds > 0:
+                rows.append(
+                    {
+                        "name": dataset["name"],
+                        "created_on": dataset["created_on"],
+                        "datatype": datatype,
+                        "hours": seconds * dataset["nb_subjects"] / 3600,
+                    }
+                )
+    return pd.DataFrame(rows, columns=["name", "created_on", "datatype", "hours"])
+
+
+def plot_hours_vs_time(df: pd.DataFrame, log_y: bool = True) -> go.Figure:
+    """Plot the cumulative number of hours of data for each datatype, by creation date.
+
+    See ``hours_per_datatype`` for how the hours are estimated.
+    """
+    hours = hours_per_datatype(df).sort_values("created_on")
+    fig = go.Figure()
+    for datatype in DURATION_DATATYPES:
+        datatype_hours = hours[hours["datatype"] == datatype]
+        if datatype_hours.empty:
+            continue
+        fig.add_trace(
+            go.Scatter(
+                name=(
+                    f"{datatype}: {datatype_hours['hours'].sum():,.0f} hours "
+                    f"({len(datatype_hours)} datasets)"
+                ),
+                x=datatype_hours["created_on"],
+                y=datatype_hours["hours"].cumsum(),
+                text=datatype_hours["name"],
+                mode="lines",
+                line_shape="hv",
+                hovertemplate="%{text}<br>%{x}<br>%{y:,.0f} hours",
+            )
+        )
+    fig.update_layout(
+        title=(
+            "Hours of data, by creation date of the datasets<br><sup>"
+            "estimated from the runs of the first participant times the number of participants"
+            " (durations only known for "
+            f"{', '.join(DURATION_DATATYPES)})</sup>"
+        ),
+        xaxis_title={"text": "date"},
+        yaxis_title={"text": "cumulative hours"},
+        yaxis_type="log" if log_y else "linear",
+    )
     return fig
 
 

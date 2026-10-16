@@ -36,4 +36,12 @@ else:
 
 header = HEADER_CLASSES[sizeof_hdr].from_fileobj(io.BytesIO(data[:sizeof_hdr]))
 
-print(header["dim"][4], header.get_zooms()[3])
+repetition_time = float(header.get_zooms()[3])
+# the repetition time is in the time unit of the header (seconds, milliseconds...)
+# and some headers say seconds but have it in milliseconds: no TR is that long
+time_unit = header.get_xyzt_units()[1]
+repetition_time *= {"msec": 1e-3, "usec": 1e-6}.get(time_unit, 1)
+if repetition_time > 100:
+    repetition_time /= 1000
+
+print(header["dim"][4], repetition_time)
