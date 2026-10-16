@@ -1,44 +1,43 @@
 """Combine the participants.tsv of the datasets annotated by Neurobagel.
 
+``bids_inventory neurobagel``
+
 The repositories of https://github.com/OpenNeuroDatasets-JSONLD have a participants.json
 annotated by Neurobagel (commits "[bot] Update participants.json"):
 each annotated column says what it is about (``IsAbout``: ``nb:Age``, ``nb:Sex``...),
 how its values are formatted, and which values are missing.
 
-This script uses these annotations to combine the participants.tsv of all these datasets
-in a single TSV with the age (in years) and the sex (female, male, other)
-standardized across datasets.
-
-Usage:
-
-    python tools/combine_neurobagel_participants.py --token-file ~/tokens/github.txt
-
-Outputs, in bids_inventory/data/:
+The participants.tsv of all these datasets are combined in a single table
+with the age (in years) and the sex (female, male, other) standardized across datasets,
+saved in bids_inventory/data/:
 
 - neurobagel_participants.tsv: one row per participant (and session) of each dataset
   (dataset_id, participant_id, session_id, age, sex, and their raw values);
 - neurobagel_datasets.tsv: one row per repository, with why it was used or not.
 
 When these files exist, only the new repositories, and those whose participants.json
-had not been updated by Neurobagel yet, are processed:
-the others keep their rows. Use --reindex to process all the repositories again.
+had not been updated by Neurobagel yet, are processed: the others keep their rows.
 
-Downloaded files are cached in --cache-dir (default: neurobagel_cache):
-run the script again to only download what changed.
+Downloaded files are cached: running it again only downloads what changed.
+
+Needs the 'update' extra.
 """
 
-import argparse
 import io
 import json
 import math
 import re
-import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 import requests
+
+from bids_inventory.listing import _data_dir
+from bids_inventory.logger import bi_logger
+
+bi_log = bi_logger()
 
 ORGANIZATION = "OpenNeuroDatasets-JSONLD"
 API = "https://api.github.com"
@@ -48,9 +47,8 @@ RAW = "https://raw.githubusercontent.com"
 NEUROBAGEL_COMMIT = "Update participants.json"
 NEUROBAGEL_BOT = "neurobagel-bot[bot]"
 
-DATA_DIR = Path(__file__).parents[1] / "bids_inventory" / "data"
-DATASETS_FILE = DATA_DIR / "neurobagel_datasets.tsv"
-PARTICIPANTS_FILE = DATA_DIR / "neurobagel_participants.tsv"
+DATASETS_FILE = _data_dir() / "neurobagel_datasets.tsv"
+PARTICIPANTS_FILE = _data_dir() / "neurobagel_participants.tsv"
 
 # reason why a repository is not used yet, but could be after a new Neurobagel annotation
 NOT_ANNOTATED = "participants.json not updated by Neurobagel"
@@ -62,80 +60,84 @@ SEX = {
 }
 
 
-def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument(
-        "--token-file",
-        type=Path,
-        help="Text file with a GitHub token (the GitHub API is rate limited without one).",
-    )
-    parser.add_argument(
-        "--reindex",
-        action="store_true",
-        help="Process all the repositories again, not only the new and not yet annotated ones.",
-    )
-    parser.add_argument("--cache-dir", type=Path, default=Path("neurobagel_cache"))
-    parser.add_argument(
-        "--datasets", nargs="+", help="Only these datasets (for example: ds000001 ds000002)."
-    )
-    parser.add_argument("--jobs", type=int, default=8, help="Number of parallel downloads.")
-    args = parser.parse_args(argv)
+def update_neurobagel(
+    token: str | None = None,
+    reindex: bool = False,
+    datasets: list[str] | None = None,
+    jobs: int = 8,
+    cache_dir: Path = Path("neurobagel_cache"),
+) -> None:
+    """Update the combined participants of the datasets annotated by Neurobagel.
 
+    Parameters
+    ----------
+    token : str | None
+        GitHub token: the GitHub API is rate limited without one.
+
+    reindex : bool
+        Process all the repositories again, not only the new and not yet annotated ones.
+
+    datasets : list[str] | None
+        Only process these datasets.
+
+    jobs : int
+        Number of parallel downloads.
+
+    cache_dir : Path
+        Where to cache the downloaded files.
+    """
     session = requests.Session()
-    if args.token_file:
-        token = args.token_file.expanduser().read_text().strip()
+    if token:
         session.headers["Authorization"] = f"Bearer {token}"
 
     repos = list_repos(session)
-    print(f"{len(repos)} repositories in {ORGANIZATION}")
+    bi_log.info(f"{len(repos)} repositories in {ORGANIZATION}")
 
     previous_datasets, previous_participants = load_previous()
-    to_process = repos_to_process(repos, previous_datasets, args.reindex)
-    if args.datasets:
-        to_process = [r for r in to_process if r["name"] in set(args.datasets)]
-    print(f"{len(to_process)} repositories to process")
+    to_process = repos_to_process(repos, previous_datasets, reindex)
+    if datasets:
+        to_process = [r for r in to_process if r["name"] in set(datasets)]
+    bi_log.info(f"{len(to_process)} repositories to process")
 
-    with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+    with ThreadPoolExecutor(max_workers=jobs) as executor:
         results = list(
-            executor.map(lambda repo: process_repo(session, repo, args.cache_dir), to_process)
+            executor.map(lambda repo: process_repo(session, repo, cache_dir), to_process)
         )
 
     # keep the previous rows of the repositories that were not processed again,
     # and drop those of the repositories that are not in the organization anymore
     processed = {r["name"] for r in to_process}
     kept = {r["name"] for r in repos} - processed
-    datasets = pd.concat(
+    summaries = pd.concat(
         [
             previous_datasets[previous_datasets["dataset_id"].isin(kept)],
             pd.DataFrame([summary for summary, _ in results]),
         ],
         ignore_index=True,
     )
-    participants = pd.concat(
-        [
-            previous_participants[previous_participants["dataset_id"].isin(kept)],
-            *(rows for _, rows in results if rows is not None and len(rows)),
-        ],
-        ignore_index=True,
-    )
-    datasets = datasets.sort_values("dataset_id", ignore_index=True)
+    frames: list[pd.DataFrame] = [
+        previous_participants[previous_participants["dataset_id"].isin(kept)],
+        *(rows for _, rows in results if rows is not None and len(rows)),
+    ]
+    participants = pd.concat(frames, ignore_index=True)
+    summaries = summaries.sort_values("dataset_id", ignore_index=True)
     for column in ["nb_participants", "nb_age", "nb_sex"]:
-        if column in datasets:
-            datasets[column] = pd.to_numeric(datasets[column]).astype("Int64")
+        if column in summaries:
+            summaries[column] = pd.to_numeric(summaries[column]).astype("Int64")
     participants = participants.sort_values("dataset_id", kind="stable", ignore_index=True)
 
-    datasets.to_csv(DATASETS_FILE, sep="\t", index=False)
+    summaries.to_csv(DATASETS_FILE, sep="\t", index=False)
     participants.to_csv(PARTICIPANTS_FILE, sep="\t", index=False)
 
-    used = datasets[datasets["status"] == "used"]
-    print(datasets["status"].value_counts().to_string())
+    used = summaries[summaries["status"] == "used"]
+    bi_log.info(summaries["status"].value_counts().to_string())
     age = pd.to_numeric(participants["age"], errors="coerce")
     sex = participants["sex"].replace("", None)
-    print(
+    bi_log.info(
         f"{len(participants)} participants from {len(used)} datasets "
         f"(age known for {age.notna().sum()}, sex known for {sex.notna().sum()})"
     )
-    print(f"Saved to {PARTICIPANTS_FILE} and {DATASETS_FILE}")
+    bi_log.info(f"Saved to {PARTICIPANTS_FILE} and {DATASETS_FILE}")
 
 
 def load_previous() -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -397,7 +399,3 @@ def parse_age(value: str, age_format: str, missing: set[str]) -> float:
         return float(value)
     except ValueError:
         return math.nan
-
-
-if __name__ == "__main__":
-    sys.exit(main())

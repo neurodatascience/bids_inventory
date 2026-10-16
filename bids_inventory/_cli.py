@@ -51,6 +51,41 @@ The filtered list of datasets can be downloaded as datasets_results.tsv.""",
 
     _add_institutions_parser(subparsers, parser.formatter_class)
 
+    neurobagel_parser = subparsers.add_parser(
+        "neurobagel",
+        help="""Combine the participants.tsv of the datasets annotated by Neurobagel
+(https://github.com/OpenNeuroDatasets-JSONLD) with standardized age and sex,
+in bids_inventory/data/neurobagel_participants.tsv.
+Only processes the new repositories and those not annotated yet, unless --reindex is used.""",
+        formatter_class=parser.formatter_class,
+    )
+    neurobagel_parser.add_argument(
+        "--token-file",
+        help="""Text file with a GitHub token (the GitHub API is rate limited without one).
+Defaults to the GITHUB_TOKEN environment variable.""",
+        type=Path,
+    )
+    neurobagel_parser.add_argument(
+        "--reindex",
+        action="store_true",
+        help="Process all the repositories again, not only the new and not yet annotated ones.",
+    )
+    neurobagel_parser.add_argument(
+        "--datasets",
+        nargs="+",
+        help="Only process these datasets (for example: ds000001 ds000002).",
+    )
+    neurobagel_parser.add_argument(
+        "--jobs", default=8, type=int, help="Number of parallel downloads (default: %(default)s)."
+    )
+    neurobagel_parser.add_argument(
+        "--cache-dir",
+        default=Path("neurobagel_cache"),
+        type=Path,
+        help="Where to cache the downloaded files (default: %(default)s).",
+    )
+    _add_verbosity(neurobagel_parser)
+
     remove_parser = subparsers.add_parser(
         "remove",
         help="""Remove datasets from the listing,
@@ -238,6 +273,28 @@ def _run_institutions(args: Any) -> None:
     bi_log.info(f"Saved {INSTITUTIONS_FILE}")
 
 
+def _run_neurobagel(args: Any) -> None:
+    """Run the 'neurobagel' subcommand."""
+    with _check_extra("update"):
+        from bids_inventory._neurobagel import update_neurobagel
+
+    token = os.getenv("GITHUB_TOKEN")
+    if args.token_file is not None:
+        if not args.token_file.expanduser().is_file():
+            bi_log.error(f"Token file not found: {args.token_file}")
+            sys.exit(1)
+        token = args.token_file.expanduser().read_text().strip()
+    if not token:
+        bi_log.warning("No GitHub token: the GitHub API may rate limit the update.")
+    update_neurobagel(
+        token=token,
+        reindex=args.reindex,
+        datasets=args.datasets,
+        jobs=args.jobs,
+        cache_dir=args.cache_dir,
+    )
+
+
 def _add_verbosity(parser: ArgumentParser) -> None:
     parser.add_argument(
         "--verbosity",
@@ -288,6 +345,9 @@ def cli(argv: Sequence[str] = sys.argv) -> None:
 
     elif args.command == "institutions":
         _run_institutions(args)
+
+    elif args.command == "neurobagel":
+        _run_neurobagel(args)
 
     elif args.command == "remove":
         from bids_inventory.listing import (

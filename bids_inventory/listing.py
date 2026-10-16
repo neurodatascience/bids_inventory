@@ -46,6 +46,23 @@ def known_datasets_df() -> pd.DataFrame:
     return pd.concat([openneuro_df, non_opnenneuro_df])
 
 
+def neurobagel_participants_df() -> pd.DataFrame:
+    """Return the participants of the datasets annotated by Neurobagel.
+
+    One row per participant (and session) of each dataset of
+    https://github.com/OpenNeuroDatasets-JSONLD annotated by Neurobagel,
+    with the age (in years) and the sex (female, male, other)
+    standardized across datasets.
+
+    Updated with ``bids_inventory neurobagel``.
+    """
+    return pd.read_csv(
+        _data_dir() / "neurobagel_participants.tsv",
+        sep="\t",
+        dtype={"dataset_id": str, "participant_id": str, "session_id": str, "sex": str},
+    )
+
+
 def _data_dir() -> Path:
     return Path(__file__).parent / "data"
 
