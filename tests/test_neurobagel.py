@@ -14,7 +14,9 @@ from bids_inventory import _neurobagel  # noqa: E402
 from bids_inventory._cli import cli  # noqa: E402
 from bids_inventory._neurobagel import (  # noqa: E402
     NOT_ANNOTATED,
+    add_species,
     check_annotations,
+    find_species,
     parse_age,
     repos_to_process,
     standardize,
@@ -96,17 +98,43 @@ def test_check_annotations_sex_without_levels():
     ]
 
 
+@pytest.mark.parametrize(
+    "column, values, expected",
+    [
+        ("species", ["homo sapien", "Homo sapiens ", "n/a"], "homo sapiens"),
+        ("Species", ["rat", "mus musculus"], "mus musculus, rattus norvegicus"),
+        ("species", ["", ""], ""),
+        ("age", ["26", "30"], ""),
+    ],
+)
+def test_find_species(column, values, expected):
+    assert find_species(pd.DataFrame({column: values})) == expected
+
+
+def test_add_species(tmp_path, monkeypatch):
+    species_file = tmp_path / "species.tsv"
+    species_file.write_text("dataset_id\tspecies\tcomment\nds000002\tovis aries\tsheep\n")
+    monkeypatch.setattr(_neurobagel, "SPECIES_FILE", species_file)
+    datasets = pd.DataFrame(
+        {"dataset_id": ["ds000001", "ds000002", "ds000003"], "species": ["mus musculus", "", None]}
+    )
+    assert add_species(datasets)["species"].tolist() == ["mus musculus", "ovis aries", ""]
+    # the outputs of a run before the species were added
+    assert add_species(datasets[["dataset_id"]])["species"].tolist() == ["", "ovis aries", ""]
+
+
 def test_repos_to_process():
-    repos = [{"name": x} for x in ["ds000001", "ds000002", "ds000003", "ds000004"]]
+    repos = [{"name": x} for x in ["ds000001", "ds000002", "ds000003", "ds000004", "ds000005"]]
     previous = pd.DataFrame(
         {
-            "dataset_id": ["ds000001", "ds000002", "ds000003"],
-            "reason": ["", NOT_ANNOTATED, "no participants.json"],
+            "dataset_id": ["ds000001", "ds000002", "ds000003", "ds000005"],
+            "status": ["used", "skipped", "skipped", "error"],
+            "reason": ["", NOT_ANNOTATED, "no participants.json", "ConnectionError()"],
         }
     )
-    # new repositories, and those that may have been annotated since
+    # new repositories, those that may have been annotated since, and those that failed
     names = [r["name"] for r in repos_to_process(repos, previous, reindex=False)]
-    assert names == ["ds000002", "ds000004"]
+    assert names == ["ds000002", "ds000004", "ds000005"]
     assert repos_to_process(repos, previous, reindex=True) == repos
 
 

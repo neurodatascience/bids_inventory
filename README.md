@@ -222,8 +222,15 @@ from bids_inventory.listing import neurobagel_participants_df
 participants = neurobagel_participants_df()
 ```
 
-`bids_inventory/data/neurobagel_datasets.tsv` lists the repositories:
-used or not, why, and the problems found in their annotations (`notes` column).
+`bids_inventory/data/neurobagel_datasets.tsv` (`neurobagel_datasets_df()`) lists the repositories:
+used or not, why, the problems found in their annotations (`notes` column),
+and the species of their participants (`species` column).
+Some datasets are not about humans (mice, rats, sheep...),
+and the dashboard only shows those about humans by default.
+The species comes from the `species` column of `participants.tsv`;
+most datasets do not have one (`species` is then empty),
+so the species of some of them is listed in `bids_inventory/data/species.tsv`:
+add the non-human datasets you find there.
 
 To update them:
 

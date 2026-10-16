@@ -17,6 +17,9 @@ def test_browse_app_runs():
     nb_participants = defs["nb_participants"]
     assert set(nb_participants["dataset_id"]) <= set(filtered_df["name"])
     assert not nb_participants.duplicated(subset=["dataset_id", "participant_id"]).any()
+    # by default, only the datasets about humans (or without species)
+    species = defs["dataset_species"][nb_participants["dataset_id"].unique()]
+    assert {x for x in species for x in x} <= {"homo sapiens", "not specified"}
 
 
 @pytest.mark.parametrize("edit, mode", [(False, "run"), (True, "edit")])

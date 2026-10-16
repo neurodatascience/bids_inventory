@@ -63,6 +63,19 @@ def neurobagel_participants_df() -> pd.DataFrame:
     )
 
 
+def neurobagel_datasets_df() -> pd.DataFrame:
+    """Return the repositories of https://github.com/OpenNeuroDatasets-JSONLD.
+
+    With why they were used or not in ``neurobagel_participants_df``,
+    and the species of their participants (empty if not specified).
+
+    Updated with ``bids_inventory neurobagel``.
+    """
+    return pd.read_csv(
+        _data_dir() / "neurobagel_datasets.tsv", sep="\t", dtype=str, keep_default_na=False
+    )
+
+
 def _data_dir() -> Path:
     return Path(__file__).parent / "data"
 

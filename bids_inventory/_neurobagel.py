@@ -13,10 +13,14 @@ saved in bids_inventory/data/:
 
 - neurobagel_participants.tsv: one row per participant (and session) of each dataset
   (dataset_id, participant_id, session_id, age, sex, and their raw values);
-- neurobagel_datasets.tsv: one row per repository, with why it was used or not.
+- neurobagel_datasets.tsv: one row per repository, with why it was used or not,
+  and the species of the participants: from the species column of participants.tsv,
+  or from bids_inventory/data/species.tsv for the datasets without one
+  (empty if not specified: most datasets are about humans).
 
-When these files exist, only the new repositories, and those whose participants.json
-had not been updated by Neurobagel yet, are processed: the others keep their rows.
+When these files exist, only the new repositories, those whose participants.json
+had not been updated by Neurobagel yet, and those that failed, are processed:
+the others keep their rows.
 
 Downloaded files are cached in tmp/neurobagel_cache, at the root of the repository:
 running it again only downloads what changed.
@@ -56,6 +60,17 @@ PARTICIPANTS_FILE = _data_dir() / "neurobagel_participants.tsv"
 
 # reason why a repository is not used yet, but could be after a new Neurobagel annotation
 NOT_ANNOTATED = "participants.json not updated by Neurobagel"
+
+# species of the datasets whose participants.tsv has no species column
+SPECIES_FILE = _data_dir() / "species.tsv"
+
+# spellings found in the species columns
+SPECIES = {
+    "homo sapien": "homo sapiens",
+    "human": "homo sapiens",
+    "mouse": "mus musculus",
+    "rat": "rattus norvegicus",
+}
 
 SEX = {
     "snomed:248152002": "female",
@@ -123,6 +138,7 @@ def update_neurobagel(
     ]
     participants = pd.concat(frames, ignore_index=True)
     summaries = summaries.sort_values("dataset_id", ignore_index=True)
+    summaries = add_species(summaries)
     for column in ["nb_participants", "nb_age", "nb_sex"]:
         if column in summaries:
             summaries[column] = pd.to_numeric(summaries[column]).astype("Int64")
@@ -157,8 +173,8 @@ def repos_to_process(
     """Return the repositories to process.
 
     All of them with ``reindex``. Otherwise, those that were not processed before,
-    and those whose participants.json had not been updated by Neurobagel:
-    they may be annotated now.
+    those whose participants.json had not been updated by Neurobagel
+    (they may be annotated now), and those that failed (for example a network error).
     """
     if reindex:
         return repos
@@ -166,6 +182,8 @@ def repos_to_process(
     if "reason" in previous_datasets:
         not_annotated = previous_datasets["reason"] == NOT_ANNOTATED
         done -= set(previous_datasets.loc[not_annotated, "dataset_id"])
+    if "status" in previous_datasets:
+        done -= set(previous_datasets.loc[previous_datasets["status"] == "error", "dataset_id"])
     return [r for r in repos if r["name"] not in done]
 
 
@@ -241,6 +259,7 @@ def process_repo(
             notes = [summary["notes"]] if summary["notes"] else []
             summary["notes"] = "; ".join([*notes, "negative ages: probably not in years"])
         summary.update(
+            species=find_species(participants),
             status="used",
             nb_participants=rows["participant_id"].nunique(),
             nb_age=int(rows["age"].notna().sum()),
@@ -249,6 +268,31 @@ def process_repo(
         return summary, rows
     except Exception as e:
         return {**summary, "status": "error", "reason": repr(e)[:200]}, None
+
+
+def find_species(participants: pd.DataFrame) -> str:
+    """Return the species in the species column of a participants.tsv (empty if none).
+
+    Several species are separated by ', '.
+    """
+    columns = [c for c in participants.columns if c.strip().lower() == "species"]
+    if not columns:
+        return ""
+    values = participants[columns[0]].str.strip().str.lower()
+    species = {SPECIES.get(x, x) for x in values if x not in {"", "n/a", "na", "nan"}}
+    return ", ".join(sorted(species))
+
+
+def add_species(datasets: pd.DataFrame) -> pd.DataFrame:
+    """Set the species of the datasets listed in bids_inventory/data/species.tsv."""
+    datasets = datasets.copy()
+    if "species" not in datasets:
+        datasets["species"] = ""
+    datasets["species"] = datasets["species"].fillna("")
+    known = pd.read_csv(SPECIES_FILE, sep="\t", dtype=str).set_index("dataset_id")["species"]
+    listed = datasets["dataset_id"].isin(known.index)
+    datasets.loc[listed, "species"] = datasets.loc[listed, "dataset_id"].map(known)
+    return datasets
 
 
 def download(

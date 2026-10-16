@@ -62,6 +62,7 @@ def _(bids_inventory_installed):
     from bids_inventory.listing import (
         KNOWN_DATATYPES,
         known_datasets_df,
+        neurobagel_datasets_df,
         neurobagel_participants_df,
     )
     from bids_inventory.wrangling import filter_data, save_dataset_listing, wrangle_data
@@ -81,6 +82,7 @@ def _(bids_inventory_installed):
         mo,
         neurobagel_age_distribution,
         neurobagel_bar_per_dataset,
+        neurobagel_datasets_df,
         neurobagel_female_ratio_vs_participants,
         neurobagel_participants_df,
         neurobagel_per_dataset,
@@ -95,12 +97,19 @@ def _(bids_inventory_installed):
 
 
 @app.cell
-def _(known_datasets_df, load_institutions, neurobagel_participants_df, wrangle_data):
+def _(
+    known_datasets_df,
+    load_institutions,
+    neurobagel_datasets_df,
+    neurobagel_participants_df,
+    wrangle_data,
+):
     df = wrangle_data(known_datasets_df())
     SOURCES = sorted(df["source"].unique().tolist())
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
-    return SOURCES, df, institutions, neurobagel_participants
+    neurobagel_datasets = neurobagel_datasets_df()
+    return SOURCES, df, institutions, neurobagel_datasets, neurobagel_participants
 
 
 @app.cell
@@ -332,16 +341,45 @@ def _(
 
 
 @app.cell
-def _(filtered_df, neurobagel_participants, neurobagel_unique_participants):
-    # participants of the selected datasets annotated by Neurobagel
+def _(mo, neurobagel_datasets):
+    NOT_SPECIFIED = "not specified"
+    # species of the datasets used, a dataset may have several (for example "a, b")
+    _used = neurobagel_datasets[neurobagel_datasets["status"] == "used"]
+    dataset_species = _used.set_index("dataset_id")["species"].map(
+        lambda x: x.split(", ") if x else [NOT_SPECIFIED]
+    )
+    SPECIES = sorted({x for species in dataset_species for x in species})
+    # most datasets without a species column are about humans
+    species = mo.ui.array(
+        [mo.ui.checkbox(label=x, value=x in {"homo sapiens", NOT_SPECIFIED}) for x in SPECIES]
+    )
+    return SPECIES, dataset_species, species
+
+
+@app.cell
+def _(
+    SPECIES,
+    dataset_species,
+    filtered_df,
+    neurobagel_participants,
+    neurobagel_unique_participants,
+    species,
+):
+    # participants of the selected datasets annotated by Neurobagel,
+    # whose species are all selected
+    _selected = {x for x, keep in zip(SPECIES, species.value) if keep}
+    _datasets = dataset_species[dataset_species.map(lambda x: set(x) <= _selected)].index
     nb_participants = neurobagel_unique_participants(
-        neurobagel_participants[neurobagel_participants["dataset_id"].isin(filtered_df["name"])]
+        neurobagel_participants[
+            neurobagel_participants["dataset_id"].isin(filtered_df["name"])
+            & neurobagel_participants["dataset_id"].isin(_datasets)
+        ]
     )
     return (nb_participants,)
 
 
 @app.cell
-def _(mo, nb_participants):
+def _(mo, nb_participants, species):
     def _count(mask) -> str:
         return f"{mask.sum()} ({mask.mean() * 100:0.1f} %)" if len(mask) else "0"
 
@@ -353,6 +391,11 @@ def _(mo, nb_participants):
     Participants of the selected datasets whose participants.tsv was annotated by
     [Neurobagel](https://neurobagel.org/) (OpenNeuro datasets only),
     with their age and sex standardized across datasets.
+
+    {mo.hstack([mo.md("**species**"), mo.vstack(list(species))], justify="start", align="start")}
+
+    The species are from the species column of the participants.tsv,
+    or from bids_inventory/data/species.tsv for some datasets without one.
 
     - number of datasets: {nb_participants["dataset_id"].nunique()}
     - number of participants: {len(nb_participants)}
