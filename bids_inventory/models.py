@@ -159,7 +159,9 @@ class BidsDataset(BaseModel):
     duration: dict[str, RUNS_DURATION | dict[str, RUNS_DURATION]] | None = _field(
         "Duration of each run, as (number of samples, duration of a sample in seconds): "
         "the number of volumes and the repetition time for fMRI and PET, "
-        "the number of samples and 1 / sampling frequency for EEG and iEEG. "
+        "the number of samples and 1 / sampling frequency for EEG and iEEG, "
+        "or (1, duration in seconds) when read from the JSON sidecar "
+        "(RecordingDuration for EEG, iEEG, MEG, NIRS and motion, sum of FrameDuration for PET). "
         "Listed by datatype and where possible split further by task. "
         "(0, NaN) if the duration of a run could not be read.",
         "Based on data from the first participant only: "

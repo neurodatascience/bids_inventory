@@ -30,9 +30,16 @@ def test_convert_duration_unknown():
 
 
 def test_convert_duration_repetition_time_in_milliseconds():
-    """180 volumes of 2000 'seconds' are 6 minutes, not 100 hours (only for func)."""
-    duration = {"func": {"rest": [360000.0, (180, 2000.0)]}, "eeg": [72000.0]}
-    assert _convert_duration(duration) == {"func": {"rest": [360.0, 360.0]}, "eeg": [72000.0]}
+    """180 volumes of 2000 'seconds' are 6 minutes, not 100 hours (only for func and pet).
+
+    Long EEG recordings exist, for example over several days.
+    """
+    duration = {"func": {"rest": [360000.0, (180, 2000.0)]}, "pet": [600000.0], "eeg": [72000.0]}
+    assert _convert_duration(duration) == {
+        "func": {"rest": [360.0, 360.0]},
+        "pet": [600.0],
+        "eeg": [72000.0],
+    }
 
 
 def test_save_known_datasets_round_trip(tmp_path):

@@ -61,8 +61,8 @@ def test_hours_per_datatype():
             "duration": [
                 # per task, one task without known duration
                 {"func": {"a": [360.0, 360.0], "b": None}},
-                {"eeg": [1800.0, float("nan")], "func": {"a": [720.0]}},
-                {},
+                {"eeg": [1800.0, float("nan"), None], "func": {"a": [720.0]}},
+                {"pet": [None]},
             ],
         }
     )

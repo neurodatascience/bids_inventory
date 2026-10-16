@@ -127,7 +127,7 @@
             "Assumptions": ""
         },
         "duration": {
-            "Description": "Duration of each run, as (number of samples, duration of a sample in seconds): the number of volumes and the repetition time for fMRI and PET, the number of samples and 1 / sampling frequency for EEG and iEEG. Listed by datatype and where possible split further by task. (0, NaN) if the duration of a run could not be read.",
+            "Description": "Duration of each run, as (number of samples, duration of a sample in seconds): the number of volumes and the repetition time for fMRI and PET, the number of samples and 1 / sampling frequency for EEG and iEEG, or (1, duration in seconds) when read from the JSON sidecar (RecordingDuration for EEG, iEEG, MEG, NIRS and motion, sum of FrameDuration for PET). Listed by datatype and where possible split further by task. (0, NaN) if the duration of a run could not be read.",
             "Format": "dict[str, list[tuple[int, float]] | dict[str, list[tuple[int, float]]]]",
             "Assumptions": "Based on data from the first participant only: assumes that all participants followed the same protocol."
         },

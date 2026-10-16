@@ -196,8 +196,8 @@ def _to_json_value(value: Any) -> Any:
     return value
 
 
-# in seconds: longer func runs had their repetition time read in milliseconds
-MAX_FUNC_RUN_DURATION = 10 * 3600
+# in seconds: longer func and pet runs had their duration read in milliseconds
+MAX_RUN_DURATION = 10 * 3600
 
 
 def _run_duration(run: Any) -> float | None:
@@ -230,8 +230,9 @@ def _convert_duration(
     Runs with an unknown duration are dropped from the task lists
     and tasks without any known duration are set to ``None``.
 
-    func runs of more than 10 hours had their repetition time read in milliseconds
-    (for example 180 volumes of 2000 "seconds"): they are converted to seconds.
+    func and pet runs of more than 10 hours had their duration read in milliseconds
+    (for example 180 volumes of 2000 "seconds", or a FrameDuration in milliseconds):
+    they are converted to seconds.
     """
     if not isinstance(durations, dict) or not durations:
         return {}
@@ -241,7 +242,7 @@ def _convert_duration(
 
         def duration(run: Any) -> float | None:
             d = _run_duration(run)
-            if datatype == "func" and d is not None and d > MAX_FUNC_RUN_DURATION:
+            if datatype in {"func", "pet"} and d is not None and d > MAX_RUN_DURATION:
                 d /= 1000
             return d
 

@@ -152,6 +152,8 @@ def _compute_total_duration(row: pd.Series) -> float:
             for _, tmp in value.items():
                 if tmp:
                     duration.extend(tmp)
+    # runs whose duration is unknown are null in the listing
+    duration = [x for x in duration if x is not None]
     return np.cumsum(duration)[-1] / 3600 if duration else np.nan
 
 

@@ -91,14 +91,15 @@ def plot_dataset_size_vs_time(df: pd.DataFrame) -> go.Figure:
 
 
 # datatypes whose duration is in the listing
-DURATION_DATATYPES = ["func", "eeg", "ieeg", "pet"]
+DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet"]
 
 
 def _runs_duration(runs: Any) -> float:
     """Return the total duration of the runs of a datatype (in seconds, NaN if unknown)."""
     if isinstance(runs, dict):
         runs = [run for task_runs in runs.values() for run in task_runs or []]
-    runs = [run for run in runs or [] if run == run]
+    # unknown durations are NaN, or null in the listing
+    runs = [run for run in runs or [] if run is not None and run == run]
     return float(sum(runs)) if runs else np.nan
 
 

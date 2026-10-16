@@ -26,6 +26,7 @@ from rich.progress import Progress
 from bids_inventory._utils import glob_files, list_participants_in_dataset, progress_bar
 from bids_inventory.listing import (
     KNOWN_DATATYPES,
+    MAX_RUN_DURATION,
     _data_dir,
     _load_known_datasets,
     _non_openneuro_listing,
@@ -939,7 +940,7 @@ def _is_nifti(filepath: Path) -> bool:
 
 
 def get_scan_duration(dataset_pth: Path, filepath: Path) -> tuple[int, float]:
-    """Get only header of a nifti file and compute its acquisition time."""
+    """Get the duration of a run from the header of its file (NIfTI, BrainVision)."""
     if _is_nifti(filepath):
         duration, reason = _nifti_duration(dataset_pth, filepath)
         if duration is not None:
@@ -1200,20 +1201,94 @@ def get_duration(
     return duration_all_datatypes
 
 
+# datatypes whose duration of each run is listed
+DURATION_DATATYPES = ["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"]
+
+# extensions of the files of a run that are not its data file
+_NOT_DATA = {".json", ".vmrk", ".fdt"}
+
+
+def _runs(files: Iterable[Path], datatype: str) -> list[Path]:
+    """Keep one file per run: its data file.
+
+    A run can have several files, for example
+    _eeg.vhdr, _eeg.vmrk and _eeg.eeg (BrainVision), or _eeg.set and _eeg.fdt (EEGLAB).
+    BrainVision runs are represented by their .vhdr (its header is read if needed).
+    """
+    runs: dict[str, Path] = {}
+    for filepath in sorted(files):
+        if filepath.suffix in _NOT_DATA:
+            continue
+        run = filepath.name.split(f"_{datatype}")[0]
+        if run not in runs or filepath.suffix == ".vhdr":
+            runs[run] = filepath
+    return list(runs.values())
+
+
+def _find_sidecar(dataset_pth: Path, filepath: Path, datatype: str) -> Path | None:
+    """Find the JSON sidecar of a run, following the BIDS inheritance principle.
+
+    The closest ``*_<datatype>.json`` whose entities are all entities of the run:
+    next to the run, then in the session, subject and root folders.
+    """
+    entities = set(filepath.name.split(f"_{datatype}")[0].split("_"))
+    folder = filepath.parent
+    while True:
+        for sidecar in sorted(folder.glob(f"*_{datatype}.json")):
+            if set(sidecar.name.removesuffix(f"_{datatype}.json").split("_")) <= entities:
+                return sidecar
+        if folder == dataset_pth or folder == folder.parent:
+            return None
+        folder = folder.parent
+
+
+def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
+    """Return the duration of a run in seconds from its JSON sidecar (None if not there).
+
+    ``RecordingDuration`` for eeg, ieeg, meg, nirs and motion,
+    the sum of the ``FrameDuration`` for pet.
+    """
+    datatype = filepath.parent.name
+    if datatype not in DURATION_DATATYPES or datatype == "func":
+        return None
+    sidecar = _find_sidecar(dataset_pth, filepath, datatype)
+    if sidecar is None:
+        return None
+    try:
+        if not sidecar.exists():
+            # annexed sidecar whose content is not there yet
+            _get_file(api.Dataset(dataset_pth), sidecar)
+        metadata = json.loads(sidecar.read_text())
+        if datatype == "pet":
+            duration = sum(float(x) for x in metadata.get("FrameDuration") or [])
+            if duration > MAX_RUN_DURATION:
+                # some sidecars have their FrameDuration in milliseconds
+                duration /= 1000
+        else:
+            duration = float(metadata.get("RecordingDuration") or 0)
+    except Exception as e:
+        cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+        return None
+    return duration if duration > 0 else None
+
+
 def _files_for_duration(
     dataset_pth: Path, first_sub: str, datatypes: list[str], tasks: list[str] | None
 ) -> dict[str, list[Path] | dict[str, list[Path]]]:
-    """List the files to read to get the duration of each datatype (and task)."""
+    """List the files to read to get the duration of each datatype (and task).
+
+    The task entity is optional for PET: if some PET runs have none,
+    all the PET runs are listed together instead of by task.
+    """
     files_per_datatype: dict[str, list[Path] | dict[str, list[Path]]] = {}
-    for target_datatype in ["func", "pet", "ieeg", "eeg"]:
+    tasks = tasks or []
+    for target_datatype in DURATION_DATATYPES:
         if target_datatype in datatypes:
-            if tasks is None:
-                tasks = []
-                if target_datatype == "pet":
-                    files_per_datatype[target_datatype] = glob_files(
-                        dataset_pth, f"{first_sub}/**/pet/{first_sub}*_pet.nii*"
-                    )
-                    break
+            if target_datatype == "pet":
+                pet_files = glob_files(dataset_pth, f"{first_sub}/**/pet/{first_sub}*_pet.nii*")
+                if any("_task-" not in x.name for x in pet_files):
+                    files_per_datatype[target_datatype] = sorted(pet_files)
+                    continue
             files_per_task: dict[str, list[Path]] = {}
             for task_ in tasks:
                 if target_datatype == "func":
@@ -1225,9 +1300,12 @@ def _files_for_duration(
                         dataset_pth, f"{first_sub}/**/pet/{first_sub}*task-{task_}*_pet.nii*"
                     )
                 else:
-                    files = glob_files(
-                        dataset_pth,
-                        f"{first_sub}/**/{target_datatype}/{first_sub}*task-{task_}*_{target_datatype}.vhdr",
+                    files = _runs(
+                        glob_files(
+                            dataset_pth,
+                            f"{first_sub}/**/{target_datatype}/{first_sub}*task-{task_}*_{target_datatype}.*",
+                        ),
+                        target_datatype,
                     )
                 files_per_task[task_] = files
             if files_per_task:
@@ -1240,7 +1318,8 @@ def get_scan_durations(
 ) -> dict[Path, tuple[int, float]]:
     """Get the duration of several runs.
 
-    NIfTI headers are read in parallel (each in its own subprocess).
+    The durations in the JSON sidecars are used first (except for func).
+    Otherwise NIfTI headers are read in parallel (each in its own subprocess).
     M/EEG headers are read one after the other
     as they are read with the datalad python API that is not guaranteed to be thread safe.
     """
@@ -1248,10 +1327,16 @@ def get_scan_durations(
     for filepath in files:
         cc_log.info(f"  {filepath.relative_to(dataset_pth)}")
 
+    durations: dict[Path, tuple[int, float]] = {}
+    for filepath in files:
+        if (duration := _sidecar_duration(dataset_pth, filepath)) is not None:
+            # same convention as for the headers: (number of samples, duration of a sample)
+            durations[filepath] = (1, duration)
+    files = [x for x in files if x not in durations]
+
     nifti = [x for x in files if _is_nifti(x)]
     others = [x for x in files if x not in nifti]
 
-    durations: dict[Path, tuple[int, float]] = {}
     if nifti:
         # read the first run alone: if its file has no public URL,
         # the other files of the dataset will not have one either
@@ -1546,6 +1631,64 @@ def count_scans_tsv(dataset_pth: Path) -> int:
 
 def count_physio_files(dataset_pth: Path) -> int:
     return len(list(glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")))
+
+
+def _local_openneuro_dataset(name: str) -> Path | None:
+    """Return where an openneuro dataset is installed locally (None if it is not)."""
+    folders = [superdataset_dir(), config_path("local_paths", "openneuro", OPENNEURO)]
+    for folder in folders:
+        if folder is not None and (folder / name / "dataset_description.json").exists():
+            return folder / name
+    return None
+
+
+def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:
+    """Get again the duration of the runs of some datatypes for the openneuro datasets listed.
+
+    Only for the datasets installed locally: the other ones keep their durations.
+    Faster than re-indexing everything, for example after adding a datatype
+    whose duration can be read.
+    """
+    output_file = _openneuro_listing()
+    df = _load_known_datasets(output_file)
+    if debug:
+        output_file = Path.cwd() / output_file.name
+
+    to_update = df[df["datatypes"].apply(lambda x: bool(set(x) & set(datatypes)))]
+    cc_log.info(f"Getting the duration of {datatypes} for {len(to_update)} datasets")
+    not_installed = []
+    durations = df["duration"].tolist()
+    with progress_bar(text="Getting durations") as progress:
+        task = progress.add_task(description="durations", total=len(to_update))
+        for i, (index, row) in enumerate(to_update.iterrows()):
+            if debug and i >= 5:
+                break
+            progress.update(task, advance=1)
+            set_current_dataset(row["name"])
+            dataset_pth = _local_openneuro_dataset(row["name"])
+            if dataset_pth is None:
+                not_installed.append(row["name"])
+                continue
+            dataset_datatypes = [x for x in datatypes if x in row["datatypes"]]
+            try:
+                duration = get_duration(dataset_pth, dataset_datatypes, row["tasks"], jobs=jobs)
+            except Exception:
+                cc_log.exception(f"Could not get the durations of {row['name']}")
+                continue
+            # replace the durations of these datatypes, keep the others
+            others = {k: v for k, v in (row["duration"] or {}).items() if k not in datatypes}
+            durations[df.index.get_loc(index)] = {**others, **duration}
+            if i % 20 == 0:
+                save_known_datasets(df.assign(duration=durations), output_file)
+    set_current_dataset(None)
+
+    if not_installed:
+        cc_log.warning(
+            f"{len(not_installed)} datasets are not installed locally "
+            f"and keep their durations: {not_installed}"
+        )
+    cc_log.info(f"Saving to {output_file}")
+    save_known_datasets(df.assign(duration=durations), output_file)
 
 
 def update(
