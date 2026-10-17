@@ -1,0 +1,25 @@
+{
+    "description": "Types of signals of the physio files, from the labels of their recording entity (recording-<label>). Labels are compared in lower case and without their trailing digits (ECG2 is ecg, eye1 is eye). A label can be of several types (respcardiac). The labels not listed are of type 'other'.",
+    "types": {
+        "cardiac": [
+            "cardiac",
+            "ecg",
+            "heartrate",
+            "ppg",
+            "pulse",
+            "pulsimetry"
+        ],
+        "respiratory": ["gas", "resp", "respiration", "respiratory", "sniff"],
+        "eye tracking": ["cyclopean", "eye", "eyegaze", "eyetracking"],
+        "electrodermal": ["eda", "gsr", "scr"],
+        "motion": ["biodex", "imu", "motion"],
+        "muscle": ["emg"],
+        "trigger": ["pushbutton", "trigger"]
+    },
+    "combined": {
+        "cardresp": ["cardiac", "respiratory"],
+        "ecgrespscr": ["cardiac", "respiratory", "electrodermal"],
+        "edaresp": ["electrodermal", "respiratory"],
+        "respcardiac": ["cardiac", "respiratory"]
+    }
+}

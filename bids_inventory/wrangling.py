@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from bids_inventory.institutions import dataset_institutions, known_names, load_institutions
-from bids_inventory.listing import KNOWN_DATATYPES, dataset_species
+from bids_inventory.listing import KNOWN_DATATYPES, dataset_species, physio_recording_types
 from bids_inventory.logger import bi_logger
 
 cc_log = bi_logger()
@@ -33,6 +33,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``nb_tasks``: :obj:`int` Total number of unique tasks in the dataset.
     - ``useful_participants_tsv``: :obj:`bool`
     - ``has_physio``: :obj:`bool` ``True`` if the dataset contains any ``*_physio.tsv.gz`` files.
+    - ``physio_types``: :obj:`list[str]` Types of signals of its physio files (cardiac,
+      respiratory, eye tracking...), from their recording labels.
     - ``has_fmriprep``: :obj:`bool`` ``True`` if the dataset has knwow fmriprep preprocessed derivatives.
     - ``has_freesurfer``: :obj:`bool` ``True`` if the dataset has knwow freesurfer preprocessed derivatives.
     - ``has_mriqc``: :obj:`bool` ``True`` if the dataset has knwow mriqc derivatives.
@@ -101,6 +103,10 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     df["nb_authors"] = df["authors"].apply(lambda x: len(x))
 
     df["has_physio"] = df["nb_physio_files"] > 0
+    df["physio_types"] = [
+        physio_recording_types(labels if isinstance(labels, list) else [])
+        for labels in (df["physio_recordings"] if "physio_recordings" in df else [[]] * len(df))
+    ]
 
     df["total_duration"] = df.apply(_compute_total_duration, axis=1)
 

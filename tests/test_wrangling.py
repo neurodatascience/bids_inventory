@@ -180,3 +180,11 @@ def test_wrangle_data_phenotype():
     df = wrangle_data(known_datasets_df())
     assert df["phenotype"].sum() == df["has_phenotype_dir"].eq(True).sum() > 0
     assert df.loc[df["phenotype"], "datatypes"].apply(lambda x: "phenotype" in x).all()
+
+
+def test_wrangle_data_physio_types():
+    df = wrangle_data(known_datasets_df())
+    types = {x for values in df["physio_types"] for x in values}
+    assert {"cardiac", "respiratory", "eye tracking"} <= types
+    # only the datasets with physio files have types
+    assert not df.loc[~df["has_physio"], "physio_types"].apply(bool).any()

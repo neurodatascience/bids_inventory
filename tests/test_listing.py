@@ -103,3 +103,13 @@ def test_cli_remove(tmp_path, monkeypatch, caplog):
     assert listing.read_text() == '{"name": "ds000002", "size": "1.0 GB"}\n'
     assert "Removed 1 datasets" in caplog.text
     assert "Not in the listing: ds999999" in caplog.text
+
+
+def test_physio_recording_types():
+    from bids_inventory.listing import physio_recording_types
+
+    assert physio_recording_types(["respcardiac"]) == ["cardiac", "respiratory"]
+    # case and trailing digits are ignored
+    assert physio_recording_types(["ECG2", "eye1", "Eye"]) == ["cardiac", "eye tracking"]
+    assert physio_recording_types(["brainamp"]) == ["other"]
+    assert physio_recording_types([]) == []

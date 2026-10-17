@@ -31,6 +31,29 @@ KNOWN_DATATYPES = sorted(bids_datatypes())
 
 
 @functools.lru_cache(maxsize=1)
+def _physio_recordings() -> dict[str, list[str]]:
+    """Map the (normalized) recording labels of the physio files to their types."""
+    with open(Path(__file__).parent / "data" / "physio_recordings.json") as f:
+        content = json.load(f)
+    types = {label: [kind] for kind, labels in content["types"].items() for label in labels}
+    return {**types, **content["combined"]}
+
+
+def physio_recording_types(labels: Iterable[str]) -> list[str]:
+    """Return the types of signals of physio files from their recording labels.
+
+    For example ["cardiac", "respiratory"] for ["respcardiac"],
+    see bids_inventory/data/physio_recordings.json ("other" for unknown labels).
+    """
+    known = _physio_recordings()
+    types = set()
+    for label in labels:
+        # ECG2 is ecg, eye1 is eye
+        types.update(known.get(str(label).lower().rstrip("0123456789"), ["other"]))
+    return sorted(types)
+
+
+@functools.lru_cache(maxsize=1)
 def known_datasets_df() -> pd.DataFrame:
     """Return dataframe of all datasets in the inventory.
 
