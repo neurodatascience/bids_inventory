@@ -42,10 +42,13 @@ def _(bids_inventory_installed):
     import marimo as mo
 
     from bids_inventory._plotting import (
+        channels_histogram,
         datatypes_histogram,
         field_strength_histogram,
+        file_formats_histogram,
         histogram_tasks,
         institutions_map,
+        nb_datatypes_histogram,
         neurobagel_age_distribution,
         neurobagel_bar_per_dataset,
         neurobagel_female_ratio_vs_participants,
@@ -53,7 +56,9 @@ def _(bids_inventory_installed):
         neurobagel_unique_participants,
         plot_dataset_size_vs_time,
         plot_hours_vs_time,
+        run_durations_histogram,
         scatter_subject_vs,
+        version_histogram,
     )
     from bids_inventory._version import version
     from bids_inventory.institutions import (
@@ -74,6 +79,11 @@ def _(bids_inventory_installed):
     )
 
     return (
+        channels_histogram,
+        file_formats_histogram,
+        nb_datatypes_histogram,
+        run_durations_histogram,
+        version_histogram,
         KNOWN_DATATYPES,
         NOT_SPECIFIED,
         Path,
@@ -429,6 +439,12 @@ def _(field_strength_histogram, filtered_df, mo):
 
 
 @app.cell
+def _(filtered_df, mo, nb_datatypes_histogram):
+    mo.vstack([mo.md("---"), nb_datatypes_histogram(filtered_df)])
+    return
+
+
+@app.cell
 def _(mo):
     subject_vs = mo.ui.radio(
         options=["number of tasks", "mean size per subject", "mean duration per subject"],
@@ -488,6 +504,31 @@ def _(filtered_df, hours_log_y, mo, plot_hours_vs_time):
             mo.hstack([hours_log_y], justify="center"),
         ]
     )
+    return
+
+
+@app.cell
+def _(filtered_df, mo, run_durations_histogram):
+    mo.vstack([mo.md("---"), run_durations_histogram(filtered_df)])
+    return
+
+
+@app.cell
+def _(filtered_df, mo, version_histogram):
+    mo.vstack(
+        [
+            mo.md("---"),
+            version_histogram(filtered_df, "bids_version", "BIDS"),
+            version_histogram(filtered_df, "fmriprep_version", "fMRIPrep"),
+            version_histogram(filtered_df, "mriqc_version", "MRIQC"),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(channels_histogram, file_formats_histogram, filtered_df, mo):
+    mo.vstack([mo.md("---"), file_formats_histogram(filtered_df), channels_histogram(filtered_df)])
     return
 
 

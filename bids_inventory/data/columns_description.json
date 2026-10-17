@@ -81,6 +81,11 @@
             "Format": "list[int]",
             "Assumptions": "Based on data from the first participant only."
         },
+        "nb_channels": {
+            "Description": "Number of channels of each EEG, iEEG and MEG run, by datatype, from the JSON sidecars: EEGChannelCount, ECOGChannelCount + SEEGChannelCount, MEGChannelCount.",
+            "Format": "dict[str, list[int]]",
+            "Assumptions": "Based on data from the first participant only."
+        },
         "datatypes": {
             "Description": "List of BIDS supported datatypes found in the dataset.",
             "Format": "list[str]",

@@ -143,7 +143,8 @@ for example so that the next 'bids_inventory update' indexes them again.""",
     update_parser.add_argument(
         "--durations",
         help="""
-        Only get again the duration of the runs of these datatypes,
+        Only get again the duration of the runs of these datatypes
+        (and the number of channels of the eeg, ieeg and meg runs),
         for the OpenNeuro datasets already listed and installed locally.
         """,
         nargs="+",

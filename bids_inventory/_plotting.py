@@ -1,5 +1,6 @@
 """Tools for basic figures about the known datasets."""
 
+import re
 from typing import Any
 
 import numpy as np
@@ -311,3 +312,185 @@ def neurobagel_age_distribution(participants: pd.DataFrame) -> go.Figure:
     )
     fig.update_traces(opacity=0.5)
     return fig
+
+
+# same color for a datatype in all the figures, whatever the datatypes shown
+DATATYPE_COLORS = dict(zip(DURATION_DATATYPES, px.colors.qualitative.Plotly))
+
+
+def _run_durations(runs: Any) -> list[float]:
+    """Return the duration of each run of a datatype (in seconds, known ones only)."""
+    if isinstance(runs, dict):
+        runs = [run for task_runs in runs.values() for run in task_runs or []]
+    return [float(run) for run in runs or [] if run is not None and run == run and run > 0]
+
+
+def run_durations_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the distribution of the duration of all the runs, one histogram per datatype.
+
+    The runs of the first participant of each dataset (the only ones in the listing).
+    The bins are logarithmic: runs last from seconds to days.
+    """
+    minutes = {
+        datatype: [
+            seconds / 60
+            for duration in df["duration"]
+            for seconds in _run_durations((duration or {}).get(datatype))
+        ]
+        for datatype in DURATION_DATATYPES
+    }
+    all_minutes = [x for values in minutes.values() for x in values]
+    fig = go.Figure()
+    if not all_minutes:
+        return fig.update_layout(title="duration of the runs")
+    edges = np.logspace(
+        np.floor(np.log10(min(all_minutes)) * 4) / 4,
+        np.ceil(np.log10(max(all_minutes)) * 4) / 4,
+        num=50,
+    )
+    centers = np.sqrt(edges[:-1] * edges[1:])
+    for datatype, values in minutes.items():
+        if not values:
+            continue
+        counts, _ = np.histogram(values, bins=edges)
+        fig.add_trace(
+            go.Bar(
+                x=centers,
+                y=counts,
+                width=np.diff(edges),
+                name=f"{datatype} ({len(values)} runs)",
+                marker_color=DATATYPE_COLORS[datatype],
+                opacity=0.6,
+                customdata=np.stack([edges[:-1], edges[1:]], axis=-1),
+                hovertemplate=(
+                    f"{datatype}<br>%{{customdata[0]:.3g}} to %{{customdata[1]:.3g}} minutes"
+                    "<br>%{y} runs<extra></extra>"
+                ),
+            )
+        )
+    return fig.update_layout(
+        barmode="overlay",
+        title=("Duration of the runs<br><sup>runs of the first participant of each dataset</sup>"),
+        xaxis={"type": "log", "title": {"text": "duration (minutes)"}},
+        yaxis={"title": {"text": "number of runs"}},
+    )
+
+
+def _version_key(version: str) -> tuple[Any, ...]:
+    """Sort versions by their numbers: 1.10.0 after 1.9.0, 23.2.0 after 0.16.1."""
+    return tuple(
+        (0, int(part)) if part.isdigit() else (1, part) for part in re.split(r"[.+-]", version)
+    )
+
+
+def version_histogram(df: pd.DataFrame, column: str, name: str) -> go.Figure:
+    """Plot the number of datasets for each version (of BIDS, fMRIPrep, MRIQC...).
+
+    ``column``: column of the listing with the versions (``bids_version``...).
+    """
+    versions = df[column].replace("n/a", None).dropna().astype(str)
+    counts = versions.value_counts()
+    counts = counts.loc[sorted(counts.index, key=_version_key)]
+    # go.Bar and not px.bar: there may be no versions at all
+    fig = go.Figure(
+        go.Bar(
+            x=list(counts.index),
+            y=list(counts.values),
+            hovertemplate=f"{name} %{{x}}<br>%{{y}} datasets<extra></extra>",
+        )
+    )
+    return fig.update_layout(
+        title=f"{name} version ({len(versions)} datasets)",
+        xaxis={"type": "category", "title": {"text": f"{name} version"}},
+        yaxis={"title": {"text": "number of datasets"}},
+    )
+
+
+# names of the file formats in the listing, by datatype
+FILE_FORMATS = {
+    "eeg": {"eeg": "BrainVision", "edf": "EDF", "bdf": "BDF", "set": "EEGLAB"},
+    "ieeg": {"eeg": "BrainVision", "edf": "EDF", "set": "EEGLAB", "mefd": "MEF3", "nwb": "NWB"},
+    "meg": {
+        ".fif": "FIF (Elekta/MEGIN)",
+        ".ds": "CTF",
+        "": "BTi/4D",
+        ".con": "KIT/Yokogawa",
+        ".kdf": "KRISS",
+        ".raw.mhd": "ITAB",
+    },
+}
+
+
+def file_formats_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the number of datasets using each file format, for eeg, ieeg and meg."""
+    fig = make_subplots(rows=1, cols=len(FILE_FORMATS), subplot_titles=list(FILE_FORMATS))
+    for col, (datatype, names) in enumerate(FILE_FORMATS.items(), start=1):
+        counts = {name: 0 for name in names.values()}
+        for formats in df[f"{datatype}_file_formats"]:
+            for fmt, nb_files in (formats if isinstance(formats, dict) else {}).items():
+                if nb_files and fmt in names:
+                    counts[names[fmt]] += 1
+        fig.add_trace(
+            go.Bar(
+                x=list(counts),
+                y=list(counts.values()),
+                name=datatype,
+                marker_color=DATATYPE_COLORS[datatype],
+                hovertemplate="%{x}<br>%{y} datasets<extra></extra>",
+            ),
+            row=1,
+            col=col,
+        )
+    fig.update_yaxes(title_text="number of datasets", row=1, col=1)
+    return fig.update_layout(title="File formats of the EEG, iEEG and MEG data", showlegend=False)
+
+
+CHANNEL_DATATYPES = ["eeg", "ieeg", "meg"]
+
+
+def channels_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the distribution of the number of channels, one histogram per datatype.
+
+    One value per dataset: the largest number of channels of the runs of its first participant
+    (``nb_channels`` column, from the JSON sidecars).
+    """
+    fig = make_subplots(rows=1, cols=len(CHANNEL_DATATYPES), subplot_titles=CHANNEL_DATATYPES)
+    for col, datatype in enumerate(CHANNEL_DATATYPES, start=1):
+        column = df["nb_channels"] if "nb_channels" in df else []
+        values = [
+            max(channels[datatype])
+            for channels in column
+            if isinstance(channels, dict) and channels.get(datatype)
+        ]
+        fig.add_trace(
+            go.Histogram(
+                x=values,
+                name=f"{datatype} ({len(values)} datasets)",
+                marker_color=DATATYPE_COLORS[datatype],
+                hovertemplate="%{x} channels<br>%{y} datasets<extra></extra>",
+            ),
+            row=1,
+            col=col,
+        )
+        fig.update_xaxes(title_text="number of channels", row=1, col=col)
+    fig.update_yaxes(title_text="number of datasets", row=1, col=1)
+    return fig.update_layout(
+        title=(
+            "Number of channels<br><sup>"
+            "largest number of channels of the runs of the first participant of each dataset</sup>"
+        ),
+        showlegend=False,
+    )
+
+
+def nb_datatypes_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the number of datasets for each number of datatypes they have."""
+    counts = df["datatypes"].apply(len).value_counts().sort_index()
+    fig = px.bar(
+        x=counts.index,
+        y=counts.values,
+        text=counts.values,
+        labels={"x": "number of datatypes", "y": "number of datasets"},
+        title="Number of datatypes per dataset",
+    )
+    return fig.update_xaxes(dtick=1)
