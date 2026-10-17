@@ -175,6 +175,15 @@ class BidsDataset(BaseModel):
         "assumes that all participants followed the same protocol.",
         default=None,
     )
+    readme_size: int | None = _field(
+        "Size (in bytes) of the README of the dataset (README, README.md, README.txt "
+        "or README.rst), None if it has none.",
+        default=None,
+    )
+    bidsignore_size: int | None = _field(
+        "Size (in bytes) of the .bidsignore of the dataset, None if it has none.",
+        default=None,
+    )
     references_and_links: list[str] = _field(
         "List of the ReferencesAndLinks of the dataset_description.json.", default=[]
     )
