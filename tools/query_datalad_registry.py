@@ -70,7 +70,7 @@ def installed_urls(install_script: Path = INSTALL_SCRIPT) -> set[str]:
 
 def normalize_url(url: str) -> str:
     """Compare URLs without their .git suffix, trailing slash or case."""
-    return url.strip().rstrip("/").removesuffix(".git").lower()
+    return url.strip().rstrip("/").removesuffix(".git").rstrip("/").lower()
 
 
 def is_excluded(dataset_url: dict[str, Any]) -> bool:
