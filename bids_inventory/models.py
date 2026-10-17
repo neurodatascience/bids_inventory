@@ -115,9 +115,9 @@ class BidsDataset(BaseModel):
         default=[],
     )
     nb_channels: dict[str, list[int]] | None = _field(
-        "Number of channels of each EEG, iEEG and MEG run, by datatype, "
+        "Number of channels of each EEG, iEEG, MEG and EMG run, by datatype, "
         "from the JSON sidecars: EEGChannelCount, ECOGChannelCount + SEEGChannelCount, "
-        "MEGChannelCount.",
+        "MEGChannelCount, EMGChannelCount.",
         FIRST_PARTICIPANT,
         default=None,
     )
@@ -168,7 +168,7 @@ class BidsDataset(BaseModel):
         "the number of volumes and the repetition time for fMRI and PET, "
         "the number of samples and 1 / sampling frequency for EEG and iEEG, "
         "or (1, duration in seconds) when read from the JSON sidecar "
-        "(RecordingDuration for EEG, iEEG, MEG, NIRS and motion, sum of FrameDuration for PET). "
+        "(RecordingDuration for EEG, iEEG, MEG, NIRS, motion and EMG, sum of FrameDuration for PET). "
         "Listed by datatype and where possible split further by task. "
         "(0, NaN) if the duration of a run could not be read.",
         "Based on data from the first participant only: "

@@ -10,23 +10,24 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-KNOWN_DATATYPES = sorted(
-    [
-        "anat",
-        "dwi",
-        "func",
-        "perf",
-        "fmap",
-        "beh",
-        "meg",
-        "eeg",
-        "ieeg",
-        "pet",
-        "micr",
-        "nirs",
-        "motion",
-    ]
-)
+
+def _bids_datatypes_file() -> Path:
+    # not _data_dir(): defined further down, and needed when the module is imported
+    return Path(__file__).parent / "data" / "bids_datatypes.json"
+
+
+def bids_datatypes() -> dict[str, str]:
+    """Return the BIDS datatypes and their names (from the BIDS schema).
+
+    Saved in bids_inventory/data/bids_datatypes.json by ``bids_inventory update``.
+    """
+    with open(_bids_datatypes_file()) as f:
+        datatypes: dict[str, str] = json.load(f)["datatypes"]
+    return datatypes
+
+
+# the official BIDS datatypes (anat, func, eeg...)
+KNOWN_DATATYPES = sorted(bids_datatypes())
 
 
 @functools.lru_cache(maxsize=1)

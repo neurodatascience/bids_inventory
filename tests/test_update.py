@@ -1325,3 +1325,57 @@ def test_install_non_openneuro_error(tmp_path, monkeypatch, caplog):
         tmp_path, {"indi": {"prefix": "INDI_", "datasets": {"HypnosisBarrios": "///indi/x"}}}
     )
     assert "Could not install ///indi/x: Failed to connect to datasets.datalad.org" in caplog.text
+
+
+def test_update_bids_datatypes(tmp_path, monkeypatch):
+    """The datatypes are read from the BIDS schema, and kept if it cannot be downloaded."""
+    import json
+
+    import requests
+
+    from bids_inventory import _update
+
+    datatypes_file = tmp_path / "bids_datatypes.json"
+    monkeypatch.setattr(_update, "_bids_datatypes_file", lambda: datatypes_file)
+    monkeypatch.setattr(_update, "KNOWN_DATATYPES", ["anat"])
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {
+                "bids_version": "1.11.2",
+                "schema_version": "2.0.0",
+                "objects": {
+                    "datatypes": {
+                        "emg": {"value": "emg", "display_name": "Electromyography"},
+                        "anat": {
+                            "value": "anat",
+                            "display_name": "Anatomical Magnetic Resonance Imaging",
+                        },
+                    }
+                },
+            }
+
+    monkeypatch.setattr(_update.requests, "get", lambda url, timeout: Response())
+    _update.update_bids_datatypes()
+
+    saved = json.loads(datatypes_file.read_text())
+    assert saved["bids_version"] == "1.11.2"
+    assert list(saved["datatypes"]) == ["anat", "emg"]
+    assert _update.KNOWN_DATATYPES == ["anat", "emg"]
+
+    def no_network(url, timeout):
+        raise requests.ConnectionError("no network")
+
+    monkeypatch.setattr(_update.requests, "get", no_network)
+    _update.update_bids_datatypes()
+    assert json.loads(datatypes_file.read_text()) == saved
+
+
+def test_known_datatypes():
+    """The official BIDS datatypes, saved from the BIDS schema."""
+    from bids_inventory.listing import KNOWN_DATATYPES
+
+    assert {"anat", "func", "eeg", "emg", "micr", "nirs", "motion"} <= set(KNOWN_DATATYPES)

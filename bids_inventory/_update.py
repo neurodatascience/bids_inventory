@@ -28,6 +28,7 @@ from bids_inventory.listing import (
     KNOWN_DATATYPES,
     MAX_RUN_DURATION,
     NULLABLE_INT_COLUMNS,
+    _bids_datatypes_file,
     _data_dir,
     _load_known_datasets,
     _non_openneuro_listing,
@@ -933,7 +934,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     tasks = None
     if any(
         mod in datatypes
-        for mod in ["func", "eeg", "ieeg", "meg", "beh", "perf", "pet", "motion", "nirs"]
+        for mod in ["func", "eeg", "ieeg", "meg", "beh", "perf", "pet", "motion", "nirs", "emg"]
     ):
         tasks = list_tasks(dataset_pth, sessions=sessions)
         check_task(tasks, datatypes, sessions, dataset_pth)
@@ -1307,7 +1308,7 @@ def get_duration(
 
 
 # datatypes whose duration of each run is listed
-DURATION_DATATYPES = ["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"]
+DURATION_DATATYPES = ["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion", "emg"]
 
 # extensions of the files of a run that are not its data file
 _NOT_DATA = {".json", ".vmrk", ".fdt"}
@@ -1369,16 +1370,17 @@ CHANNEL_COUNTS = {
     "eeg": ["EEGChannelCount"],
     "ieeg": ["ECOGChannelCount", "SEEGChannelCount"],
     "meg": ["MEGChannelCount"],
+    "emg": ["EMGChannelCount"],
 }
 
 
 def get_nb_channels(
     dataset_pth: Path, datatypes: list[str], tasks: list[str] | None
 ) -> dict[str, list[int]]:
-    """Get the number of channels of each eeg, ieeg and meg run of the first participant.
+    """Get the number of channels of each eeg, ieeg, meg and emg run of the first participant.
 
     From the JSON sidecars: ``EEGChannelCount``, ``ECOGChannelCount`` + ``SEEGChannelCount``,
-    ``MEGChannelCount``. Runs without them are left out.
+    ``MEGChannelCount``, ``EMGChannelCount``. Runs without them are left out.
     """
     first_sub = list_participants_in_dataset(dataset_pth)[0]
     datatypes = [x for x in datatypes if x in CHANNEL_COUNTS]
@@ -1403,7 +1405,7 @@ def get_nb_channels(
 def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
     """Return the duration of a run in seconds from its JSON sidecar (None if not there).
 
-    ``RecordingDuration`` for eeg, ieeg, meg, nirs and motion,
+    ``RecordingDuration`` for eeg, ieeg, meg, nirs, motion and emg,
     the sum of the ``FrameDuration`` for pet.
     """
     datatype = filepath.parent.name
@@ -1984,7 +1986,7 @@ def _last_commit_time(dataset_pth: Path) -> int:
 def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:
     """Get again the duration of the runs of some datatypes for the openneuro datasets listed.
 
-    And their number of channels for eeg, ieeg and meg.
+    And their number of channels for eeg, ieeg, meg and emg.
     Only for the datasets installed locally: the other ones keep their durations.
     Faster than re-indexing everything, for example after adding a datatype
     whose duration can be read.
@@ -2050,6 +2052,38 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     save_known_datasets(df.assign(duration=durations, nb_channels=channels), output_file)
 
 
+BIDS_SCHEMA = "https://bids-specification.readthedocs.io/en/stable/schema.json"
+
+
+def update_bids_datatypes() -> None:
+    """Get the official datatypes from the BIDS schema (objects.datatypes).
+
+    Saved in bids_inventory/data/bids_datatypes.json, and used as KNOWN_DATATYPES.
+    If the schema cannot be downloaded, the datatypes saved before are used.
+    """
+    try:
+        response = requests.get(BIDS_SCHEMA, timeout=60)
+        response.raise_for_status()
+        schema = response.json()
+        datatypes = {
+            name: datatype.get("display_name", name)
+            for name, datatype in sorted(schema["objects"]["datatypes"].items())
+        }
+    except (requests.RequestException, ValueError, KeyError) as e:
+        cc_log.warning(f"Could not get the datatypes from the BIDS schema: {e!r}")
+        return
+    content = {
+        "source": BIDS_SCHEMA,
+        "bids_version": schema.get("bids_version"),
+        "schema_version": schema.get("schema_version"),
+        "datatypes": datatypes,
+    }
+    _bids_datatypes_file().write_text(json.dumps(content, indent=4) + "\n")
+    # the list imported by the other modules
+    KNOWN_DATATYPES[:] = sorted(datatypes)
+    cc_log.info(f"BIDS {content['bids_version']} datatypes: {', '.join(KNOWN_DATATYPES)}")
+
+
 def update(
     debug: bool = True,
     jobs: int = 1,
@@ -2067,6 +2101,7 @@ def update(
     source : "openneuro" | "non-openneuro"
         Which listing to update.
     """
+    update_bids_datatypes()
     if source == "non-openneuro":
         update_non_openneuro(debug=debug, jobs=jobs, reindex=reindex)
         return

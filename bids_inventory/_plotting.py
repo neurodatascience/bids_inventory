@@ -92,7 +92,7 @@ def plot_dataset_size_vs_time(df: pd.DataFrame) -> go.Figure:
 
 
 # datatypes whose duration is in the listing
-DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet"]
+DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet", "emg"]
 
 
 def _runs_duration(runs: Any) -> float:
@@ -445,7 +445,7 @@ def file_formats_histogram(df: pd.DataFrame) -> go.Figure:
     return fig.update_layout(title="File formats of the EEG, iEEG and MEG data", showlegend=False)
 
 
-CHANNEL_DATATYPES = ["eeg", "ieeg", "meg"]
+CHANNEL_DATATYPES = ["eeg", "ieeg", "meg", "emg"]
 
 
 def channels_histogram(df: pd.DataFrame) -> go.Figure:

@@ -146,7 +146,7 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def _missing_duration(row: pd.Series) -> None | bool:
     if not set(row["datatypes"]).intersection(
-        ("pet", "eeg", "ieeg", "meg", "motion", "nirs", "func")
+        ("pet", "eeg", "ieeg", "meg", "motion", "nirs", "func", "emg")
     ):
         return None
     for _, value in row["duration"].items():

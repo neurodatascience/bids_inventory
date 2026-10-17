@@ -156,7 +156,8 @@ def test_channels_histogram(listing):
 
     fig = channels_histogram(listing)
     # the largest number of channels of each dataset
-    assert [list(trace.x) for trace in fig.data] == [[64, 60], [], [306]]
+    # eeg, ieeg, meg, emg
+    assert [list(trace.x) for trace in fig.data] == [[64, 60], [], [306], []]
 
 
 def test_nb_datatypes_histogram(listing):
