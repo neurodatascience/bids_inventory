@@ -36,7 +36,15 @@ from bids_inventory import filter_data, load_inventory
 # listing with extra summary columns (has_fmriprep, nb_tasks, total_duration...)
 df = load_inventory()
 eeg_datasets = filter_data(df, config={"datatypes": ["eeg"]})
+# text filters (case insensitive) on the tasks, authors, institutions and their countries,
+# with regular expressions if the "..._regex" key is True
+canadian_rest = filter_data(
+    df, config={"task": "^rest$", "task_regex": True, "country": "canada"}
+)
 ```
+
+The institutions are named as in the keys of `bids_inventory/data/institutions.json`
+(`institution_names` column), and their countries are in the `countries` column.
 
 To browse the listing in a dashboard (a [marimo](https://marimo.io/) app) in the browser:
 
