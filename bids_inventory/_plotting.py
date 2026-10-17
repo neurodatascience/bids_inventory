@@ -256,7 +256,7 @@ def neurobagel_female_ratio_vs_participants(per_dataset: pd.DataFrame) -> go.Fig
         log_x=True,
         hover_name="dataset_id",
         marginal_x="box",
-        marginal_y="box",
+        marginal_y="histogram",
         labels=NEUROBAGEL_LABELS,
         title="proportion of females VS number of participants for each dataset",
     )

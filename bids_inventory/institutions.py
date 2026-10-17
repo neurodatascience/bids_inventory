@@ -192,6 +192,37 @@ def count_institutions(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def country_code(institution: str) -> str | None:
+    """Return the country code of an institution address from DICOM headers, if it has one.
+
+    DICOM addresses end with the country code and the ZIP code (or "ZIP" if not filled),
+    for example "Leipziger Str. 44,Magdeburg,District,DE,39120"
+    or "Brenneckestr._6_Magdeburg_District_DE_39118".
+    Returns the code in lower case ("de"), or None.
+    Postal addresses ending with a state and a country ("Aberdeen, MD, USA") have none.
+    """
+    tokens = [x.strip() for x in re.split(r"[,_]", institution) if x.strip()]
+    if (
+        len(tokens) >= 3
+        and re.fullmatch(r"[A-Z]{2}", tokens[-2])
+        and (tokens[-1] == "ZIP" or re.search(r"[0-9]", tokens[-1]))
+    ):
+        return tokens[-2].lower()
+    return None
+
+
+def postal_code(institution: str) -> str | None:
+    """Return the ZIP code of an institution address from DICOM headers, if it has one.
+
+    For example "39120" for "Leipziger Str. 44,Magdeburg,District,DE,39120"
+    (and None for the "ZIP" placeholder).
+    """
+    if country_code(institution) is None:
+        return None
+    zip_code = re.split(r"[,_]", institution.strip(" ,_"))[-1].strip()
+    return zip_code if re.search(r"[0-9]", zip_code) else None
+
+
 def clean_address(institution: str) -> str:
     """Turn an institution string into an address to geocode.
 
@@ -200,6 +231,9 @@ def clean_address(institution: str) -> str:
     """
     # the template can be spread over several parts: "Street StreetNo,City,District,KR,ZIP"
     is_template = "streetno" in institution.lower()
+    # in DICOM addresses, "District" is often left from the template:
+    # it matches places named "District" anywhere
+    is_dicom = country_code(institution) is not None
     parts = []
     for part in institution.split(","):
         part = part.strip()
@@ -209,7 +243,9 @@ def clean_address(institution: str) -> str:
         words = [
             word
             for word in words
-            if not SCANNER_ID.match(word) and not (is_template and word.lower() in TEMPLATE_WORDS)
+            if not SCANNER_ID.match(word)
+            and not (is_template and word.lower() in TEMPLATE_WORDS)
+            and not (is_dicom and word.lower() == "district")
         ]
         if words:
             parts.append(" ".join(words))

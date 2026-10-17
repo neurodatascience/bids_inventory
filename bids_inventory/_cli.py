@@ -201,6 +201,24 @@ The file is saved after each geocoded address: if stopped, run it again to conti
     )
     _add_verbosity(update_parser)
 
+    relocate_parser = institutions_subparsers.add_parser(
+        "relocate",
+        help="""Geocode again institutions found in the wrong place, only in their country
+(from the country code at the end of DICOM addresses: "...,Magdeburg,District,DE,39120").
+Without names: all the institutions with a country code that are located in another country.""",
+        formatter_class=formatter_class,
+    )
+    relocate_parser.add_argument(
+        "names",
+        nargs="*",
+        help="Institutions to geocode again (keys of institutions.json).",
+    )
+    relocate_parser.add_argument(
+        "--country",
+        help="Country code to search the institutions in (for example: ch), for names without one.",
+    )
+    _add_verbosity(relocate_parser)
+
     suggest_parser = institutions_subparsers.add_parser(
         "suggest",
         help="""Write the pairs of institutions that are probably the same to a TSV file.
@@ -254,6 +272,25 @@ def _run_institutions(args: Any) -> None:
 
         names = count_institutions(load_inventory())["name"]
         update_institutions(institutions, names, debug=args.debug)
+        bi_log.info(f"Saved {INSTITUTIONS_FILE}")
+        return
+
+    if args.institutions_command == "relocate":
+        with _check_extra("institutions"):
+            from bids_inventory._institutions_update import relocate_institutions
+
+        if args.country and not args.names:
+            bi_log.error("--country needs the names of the institutions to relocate")
+            sys.exit(1)
+        try:
+            relocate_institutions(
+                institutions,
+                args.names or None,
+                country=args.country.lower() if args.country else None,
+            )
+        except ValueError as e:
+            bi_log.error(str(e))
+            sys.exit(1)
         bi_log.info(f"Saved {INSTITUTIONS_FILE}")
         return
 
