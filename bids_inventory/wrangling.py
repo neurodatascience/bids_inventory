@@ -38,7 +38,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``has_mriqc``: :obj:`bool` ``True`` if the dataset has knwow mriqc derivatives.
     - ``source``: Specifies the source of the dataset.
     - ``mean_size``: size per subject in kilobytes
-    - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype.
+    - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype
+      (``phenotype``: if it has a phenotype folder at its root, ``has_phenotype_dir``).
     - ``total_duration``: Total "scanned" duration per participant (combines runs from: ``func``, ``eeg``, ``ieeg``)
     - ``institution_names``: :obj:`list[str]` Institutions of the dataset,
       as named in the keys of ``bids_inventory/data/institutions.json``.
@@ -52,6 +53,12 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     # do not modify the input (for example the cached output of known_datasets_df)
     df = df.copy()
     _detect_duplicate_datasets(df)
+
+    # the phenotype datatype is not in the sub-* folders, but in a folder at the root
+    df["datatypes"] = [
+        sorted({*datatypes, "phenotype"}) if has_phenotype is True else datatypes
+        for datatypes, has_phenotype in zip(df["datatypes"], df["has_phenotype_dir"])
+    ]
 
     df["nb_sessions"] = df["sessions"].apply(lambda x: max(len(x), 1))
 

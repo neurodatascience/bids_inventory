@@ -173,3 +173,10 @@ def test_get_source_study():
         "nemar",
         "other",
     ]
+
+
+def test_wrangle_data_phenotype():
+    """Phenotype is a datatype of the datasets with a phenotype folder at their root."""
+    df = wrangle_data(known_datasets_df())
+    assert df["phenotype"].sum() == df["has_phenotype_dir"].eq(True).sum() > 0
+    assert df.loc[df["phenotype"], "datatypes"].apply(lambda x: "phenotype" in x).all()
