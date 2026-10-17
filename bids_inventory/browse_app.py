@@ -43,6 +43,7 @@ def _(bids_inventory_installed):
 
     from bids_inventory._plotting import (
         datatypes_histogram,
+        field_strength_histogram,
         histogram_tasks,
         institutions_map,
         neurobagel_age_distribution,
@@ -79,6 +80,7 @@ def _(bids_inventory_installed):
         contextlib,
         count_institutions,
         datatypes_histogram,
+        field_strength_histogram,
         filter_data,
         histogram_tasks,
         institutions_locations,
@@ -116,9 +118,25 @@ def _(
     SPECIES = sorted({x for species in df["species"] for x in species} | {NOT_SPECIFIED})
     # countries of the institutions, with their number of datasets
     COUNTRIES = df["countries"].explode().dropna().value_counts().sort_index()
+    # MRI field strengths ("3T"... and "unknown" last), with their number of datasets
+    FIELD_STRENGTHS = df["field_strengths"].explode().dropna().value_counts()
+    FIELD_STRENGTHS = FIELD_STRENGTHS.loc[
+        sorted(
+            FIELD_STRENGTHS.index,
+            key=lambda x: float(x.removesuffix("T")) if x.endswith("T") else float("inf"),
+        )
+    ]
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
-    return COUNTRIES, SOURCES, SPECIES, df, institutions, neurobagel_participants
+    return (
+        COUNTRIES,
+        FIELD_STRENGTHS,
+        SOURCES,
+        SPECIES,
+        df,
+        institutions,
+        neurobagel_participants,
+    )
 
 
 @app.cell
@@ -130,7 +148,7 @@ def _(mo):
 
 
 @app.cell
-def _(COUNTRIES, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
+def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
     def checklist(options: list[str]) -> mo.ui.array:
         """Return a list of checkboxes, all checked."""
         return mo.ui.array([mo.ui.checkbox(label=x, value=True) for x in options])
@@ -159,6 +177,14 @@ def _(COUNTRIES, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
     )
     author = mo.ui.text(value="", placeholder="for example: Poldrack")
     author_regex = regex_checkbox()
+    ALL_FIELD_STRENGTHS = "all"
+    field_strength = mo.ui.dropdown(
+        options={
+            ALL_FIELD_STRENGTHS: "",
+            **{f"{name} ({count} datasets)": name for name, count in FIELD_STRENGTHS.items()},
+        },
+        value=ALL_FIELD_STRENGTHS,
+    )
     sources = checklist(SOURCES)
     sources_and_or = mo.ui.radio(options=["AND", "OR"], value="OR", inline=True)
     fmriprep = true_false_both()
@@ -175,6 +201,7 @@ def _(COUNTRIES, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
         country,
         datatypes,
         datatypes_and_or,
+        field_strength,
         fmriprep,
         institution,
         institution_regex,
@@ -196,6 +223,7 @@ def _(
     country,
     datatypes,
     datatypes_and_or,
+    field_strength,
     fmriprep,
     institution,
     institution_regex,
@@ -254,6 +282,12 @@ def _(
                         "Keep datasets from an institution in this country",
                         country,
                     ),
+                    section(
+                        "MRI field strength",
+                        "Keep datasets with MRI data at this field strength "
+                        "('unknown': MRI data without MagneticFieldStrength in the sidecars)",
+                        field_strength,
+                    ),
                 ],
                 justify="start",
                 gap=4,
@@ -300,6 +334,7 @@ def _(
     datatypes,
     datatypes_and_or,
     df,
+    field_strength,
     filter_data,
     fmriprep,
     institution,
@@ -334,6 +369,7 @@ def _(
         "physio": physio.value,
         "participants": participants.value,
         "species": [x for x, keep in zip(SPECIES, species.value) if keep],
+        "field_strength": field_strength.value or None,
     }
     # for example an invalid regular expression: keep no dataset and say why
     filter_error = ""
@@ -383,6 +419,12 @@ def _(Path, contextlib, filter_error, filtered_df, mo, save_dataset_listing, tem
 @app.cell
 def _(datatypes_histogram, filtered_df, mo):
     mo.vstack([mo.md("---"), datatypes_histogram(filtered_df)])
+    return
+
+
+@app.cell
+def _(field_strength_histogram, filtered_df, mo):
+    mo.vstack([mo.md("---"), field_strength_histogram(filtered_df)])
     return
 
 

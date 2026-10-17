@@ -103,3 +103,50 @@ def test_wrangle_data_institutions():
     assert names and names <= set(institutions) - {UNLOCATED}
     countries = {x for countries in df["countries"] for x in countries}
     assert "Canada" in countries
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (3.0, "3T"),
+        (2.89, "3T"),
+        (6.98, "7T"),
+        (9.38, "9.4T"),
+        (1.5, "1.5T"),
+        # in Gauss
+        (15000.0, "1.5T"),
+        # not a nominal field strength
+        (8.0, "8T"),
+        # not valid
+        (0.01, None),
+    ],
+)
+def test_field_strength_label(value, expected):
+    from bids_inventory.wrangling import field_strength_label
+
+    assert field_strength_label(value) == expected
+
+
+def test_filter_data_field_strength():
+    from bids_inventory.wrangling import _field_strengths
+
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3", "ds4"],
+            "datatypes": [["anat", "func"], ["anat"], ["dwi"], ["eeg"]],
+            "field_strength": [[2.89, 6.98], [], None, []],
+        }
+    )
+    df["field_strengths"] = df.apply(_field_strengths, axis=1)
+    # MRI data without field strength is "unknown", other data has none
+    assert df["field_strengths"].tolist() == [["3T", "7T"], ["unknown"], ["unknown"], []]
+
+    assert filter_data(df, config={"field_strength": "7T"})["name"].tolist() == ["ds1"]
+    assert filter_data(df, config={"field_strength": "unknown"})["name"].tolist() == ["ds2", "ds3"]
+    assert len(filter_data(df, config={"field_strength": None})) == 4
+
+
+def test_wrangle_data_field_strengths():
+    df = wrangle_data(known_datasets_df())
+    strengths = {x for values in df["field_strengths"] for x in values}
+    assert {"1.5T", "3T", "7T", "unknown"} <= strengths

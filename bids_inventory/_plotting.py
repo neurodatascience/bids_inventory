@@ -180,6 +180,36 @@ def datatypes_histogram(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def field_strength_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the number of datasets (and participants) for each MRI field strength.
+
+    ``df`` needs the ``field_strengths`` column added by ``wrangle_data``.
+    A dataset with data at several field strengths is counted for each one.
+    """
+    rows = (
+        df[["name", "nb_subjects", "field_strengths"]]
+        .explode("field_strengths")
+        .dropna(subset=["field_strengths"])
+    )
+    counts = rows.groupby("field_strengths").agg(
+        datasets=("name", "nunique"), participants=("nb_subjects", "sum")
+    )
+
+    def order(label: str) -> float:
+        return float(label.removesuffix("T")) if label.endswith("T") else float("inf")
+
+    counts = counts.loc[sorted(counts.index, key=order)].reset_index()
+    return px.bar(
+        counts,
+        x="field_strengths",
+        y="datasets",
+        hover_data=["participants"],
+        text="datasets",
+        labels={"field_strengths": "MRI field strength", "datasets": "number of datasets"},
+        title="MRI field strength of the datasets",
+    ).update_xaxes(type="category")
+
+
 def institutions_map(locations: pd.DataFrame) -> go.Figure:
     """Plot the located institutions on a world map.
 

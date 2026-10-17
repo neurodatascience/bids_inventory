@@ -46,6 +46,10 @@ canadian_rest = filter_data(
 The institutions are named as in the keys of `bids_inventory/data/institutions.json`
 (`institution_names` column), and their countries are in the `countries` column.
 
+`field_strengths` has the nominal field strengths of the MRI scanners (`3T`, `7T`...),
+`unknown` for MRI data without `MagneticFieldStrength` in the sidecars:
+`filter_data(df, config={"field_strength": "7T"})`.
+
 To browse the listing in a dashboard (a [marimo](https://marimo.io/) app) in the browser:
 
 ```bash

@@ -79,3 +79,19 @@ def test_hours_per_datatype():
     assert [trace.name.split(":")[0] for trace in fig.data] == ["func", "eeg"]
     # cumulative, by creation date
     assert list(fig.data[0].y) == pytest.approx([0.4, 2.4])
+
+
+def test_field_strength_histogram():
+    from bids_inventory._plotting import field_strength_histogram
+
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3", "ds4"],
+            "nb_subjects": [10, 20, 30, 40],
+            "field_strengths": [["3T", "7T"], ["unknown"], ["10.5T"], []],
+        }
+    )
+    fig = field_strength_histogram(df)
+    # sorted by field strength, unknown last; datasets without MRI not counted
+    assert list(fig.data[0].x) == ["3T", "7T", "10.5T", "unknown"]
+    assert list(fig.data[0].y) == [1, 1, 1, 1]
