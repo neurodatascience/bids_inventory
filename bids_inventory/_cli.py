@@ -155,7 +155,7 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         "--fields",
         help="""
         Only get again these fields,
-        for the OpenNeuro datasets already listed and installed locally.
+        for the datasets already listed and installed locally (of the --source listing).
         """,
         nargs="+",
         choices=[
@@ -166,6 +166,7 @@ for example so that the next 'bids_inventory update' indexes them again.""",
             "keywords",
             "cog_atlas_id",
             "cogpo_id",
+            "physio_recordings",
         ],
     )
     update_parser.add_argument(
@@ -362,7 +363,7 @@ def _run_update(args: Any) -> None:
         if args.durations:
             update_durations(args.durations, debug=args.debug, jobs=args.jobs)
         elif args.fields:
-            update_fields(args.fields, debug=args.debug)
+            update_fields(args.fields, debug=args.debug, source=args.source)
         else:
             update(debug=args.debug, jobs=args.jobs, reindex=args.reindex, source=args.source)
     finally:

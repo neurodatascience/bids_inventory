@@ -948,6 +948,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.nb_sessions_tsv = count_sessions_tsv(dataset_pth)
     dataset.nb_scans_tsv = count_scans_tsv(dataset_pth)
     dataset.nb_physio_files = count_physio_files(dataset_pth)
+    dataset.physio_recordings = get_physio_recordings(dataset_pth)
     dataset.nb_stim_files = count_stim_files(dataset_pth)
 
     dataset.has_phenotype_dir = bool((dataset_pth / "phenotype").exists())
@@ -1559,17 +1560,28 @@ FIELDS: dict[str, Any] = {
     "keywords": lambda dataset_pth: get_keywords(dataset_pth),
     "cog_atlas_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogAtlasID"),
     "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
+    "physio_recordings": lambda dataset_pth: get_physio_recordings(dataset_pth),
 }
 
 
-def update_fields(fields: list[str], debug: bool = True) -> None:
-    """Get again some fields for the openneuro datasets listed, without indexing everything.
+def update_fields(fields: list[str], debug: bool = True, source: str = "openneuro") -> None:
+    """Get again some fields for the datasets listed, without indexing everything.
 
     Only for the datasets installed locally: the other ones keep their values.
+
+    Parameters
+    ----------
+    source : "openneuro" | "non-openneuro"
+        Which listing to update.
     """
     if unknown := sorted(set(fields) - set(FIELDS)):
         raise ValueError(f"Unknown fields: {unknown}, choose from {sorted(FIELDS)}")
-    output_file = _openneuro_listing()
+    if source == "non-openneuro":
+        output_file = _non_openneuro_listing()
+        local_dataset = _local_non_openneuro_dataset
+    else:
+        output_file = _openneuro_listing()
+        local_dataset = _local_openneuro_dataset
     df = _load_known_datasets(output_file)
     if debug:
         output_file = Path.cwd() / output_file.name
@@ -1585,7 +1597,7 @@ def update_fields(fields: list[str], debug: bool = True) -> None:
                 break
             progress.update(task, advance=1)
             set_current_dataset(name)
-            dataset_pth = _local_openneuro_dataset(name)
+            dataset_pth = local_dataset(name)
             if dataset_pth is None:
                 not_installed.append(name)
                 continue
@@ -1953,6 +1965,33 @@ def count_scans_tsv(dataset_pth: Path) -> int:
 
 def count_physio_files(dataset_pth: Path) -> int:
     return len(list(glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")))
+
+
+def get_physio_recordings(dataset_pth: Path) -> list[str]:
+    """Return the labels of the recordings of the physio files (recording-<label>).
+
+    For example "eye1" for sub-01_task-visualSearch_recording-eye1_physio.tsv.gz.
+    Physio files without recording entity have no label.
+    """
+    labels = {
+        match.group(1)
+        for filepath in glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")
+        if (match := re.search(r"_recording-([a-zA-Z0-9]+)_", filepath.name))
+    }
+    return sorted(labels)
+
+
+def _local_non_openneuro_dataset(name: str) -> Path | None:
+    """Return where a dataset that is not on OpenNeuro is installed (None if it is not).
+
+    In local_paths.non_openneuro/<collection>/<dataset>: ABIDE_Caltech is in abide/Caltech.
+    """
+    base_dir = config_path("local_paths", "non_openneuro")
+    for collection, settings in non_openneuro_collections().items():
+        if name.startswith(settings["prefix"]):
+            dataset_pth = base_dir / collection / name.removeprefix(settings["prefix"])
+            return dataset_pth if dataset_pth.is_dir() else None
+    return None
 
 
 def _local_openneuro_dataset(name: str) -> Path | None:

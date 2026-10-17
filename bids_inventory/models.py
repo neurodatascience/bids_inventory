@@ -88,6 +88,12 @@ class BidsDataset(BaseModel):
         NOT_BIDS_VALIDATED,
         default=None,
     )
+    physio_recordings: list[str] = _field(
+        "Labels of the recordings of the '*physio.tsv.gz' files (recording-<label>), "
+        "for example eye1, cardiac, respiratory.",
+        NOT_BIDS_VALIDATED,
+        default=[],
+    )
     has_phenotype_dir: bool | None = _field(
         "Whether the dataset has a 'phenotype' folder.", default=None
     )

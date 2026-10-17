@@ -51,6 +51,11 @@
             "Format": "int",
             "Assumptions": "Does not check if the name of files are BIDS valid."
         },
+        "physio_recordings": {
+            "Description": "Labels of the recordings of the '*physio.tsv.gz' files (recording-<label>), for example eye1, cardiac, respiratory.",
+            "Format": "list[str]",
+            "Assumptions": "Does not check if the name of files are BIDS valid."
+        },
         "has_phenotype_dir": {
             "Description": "Whether the dataset has a 'phenotype' folder.",
             "Format": "bool",

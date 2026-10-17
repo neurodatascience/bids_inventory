@@ -1379,3 +1379,32 @@ def test_known_datatypes():
     from bids_inventory.listing import KNOWN_DATATYPES
 
     assert {"anat", "func", "eeg", "emg", "micr", "nirs", "motion"} <= set(KNOWN_DATATYPES)
+
+
+def test_get_physio_recordings(tmp_path):
+    from bids_inventory._update import get_physio_recordings
+
+    func = tmp_path / "sub-01" / "ses-1" / "func"
+    for name in [
+        "sub-01_ses-1_task-visualSearch_recording-eye1_physio.tsv.gz",
+        "sub-01_ses-1_task-visualSearch_recording-eye1_physio.json",
+        "sub-01_ses-1_task-rest_run-1_recording-cardiac_physio.tsv.gz",
+        # no recording entity
+        "sub-01_ses-1_task-rest_run-2_physio.tsv.gz",
+    ]:
+        _touch(func / name)
+
+    assert get_physio_recordings(tmp_path) == ["cardiac", "eye1"]
+
+
+def test_local_non_openneuro_dataset(tmp_path, monkeypatch):
+    from bids_inventory import _update
+
+    (tmp_path / "abide" / "Caltech").mkdir(parents=True)
+    (tmp_path / "abide2" / "Caltech").mkdir(parents=True)
+    monkeypatch.setattr(_update, "config_path", lambda *keys: tmp_path)
+
+    assert _update._local_non_openneuro_dataset("ABIDE_Caltech") == tmp_path / "abide" / "Caltech"
+    assert _update._local_non_openneuro_dataset("ABIDE2_Caltech") == tmp_path / "abide2" / "Caltech"
+    assert _update._local_non_openneuro_dataset("ABIDE_NYU") is None
+    assert _update._local_non_openneuro_dataset("ds000001") is None
