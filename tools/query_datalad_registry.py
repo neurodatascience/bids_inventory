@@ -4,7 +4,8 @@ https://blog.datalad.org/posts/registry/
 API: https://registry.datalad.org/openapi/
 
 Keeps the raw datasets (DatasetType "raw", or not specified: "raw" by default)
-with at least one subject, that are not copies of OpenNeuro datasets: the ones with
+with at least one subject, that are not installed by tools/install_extra_datasets.sh
+(already in the inventory), and that are not copies of OpenNeuro datasets: the ones with
 an OpenNeuro id in their URL (for example the NEMAR mirrors: nemarDatasets/on005628),
 an OpenNeuro DOI or link in their dataset_description.json,
 or (with --openneuro-dir) the same name as an OpenNeuro dataset installed locally.
@@ -52,6 +53,19 @@ EXCLUDED_URLS = [
     "https://gin.g-node.org/adswa/bids-data",
     "https://gin.g-node.org/adswa/bidsdata",
 ]
+
+
+# datasets of the datalad superdataset installed by this script: in the inventory
+INSTALL_SCRIPT = Path(__file__).parent / "install_extra_datasets.sh"
+
+
+def installed_urls(install_script: Path = INSTALL_SCRIPT) -> set[str]:
+    """Return the URLs of the datasets installed by tools/install_extra_datasets.sh.
+
+    Its "<folder> ///<path>" lines: ///<path> is https://datasets.datalad.org/<path>.
+    """
+    sources = re.findall(r"^\S+ ///(\S+)$", install_script.read_text(), re.MULTILINE)
+    return {normalize_url(f"https://datasets.datalad.org/{source}") for source in sources}
 
 
 def normalize_url(url: str) -> str:
@@ -174,6 +188,7 @@ def main() -> None:
     args = parser.parse_args()
 
     names = openneuro_names(args.openneuro_dir) if args.openneuro_dir else {}
+    installed = installed_urls()
     dataset_urls = query(args.search)
     print(f"{len(dataset_urls)} dataset URLs found")
 
@@ -196,6 +211,10 @@ def main() -> None:
         ("without subjects", lambda x: summary(x)["nb_subjects"] > 0),
         ("not raw (DatasetType)", is_raw),
         ("in EXCLUDED_URLS (dummy datasets, works in progress)", lambda x: not is_excluded(x)),
+        (
+            "installed by tools/install_extra_datasets.sh",
+            lambda x: normalize_url(x["url"]) not in installed,
+        ),
         ("copies of OpenNeuro datasets", lambda x: not openneuro_id(x, names)),
     ]:
         kept = [x for x in dataset_urls if keep(x)]
