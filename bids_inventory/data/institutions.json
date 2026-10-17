@@ -584,14 +584,6 @@
         "Latitude": 44.9789752,
         "Longitude": -93.2243348
     },
-    "CNI": {
-        "Address": "Centro Nacional de Inteligencia, Calle de Cercis, Valdemarín, Moncloa-Aravaca, Madrid, Comunidad de Madrid, 28023, España",
-        "AlternativeNames": [],
-        "City": "Madrid",
-        "Country": "España",
-        "Latitude": 40.4626183,
-        "Longitude": -3.763464
-    },
     "CORSTIM, Montpellier, France": {
         "Address": "Montpellier, Hérault, Occitanie, France métropolitaine, France",
         "AlternativeNames": [],
@@ -940,14 +932,6 @@
         "Country": "中国",
         "Latitude": 31.2284923,
         "Longitude": 121.4021139
-    },
-    "ECAT": {
-        "Address": "ECAT, Rond-Point des Travaux دوار الأشغال, Djamba Ngato جامبا انقاتو, 1er Arrondissement / الدائرة الأولى, N'Djaména انجمينا, Tchad تشاد",
-        "AlternativeNames": [],
-        "City": "N'Djaména انجمينا",
-        "Country": "Tchad تشاد",
-        "Latitude": 12.136742,
-        "Longitude": 15.0175868
     },
     "EPFL": {
         "Address": "École Polytechnique Fédérale de Lausanne, Route Cantonale, Quartier Sorge, Ecublens, District de l'Ouest lausannois, Vaud, 1015, Schweiz/Suisse/Svizzera/Svizra",
@@ -1539,21 +1523,13 @@
         "Latitude": 47.0830388,
         "Longitude": 15.478848
     },
-    "KUL, MOsaic": {
-        "Address": "モザイク, ハーバーロード, 神戸ハーバーランド umie, 中央区, 神戸市, 兵庫県, 650-8571, 日本",
-        "AlternativeNames": [],
-        "City": "神戸市",
-        "Country": "日本",
-        "Latitude": 34.6796142,
-        "Longitude": 135.184569
-    },
     "KULeuven, Belgium": {
-        "Address": "België / Belgique / Belgien",
-        "AlternativeNames": ["University of Mons, Belgium"],
-        "City": "",
+        "Address": "Anatomisch Amfitheater KU Leuven, Minderbroedersstraat, Janseniushof, Leuven, Vlaams-Brabant, Vlaanderen, 3000, België / Belgique / Belgien",
+        "AlternativeNames": ["KUL, MOsaic", "University of Mons, Belgium"],
+        "City": "Leuven",
         "Country": "België / Belgique / Belgien",
-        "Latitude": 50.6402809,
-        "Longitude": 4.6667145
+        "Latitude": 50.8775987,
+        "Longitude": 4.6937047
     },
     "Kansas State University, biosemie": {
         "Address": "Kansas State University, Oakdale Drive, Manhattan, Riley County, Kansas, 66502, United States",
@@ -2745,7 +2721,10 @@
     "Stanford University": {
         "Address": "Stanford University, 450, Jane Stanford Way, Stanford, Santa Clara County, California, 94305, United States",
         "AlternativeNames": [
-            "Stanford University, 450 Jane Stanford WAy, Stanford, CA 94305-2004, USA"
+            "CNI",
+            "Stanford CNI",
+            "Stanford University, 450 Jane Stanford WAy, Stanford, CA 94305-2004, USA",
+            "cni"
         ],
         "City": "",
         "Country": "United States",
@@ -3773,7 +3752,7 @@
     },
     "University of Wisconsin - Waisman Center, Madison 53705 Highland Ave 1500": {
         "Address": "Waisman Center, 1500, Highland Avenue, Madison, Dane County, Wisconsin, 53705, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": ["Waisman"],
         "City": "Madison",
         "Country": "United States",
         "Latitude": 43.0783873,
@@ -3994,14 +3973,6 @@
         "Latitude": 38.6353276,
         "Longitude": -90.2606527
     },
-    "Waisman": {
-        "Address": "Waisman, Lavalle, Abasto, Once, Balvanera, Buenos Aires, Comuna 3, Ciudad Autónoma de Buenos Aires, C1213AAG, Argentina",
-        "AlternativeNames": [],
-        "City": "Buenos Aires",
-        "Country": "Argentina",
-        "Latitude": -34.603067,
-        "Longitude": -58.4064066
-    },
     "Warneford Hospital, Warneford Lane StreetNo,Oxford,District,GB,OX3 7JX": {
         "Address": "Main Block, Warneford Lane, Headington Hill, Headington, Oxford, Oxfordshire, England, OX3 7JX, United Kingdom",
         "AlternativeNames": [],
@@ -4131,14 +4102,6 @@
         "Latitude": 53.9496687,
         "Longitude": -1.0467604
     },
-    "cni": {
-        "Address": "Centro Nacional de Inteligencia, Bus-VAO, Aravaca, Moncloa-Aravaca, Madrid, Comunidad de Madrid, 28023, España",
-        "AlternativeNames": [],
-        "City": "Madrid",
-        "Country": "España",
-        "Latitude": 40.4626183,
-        "Longitude": -3.763464
-    },
     "crc, B30Av 6 Aout, Liege, Brussels, 4000, BE": {
         "Address": "Liège - Luik, Tunnel Cinquantenaire - Jubelparktunnel, Bruxelles - Brussel, Brussel-Hoofdstad - Bruxelles-Capitale, Région de Bruxelles-Capitale - Brussels Hoofdstedelijk Gewest, 1040, België / Belgique / Belgien",
         "AlternativeNames": [],
@@ -4201,6 +4164,7 @@
             "Deutsches_Primatenzentrum_GmbH",
             "Douglas Mental Health Research Center, Value was not specified",
             "Duke Univ Hosp MR5",
+            "ECAT",
             "EVKB_Mara_1, Maraweg_21_Bielefeld_District_DE_33617",
             "FIU_Center_For_Imaging_Science, SW_8TH_ST_OE116_11200_MIAMI_Med-Lab_US_33199",
             "Fondation_Campus_Biotech_Geneva, Chemin_des_Mines_9_Geneve_District_CH_1211",
@@ -4244,7 +4208,6 @@
             "Schleusenweg_2-16_Frankfurt_District_DE_60528",
             "Scientific Imaging & Brain Research Center at Carnegie Mellon University",
             "Spruce_MRI_Assoc_MR2",
-            "Stanford CNI",
             "TNO laboratory (Netherlands)",
             "The 7th Medical Center PLAGH",
             "The_1st_Hospital_of_CQMU",
