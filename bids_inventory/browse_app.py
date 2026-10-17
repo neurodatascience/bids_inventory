@@ -114,9 +114,11 @@ def _(
     SOURCES = sorted(df["source"].unique().tolist())
     # a dataset may have several species
     SPECIES = sorted({x for species in df["species"] for x in species} | {NOT_SPECIFIED})
+    # countries of the institutions, with their number of datasets
+    COUNTRIES = df["countries"].explode().dropna().value_counts().sort_index()
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
-    return SOURCES, SPECIES, df, institutions, neurobagel_participants
+    return COUNTRIES, SOURCES, SPECIES, df, institutions, neurobagel_participants
 
 
 @app.cell
@@ -128,7 +130,7 @@ def _(mo):
 
 
 @app.cell
-def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
+def _(COUNTRIES, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
     def checklist(options: list[str]) -> mo.ui.array:
         """Return a list of checkboxes, all checked."""
         return mo.ui.array([mo.ui.checkbox(label=x, value=True) for x in options])
@@ -146,8 +148,15 @@ def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
     task_regex = regex_checkbox()
     institution = mo.ui.text(value="", placeholder="for example: McGill")
     institution_regex = regex_checkbox()
-    country = mo.ui.text(value="", placeholder="for example: Canada")
-    country_regex = regex_checkbox()
+    ALL_COUNTRIES = "all countries"
+    country = mo.ui.dropdown(
+        options={
+            ALL_COUNTRIES: "",
+            **{f"{name} ({count} datasets)": name for name, count in COUNTRIES.items()},
+        },
+        value=ALL_COUNTRIES,
+        searchable=True,
+    )
     author = mo.ui.text(value="", placeholder="for example: Poldrack")
     author_regex = regex_checkbox()
     sources = checklist(SOURCES)
@@ -164,7 +173,6 @@ def _(KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
         author,
         author_regex,
         country,
-        country_regex,
         datatypes,
         datatypes_and_or,
         fmriprep,
@@ -186,7 +194,6 @@ def _(
     author,
     author_regex,
     country,
-    country_regex,
     datatypes,
     datatypes_and_or,
     fmriprep,
@@ -244,8 +251,8 @@ def _(
                     ),
                     section(
                         "country",
-                        "Keep datasets from an institution in a country containing this text",
-                        mo.hstack([country, country_regex], justify="start"),
+                        "Keep datasets from an institution in this country",
+                        country,
                     ),
                 ],
                 justify="start",
@@ -290,7 +297,6 @@ def _(
     author,
     author_regex,
     country,
-    country_regex,
     datatypes,
     datatypes_and_or,
     df,
@@ -307,6 +313,8 @@ def _(
     task,
     task_regex,
 ):
+    import re
+
     filter_config = {
         "datatypes": [x for x, keep in zip(KNOWN_DATATYPES, datatypes.value) if keep],
         "datatypes_and_or": datatypes_and_or.value,
@@ -316,8 +324,9 @@ def _(
         "task_regex": task_regex.value,
         "institution": institution.value,
         "institution_regex": institution_regex.value,
-        "country": country.value,
-        "country_regex": country_regex.value,
+        # the exact name of the country
+        "country": f"^{re.escape(country.value)}$" if country.value else "",
+        "country_regex": True,
         "author": author.value,
         "author_regex": author_regex.value,
         "fmriprep": fmriprep.value,
