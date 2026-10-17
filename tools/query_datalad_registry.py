@@ -44,6 +44,25 @@ DEFAULT_SEARCH = (
 COPIES_FILE = "datalad_registry_openneuro_copies.tsv"
 # fields of the dataset_description.json that can mention the OpenNeuro dataset
 OPENNEURO_FIELDS = ["DatasetDOI", "ReferencesAndLinks", "HowToAcknowledge", "SourceDatasets"]
+# dummy datasets, or works in progress
+EXCLUDED_URLS = [
+    "https://gin.g-node.org/RemiGau/5HT_pain_ephys_raw",
+    "https://gin.g-node.org/RemiGau/example_ephys_bids_conversion",
+    "https://gin.g-node.org/SPM_datasets/spm_facerep_raw",
+    "https://gin.g-node.org/adswa/bids-data",
+    "https://gin.g-node.org/adswa/bidsdata",
+]
+
+
+def normalize_url(url: str) -> str:
+    """Compare URLs without their .git suffix, trailing slash or case."""
+    return url.strip().rstrip("/").removesuffix(".git").lower()
+
+
+def is_excluded(dataset_url: dict[str, Any]) -> bool:
+    return normalize_url(dataset_url["url"]) in {normalize_url(x) for x in EXCLUDED_URLS}
+
+
 PER_PAGE = 100
 
 
@@ -176,6 +195,7 @@ def main() -> None:
         # for example empty or toy datasets
         ("without subjects", lambda x: summary(x)["nb_subjects"] > 0),
         ("not raw (DatasetType)", is_raw),
+        ("in EXCLUDED_URLS (dummy datasets, works in progress)", lambda x: not is_excluded(x)),
         ("copies of OpenNeuro datasets", lambda x: not openneuro_id(x, names)),
     ]:
         kept = [x for x in dataset_urls if keep(x)]
