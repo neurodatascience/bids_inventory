@@ -161,6 +161,16 @@
             "Format": "list[str]",
             "Assumptions": ""
         },
+        "cog_atlas_id": {
+            "Description": "CogAtlasID of each task (Cognitive Atlas), from the JSON sidecars of its runs.",
+            "Format": "dict[str, list[str]]",
+            "Assumptions": "Based on data from the first participant only."
+        },
+        "cogpo_id": {
+            "Description": "CogPOID of each task (Cognitive Paradigm Ontology), from the JSON sidecars of its runs.",
+            "Format": "dict[str, list[str]]",
+            "Assumptions": "Based on data from the first participant only."
+        },
         "raw": {
             "Description": "Link to the raw dataset.",
             "Format": "str",

@@ -1200,3 +1200,35 @@ def test_local_openneuro_dataset_most_recent_copy(tmp_path, monkeypatch):
     assert _update._local_openneuro_dataset("ds000001") == other / "ds000001"
     assert _update._local_openneuro_dataset("ds000002") == superdataset / "ds000002"
     assert _update._local_openneuro_dataset("ds000003") is None
+
+
+def test_get_task_ids(tmp_path, monkeypatch):
+    """The CogAtlasID of each task, from the sidecars of its runs (with inheritance)."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    func = tmp_path / "sub-01" / "func"
+    for run in [1, 2]:
+        _touch(func / f"sub-01_task-rest_run-{run}_bold.nii.gz")
+        # not runs: their sidecars do not describe the task
+        _touch(func / f"sub-01_task-rest_run-{run}_events.tsv")
+    _touch(tmp_path / "task-rest_bold.json", json.dumps({"CogAtlasID": "trm_4c8a834779883"}))
+    _touch(tmp_path / "task-rest_events.json", json.dumps({"CogAtlasID": "not a run"}))
+    eeg = _touch(tmp_path / "sub-01" / "eeg" / "sub-01_task-nback_eeg.edf")
+    _touch(
+        eeg.with_name("sub-01_task-nback_eeg.json"),
+        json.dumps(
+            {"CogAtlasID": ["tsk_4a57abb949e1a", "https://www.cognitiveatlas.org/fillYourID"]}
+        ),
+    )
+    # no sidecar, or no suffix
+    _touch(tmp_path / "sub-01" / "beh" / "sub-01_task-other_beh.tsv")
+    _touch(tmp_path / "sub-01" / "beh" / "sub-01_task-other.tsv")
+
+    assert _update.get_task_ids(tmp_path, "CogAtlasID") == {
+        "nback": ["tsk_4a57abb949e1a"],
+        "rest": ["trm_4c8a834779883"],
+    }
+    assert _update.get_task_ids(tmp_path, "CogPOID") == {}

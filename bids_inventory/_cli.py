@@ -163,6 +163,8 @@ for example so that the next 'bids_inventory update' indexes them again.""",
             "references_and_links",
             "hed_version",
             "keywords",
+            "cog_atlas_id",
+            "cogpo_id",
         ],
     )
     update_parser.add_argument(

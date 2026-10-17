@@ -193,6 +193,16 @@ class BidsDataset(BaseModel):
         default=[],
     )
     keywords: list[str] = _field("Keywords of the dataset_description.json.", default=[])
+    cog_atlas_id: dict[str, list[str]] = _field(
+        "CogAtlasID of each task (Cognitive Atlas), from the JSON sidecars of its runs.",
+        FIRST_PARTICIPANT,
+        default={},
+    )
+    cogpo_id: dict[str, list[str]] = _field(
+        "CogPOID of each task (Cognitive Paradigm Ontology), from the JSON sidecars of its runs.",
+        FIRST_PARTICIPANT,
+        default={},
+    )
     raw: str | None = _field("Link to the raw dataset.", default=None)
     fmriprep: str | None = _derivative_link("fMRIPrep")
     freesurfer: str | None = _derivative_link("FreeSurfer")

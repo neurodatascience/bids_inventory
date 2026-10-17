@@ -871,6 +871,8 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.references_and_links = get_references_and_links(dataset_pth)
     dataset.hed_version = get_hed_version(dataset_pth)
     dataset.keywords = get_keywords(dataset_pth)
+    dataset.cog_atlas_id = get_task_ids(dataset_pth, "CogAtlasID")
+    dataset.cogpo_id = get_task_ids(dataset_pth, "CogPOID")
 
     dataset.bids_version = get_bids_version(dataset_pth)
     dataset.readme_size = get_readme_size(dataset_pth)
@@ -1462,6 +1464,8 @@ FIELDS: dict[str, Any] = {
     "references_and_links": lambda dataset_pth: get_references_and_links(dataset_pth),
     "hed_version": lambda dataset_pth: get_hed_version(dataset_pth),
     "keywords": lambda dataset_pth: get_keywords(dataset_pth),
+    "cog_atlas_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogAtlasID"),
+    "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
 }
 
 
@@ -1493,7 +1497,11 @@ def update_fields(fields: list[str], debug: bool = True) -> None:
                 not_installed.append(name)
                 continue
             for field in fields:
-                values[field][i] = FIELDS[field](dataset_pth)
+                try:
+                    values[field][i] = FIELDS[field](dataset_pth)
+                except Exception:
+                    # one dataset should not stop the update: it keeps its value
+                    cc_log.exception(f"Could not get {field}")
     set_current_dataset(None)
 
     if not_installed:
@@ -1571,6 +1579,65 @@ def get_hed_version(dataset_pth: Path) -> list[str]:
 
 def get_keywords(dataset_pth: Path) -> list[str]:
     return _list_of_strings(_dataset_description(dataset_pth).get("Keywords"))
+
+
+# files with a task entity whose sidecar does not describe the task
+_NOT_TASK_RUNS = {
+    "channels",
+    "coordsystem",
+    "electrodes",
+    "events",
+    "headshape",
+    "markers",
+    "photo",
+    "physio",
+    "scans",
+    "stim",
+}
+
+
+def get_task_ids(dataset_pth: Path, field: str) -> dict[str, list[str]]:
+    """Return the values of a field of the task sidecars (CogAtlasID...), for each task.
+
+    From the JSON sidecars of the runs of the first participant
+    (following the inheritance principle): their unique values for each task.
+    """
+    participants = list_participants_in_dataset(dataset_pth)
+    if not participants:
+        return {}
+    first_sub = participants[0]
+    # (entities, suffix) of each run: its task and its file
+    runs: dict[tuple[str, str], tuple[str, Path]] = {}
+    for filepath in sorted(glob_files(dataset_pth, f"{first_sub}/**/{first_sub}*_task-*")):
+        if filepath.suffix == ".json" or (filepath.is_dir() and filepath.suffix != ".ds"):
+            continue
+        # sub-01_task-rest_run-1_bold.nii.gz: suffix "bold"
+        entities, _, rest = filepath.name.rpartition("_")
+        suffix = rest.split(".")[0]
+        task = re.search(r"_task-([a-zA-Z0-9]+)", f"_{entities}")
+        if suffix in _NOT_TASK_RUNS or task is None:
+            # for example a file without suffix: "sub-01_task-rest.tsv"
+            continue
+        runs.setdefault((entities, suffix), (task.group(1), filepath))
+
+    ids: dict[str, set[str]] = {}
+    for (_, suffix), (task, filepath) in runs.items():
+        sidecar = _find_sidecar(dataset_pth, filepath, suffix)
+        if sidecar is None:
+            continue
+        try:
+            if not sidecar.exists():
+                _get_file(api.Dataset(dataset_pth), sidecar)
+            metadata = json.loads(sidecar.read_text())
+        except Exception as e:
+            cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+            continue
+        values = _list_of_strings(metadata.get(field)) if isinstance(metadata, dict) else []
+        # left from templates: "https://www.cognitiveatlas.org/fillYourID", "Unknown"
+        values = [x for x in values if "fillyourid" not in x.lower() and x.lower() != "unknown"]
+        if values:
+            ids.setdefault(task, set()).update(values)
+    return {task: sorted(values) for task, values in sorted(ids.items())}
 
 
 def read_sidecars(dataset_pth: Path) -> list[dict[str, Any]]:
