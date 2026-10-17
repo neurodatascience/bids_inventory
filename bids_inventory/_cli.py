@@ -150,6 +150,15 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         choices=["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"],
     )
     update_parser.add_argument(
+        "--fields",
+        help="""
+        Only get again these fields,
+        for the OpenNeuro datasets already listed and installed locally.
+        """,
+        nargs="+",
+        choices=["readme_size", "bidsignore_size"],
+    )
+    update_parser.add_argument(
         "--log-dir",
         help="""
         Folder where to save the warnings and the errors of the update,
@@ -321,7 +330,12 @@ def _run_institutions(args: Any) -> None:
 def _run_update(args: Any) -> None:
     """Run the 'update' subcommand."""
     with _check_extra("update"):
-        from bids_inventory._update import CONFIG_ENV_VAR, update, update_durations
+        from bids_inventory._update import (
+            CONFIG_ENV_VAR,
+            update,
+            update_durations,
+            update_fields,
+        )
 
     if args.jobs < 1:
         bi_log.error(f"--jobs must be at least 1, got {args.jobs}")
@@ -337,6 +351,8 @@ def _run_update(args: Any) -> None:
     try:
         if args.durations:
             update_durations(args.durations, debug=args.debug, jobs=args.jobs)
+        elif args.fields:
+            update_fields(args.fields, debug=args.debug)
         else:
             update(debug=args.debug, jobs=args.jobs, reindex=args.reindex, source=args.source)
     finally:

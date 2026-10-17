@@ -1076,3 +1076,50 @@ def test_get_duration_pet_without_task(tmp_path, monkeypatch):
         )
 
     assert _update.get_duration(tmp_path, ["anat", "pet"], []) == {"pet": [(1, 90.0), (1, 90.0)]}
+
+
+def test_get_readme_and_bidsignore_size(tmp_path):
+    import os
+
+    from bids_inventory._update import get_bidsignore_size, get_readme_size
+
+    assert get_readme_size(tmp_path) is None
+    assert get_bidsignore_size(tmp_path) is None
+
+    (tmp_path / "README.md").write_text("# a dataset\n")
+    assert get_readme_size(tmp_path) == 12
+    (tmp_path / ".bidsignore").write_text("extra/\n")
+    assert get_bidsignore_size(tmp_path) == 7
+
+    # annexed README whose content is not downloaded: size from its git-annex key
+    (tmp_path / "README.md").unlink()
+    os.symlink(".git/annex/objects/xx/MD5E-s1234--abcd/MD5E-s1234--abcd", tmp_path / "README")
+    assert get_readme_size(tmp_path) == 1234
+
+
+def test_update_fields(tmp_path, monkeypatch):
+    """Only the requested fields of the installed datasets change, sizes stay integers."""
+    import pandas as pd
+
+    from bids_inventory import _update
+
+    listing = pd.DataFrame({"name": ["ds000001", "ds000002"], "readme_size": [None, 10]})
+    saved = {}
+    monkeypatch.setattr(_update, "_load_known_datasets", lambda _: listing.copy())
+    monkeypatch.setattr(
+        _update, "save_known_datasets", lambda df, output_file: saved.update(df=df.copy())
+    )
+    monkeypatch.setattr(
+        _update,
+        "_local_openneuro_dataset",
+        lambda name: tmp_path if name == "ds000001" else None,
+    )
+    (tmp_path / "README").write_text("hello")
+
+    _update.update_fields(["readme_size", "bidsignore_size"], debug=False)
+
+    assert saved["df"]["readme_size"].tolist() == [5, 10]
+    assert saved["df"]["bidsignore_size"].tolist() == [None, None]
+
+    with pytest.raises(ValueError, match="Unknown fields"):
+        _update.update_fields(["foo"], debug=False)
