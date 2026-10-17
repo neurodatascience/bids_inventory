@@ -95,3 +95,72 @@ def test_field_strength_histogram():
     # sorted by field strength, unknown last; datasets without MRI not counted
     assert list(fig.data[0].x) == ["3T", "7T", "10.5T", "unknown"]
     assert list(fig.data[0].y) == [1, 1, 1, 1]
+
+
+@pytest.fixture
+def listing():
+    return pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3"],
+            "datatypes": [["anat", "func"], ["eeg"], ["meg", "eeg", "anat"]],
+            "duration": [
+                {"func": {"rest": [600.0, None], "nback": None}},
+                {"eeg": [3600.0, float("nan")]},
+                {"meg": {"a": [60.0]}, "eeg": {"a": [60.0, 120.0]}},
+            ],
+            "bids_version": ["1.9.0", "1.10.0", "n/a"],
+            "fmriprep_version": ["23.2.0", None, None],
+            "mriqc_version": [None, None, None],
+            "eeg_file_formats": [None, {"set": 2, "edf": 0}, {"eeg": 3}],
+            "ieeg_file_formats": [None, None, None],
+            "meg_file_formats": [None, None, {".fif": 1, ".ds": 0}],
+            "nb_channels": [None, {"eeg": [64, 32]}, {"meg": [306], "eeg": [60]}],
+        }
+    )
+
+
+def test_run_durations_histogram(listing):
+    from bids_inventory._plotting import run_durations_histogram
+
+    fig = run_durations_histogram(listing)
+    # one histogram per datatype with runs of known duration
+    assert [trace.name for trace in fig.data] == ["func (1 runs)", "eeg (3 runs)", "meg (1 runs)"]
+    assert [sum(trace.y) for trace in fig.data] == [1, 3, 1]
+    # no datasets
+    assert run_durations_histogram(listing.iloc[0:0]).data == ()
+
+
+def test_version_histogram(listing):
+    from bids_inventory._plotting import version_histogram
+
+    fig = version_histogram(listing, "bids_version", "BIDS")
+    # sorted as versions, not as text
+    assert list(fig.data[0].x) == ["1.9.0", "1.10.0"]
+    assert version_histogram(listing, "mriqc_version", "MRIQC").layout.title.text.startswith(
+        "MRIQC version (0 datasets)"
+    )
+
+
+def test_file_formats_histogram(listing):
+    from bids_inventory._plotting import file_formats_histogram
+
+    fig = file_formats_histogram(listing)
+    eeg = dict(zip(fig.data[0].x, fig.data[0].y))
+    assert eeg == {"BrainVision": 1, "EDF": 0, "BDF": 0, "EEGLAB": 1}
+    meg = dict(zip(fig.data[2].x, fig.data[2].y))
+    assert meg["FIF (Elekta/MEGIN)"] == 1 and meg["CTF"] == 0
+
+
+def test_channels_histogram(listing):
+    from bids_inventory._plotting import channels_histogram
+
+    fig = channels_histogram(listing)
+    # the largest number of channels of each dataset
+    assert [list(trace.x) for trace in fig.data] == [[64, 60], [], [306]]
+
+
+def test_nb_datatypes_histogram(listing):
+    from bids_inventory._plotting import nb_datatypes_histogram
+
+    fig = nb_datatypes_histogram(listing)
+    assert dict(zip(fig.data[0].x, fig.data[0].y)) == {1: 1, 2: 1, 3: 1}
