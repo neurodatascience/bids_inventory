@@ -27,6 +27,7 @@ from bids_inventory._utils import glob_files, list_participants_in_dataset, prog
 from bids_inventory.listing import (
     KNOWN_DATATYPES,
     MAX_RUN_DURATION,
+    NULLABLE_INT_COLUMNS,
     _data_dir,
     _load_known_datasets,
     _non_openneuro_listing,
@@ -359,7 +360,7 @@ def update_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -
         Index again the datasets already in the listing.
     """
     datasets_df = _load_known_datasets(_openneuro_listing())
-    datasets_df.replace({pd.NA: "n/a"}, inplace=True)
+    datasets_df = _missing_as_na(datasets_df)
     datasets = listing_to_dict(datasets_df)
 
     output_file = _openneuro_listing()
@@ -428,7 +429,7 @@ def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = Fals
     base_dir = config_path("local_paths", "non_openneuro")
 
     datasets_df = _load_known_datasets(_non_openneuro_listing())
-    datasets_df.replace({pd.NA: "n/a"}, inplace=True)
+    datasets_df = _missing_as_na(datasets_df)
     datasets = listing_to_dict(datasets_df)
 
     output_file = _non_openneuro_listing()
@@ -547,6 +548,12 @@ def request_list_of_repos(
         # fail loudly: an incomplete list of repos would silently skip datasets
         raise RuntimeError(f"Error {response.status_code} for {url}: {response.text}")
     return response.json()
+
+
+def _missing_as_na(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace the missing values by "n/a" (the integer columns become objects for that)."""
+    df = df.astype({column: object for column in NULLABLE_INT_COLUMNS if column in df})
+    return df.replace({pd.NA: "n/a"})
 
 
 def init_dataset() -> dict[str, list[Any]]:
@@ -864,6 +871,8 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.references_and_links = get_references_and_links(dataset_pth)
 
     dataset.bids_version = get_bids_version(dataset_pth)
+    dataset.readme_size = get_readme_size(dataset_pth)
+    dataset.bidsignore_size = get_bidsignore_size(dataset_pth)
 
     sidecars = read_sidecars(dataset_pth)
     dataset.institutions = get_institutions(dataset_pth, sidecars)
@@ -1372,6 +1381,72 @@ def get_duration_for_datatype(
     files = list(files)
     durations = get_scan_durations(dataset_pth, files, jobs=jobs)
     return [durations[x] for x in files]
+
+
+README_NAMES = ["README", "README.md", "README.txt", "README.rst"]
+
+
+def get_readme_size(dataset_pth: Path) -> int | None:
+    """Return the size in bytes of the README of a dataset (None if it has none).
+
+    Even if its content is not downloaded (annexed file).
+    """
+    for name in README_NAMES:
+        if (size := _annexed_file_size(dataset_pth / name)) is not None:
+            return size
+    return None
+
+
+def get_bidsignore_size(dataset_pth: Path) -> int | None:
+    """Return the size in bytes of the .bidsignore of a dataset (None if it has none)."""
+    return _annexed_file_size(dataset_pth / ".bidsignore")
+
+
+# fields that 'bids_inventory update --fields' can get again without indexing everything
+FIELDS = {
+    "readme_size": get_readme_size,
+    "bidsignore_size": get_bidsignore_size,
+}
+
+
+def update_fields(fields: list[str], debug: bool = True) -> None:
+    """Get again some fields for the openneuro datasets listed, without indexing everything.
+
+    Only for the datasets installed locally: the other ones keep their values.
+    """
+    if unknown := sorted(set(fields) - set(FIELDS)):
+        raise ValueError(f"Unknown fields: {unknown}, choose from {sorted(FIELDS)}")
+    output_file = _openneuro_listing()
+    df = _load_known_datasets(output_file)
+    if debug:
+        output_file = Path.cwd() / output_file.name
+
+    values: dict[str, list[Any]] = {
+        field: df[field].tolist() if field in df else [None] * len(df) for field in fields
+    }
+    not_installed = []
+    with progress_bar(text="Getting fields") as progress:
+        task = progress.add_task(description="fields", total=len(df))
+        for i, name in enumerate(df["name"]):
+            if debug and i >= 5:
+                break
+            progress.update(task, advance=1)
+            dataset_pth = _local_openneuro_dataset(name)
+            if dataset_pth is None:
+                not_installed.append(name)
+                continue
+            for field in fields:
+                values[field][i] = FIELDS[field](dataset_pth)
+
+    if not_installed:
+        cc_log.warning(
+            f"{len(not_installed)} datasets are not installed locally "
+            f"and keep their values: {not_installed}"
+        )
+    cc_log.info(f"Saving to {output_file}")
+    # object columns: sizes stay integers next to the missing values
+    columns = {field: pd.Series(x, index=df.index, dtype=object) for field, x in values.items()}
+    save_known_datasets(df.assign(**columns), output_file)
 
 
 def get_authors(dataset_pth: Path) -> list[str]:

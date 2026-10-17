@@ -131,6 +131,16 @@
             "Format": "dict[str, list[tuple[int, float]] | dict[str, list[tuple[int, float]]]]",
             "Assumptions": "Based on data from the first participant only: assumes that all participants followed the same protocol."
         },
+        "readme_size": {
+            "Description": "Size (in bytes) of the README of the dataset (README, README.md, README.txt or README.rst), None if it has none.",
+            "Format": "int",
+            "Assumptions": ""
+        },
+        "bidsignore_size": {
+            "Description": "Size (in bytes) of the .bidsignore of the dataset, None if it has none.",
+            "Format": "int",
+            "Assumptions": ""
+        },
         "references_and_links": {
             "Description": "List of the ReferencesAndLinks of the dataset_description.json.",
             "Format": "list[str]",
