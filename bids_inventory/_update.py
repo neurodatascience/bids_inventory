@@ -869,6 +869,8 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.authors = get_authors(dataset_pth)
     dataset.license = get_license(dataset_pth)
     dataset.references_and_links = get_references_and_links(dataset_pth)
+    dataset.hed_version = get_hed_version(dataset_pth)
+    dataset.keywords = get_keywords(dataset_pth)
 
     dataset.bids_version = get_bids_version(dataset_pth)
     dataset.readme_size = get_readme_size(dataset_pth)
@@ -1453,9 +1455,13 @@ def get_bidsignore_size(dataset_pth: Path) -> int | None:
 
 
 # fields that 'bids_inventory update --fields' can get again without indexing everything
-FIELDS = {
+# (lambdas: some of these functions are defined further down)
+FIELDS: dict[str, Any] = {
     "readme_size": get_readme_size,
     "bidsignore_size": get_bidsignore_size,
+    "references_and_links": lambda dataset_pth: get_references_and_links(dataset_pth),
+    "hed_version": lambda dataset_pth: get_hed_version(dataset_pth),
+    "keywords": lambda dataset_pth: get_keywords(dataset_pth),
 }
 
 
@@ -1481,12 +1487,14 @@ def update_fields(fields: list[str], debug: bool = True) -> None:
             if debug and i >= 5:
                 break
             progress.update(task, advance=1)
+            set_current_dataset(name)
             dataset_pth = _local_openneuro_dataset(name)
             if dataset_pth is None:
                 not_installed.append(name)
                 continue
             for field in fields:
                 values[field][i] = FIELDS[field](dataset_pth)
+    set_current_dataset(None)
 
     if not_installed:
         cc_log.warning(
@@ -1528,12 +1536,41 @@ def get_license(dataset_pth: Path) -> str:
         return license
 
 
+def _dataset_description(dataset_pth: Path) -> dict[str, Any]:
+    """Return the content of the dataset_description.json (empty if it cannot be read)."""
+    try:
+        content = json.loads((dataset_pth / "dataset_description.json").read_text())
+    except (OSError, ValueError) as e:
+        cc_log.warning(f"Could not read the dataset_description.json: {e!r}")
+        return {}
+    return content if isinstance(content, dict) else {}
+
+
+def _list_of_strings(value: Any) -> list[str]:
+    """Return a field that should be a list of strings as one (a string is a list of one).
+
+    Without the empty values and the placeholders ("n/a"...).
+    """
+    values = value if isinstance(value, list) else [value]
+    strings = [str(x).strip() for x in values if x is not None]
+    return [x for x in strings if x and x.lower() not in {"n/a", "na", "none", "null"}]
+
+
 def get_references_and_links(dataset_pth: Path) -> list[str]:
-    if not (dataset_pth / "dataset_description.json").exists():
-        return []
-    with open(dataset_pth / "dataset_description.json") as f:
-        dataset_description = json.load(f)
-        return dataset_description.get("ReferencesAndLinks", [])
+    return _list_of_strings(_dataset_description(dataset_pth).get("ReferencesAndLinks"))
+
+
+def get_hed_version(dataset_pth: Path) -> list[str]:
+    """Return the HEDVersion of the dataset_description.json, as a list.
+
+    A string for the standard schema ("8.2.0"), or a list with library schemas
+    (["8.2.0", "sc:score_1.0.0"]).
+    """
+    return _list_of_strings(_dataset_description(dataset_pth).get("HEDVersion"))
+
+
+def get_keywords(dataset_pth: Path) -> list[str]:
+    return _list_of_strings(_dataset_description(dataset_pth).get("Keywords"))
 
 
 def read_sidecars(dataset_pth: Path) -> list[dict[str, Any]]:
@@ -1759,12 +1796,31 @@ def count_physio_files(dataset_pth: Path) -> int:
 
 
 def _local_openneuro_dataset(name: str) -> Path | None:
-    """Return where an openneuro dataset is installed locally (None if it is not)."""
+    """Return where an openneuro dataset is installed locally (None if it is not).
+
+    If it is installed in several places (the superdataset and the folder of the
+    other openneuro datasets), the one with the most recent commit:
+    the subdatasets of the superdataset can be older versions.
+    """
     folders = [superdataset_dir(), config_path("local_paths", "openneuro", OPENNEURO)]
-    for folder in folders:
-        if folder is not None and (folder / name / "dataset_description.json").exists():
-            return folder / name
-    return None
+    copies = [
+        folder / name
+        for folder in folders
+        if folder is not None and (folder / name / "dataset_description.json").exists()
+    ]
+    if len(copies) <= 1:
+        return copies[0] if copies else None
+    return max(copies, key=_last_commit_time)
+
+
+def _last_commit_time(dataset_pth: Path) -> int:
+    """Return the time of the last commit of a dataset (0 if it has none)."""
+    result = subprocess.run(
+        ["git", "-C", str(dataset_pth), "log", "-1", "--format=%ct"],
+        capture_output=True,
+        text=True,
+    )
+    return int(result.stdout.strip() or 0)
 
 
 def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:

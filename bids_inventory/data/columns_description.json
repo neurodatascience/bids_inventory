@@ -151,6 +151,16 @@
             "Format": "list[str]",
             "Assumptions": ""
         },
+        "hed_version": {
+            "Description": "HEDVersion of the dataset_description.json, as a list (the standard schema and the library schemas).",
+            "Format": "list[str]",
+            "Assumptions": ""
+        },
+        "keywords": {
+            "Description": "Keywords of the dataset_description.json.",
+            "Format": "list[str]",
+            "Assumptions": ""
+        },
         "raw": {
             "Description": "Link to the raw dataset.",
             "Format": "str",

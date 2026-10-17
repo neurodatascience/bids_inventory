@@ -1155,3 +1155,48 @@ def test_update_fields(tmp_path, monkeypatch):
 
     with pytest.raises(ValueError, match="Unknown fields"):
         _update.update_fields(["foo"], debug=False)
+
+
+@pytest.mark.parametrize(
+    "description, expected",
+    [
+        ({"HEDVersion": "8.2.0", "Keywords": ["EEG", " vision "]}, (["8.2.0"], ["EEG", "vision"])),
+        ({"HEDVersion": ["8.2.0", "sc:score_1.0.0"]}, (["8.2.0", "sc:score_1.0.0"], [])),
+        # empty values and placeholders
+        ({"HEDVersion": "", "Keywords": ["n/a", None, ""]}, ([], [])),
+        ({}, ([], [])),
+    ],
+)
+def test_get_hed_version_and_keywords(tmp_path, description, expected):
+    import json
+
+    from bids_inventory._update import get_hed_version, get_keywords
+
+    (tmp_path / "dataset_description.json").write_text(json.dumps(description))
+    assert (get_hed_version(tmp_path), get_keywords(tmp_path)) == expected
+
+
+def test_get_references_and_links_invalid_description(tmp_path):
+    """An empty dataset_description.json is not an error."""
+    from bids_inventory._update import get_references_and_links
+
+    (tmp_path / "dataset_description.json").write_text("")
+    assert get_references_and_links(tmp_path) == []
+
+
+def test_local_openneuro_dataset_most_recent_copy(tmp_path, monkeypatch):
+    """A dataset installed twice is read from the copy with the most recent commit."""
+    from bids_inventory import _update
+
+    superdataset, other = tmp_path / "superdataset", tmp_path / "other"
+    for folder in [superdataset, other]:
+        _touch(folder / "ds000001" / "dataset_description.json", "{}")
+    _touch(superdataset / "ds000002" / "dataset_description.json", "{}")
+    monkeypatch.setattr(_update, "superdataset_dir", lambda: superdataset)
+    monkeypatch.setattr(_update, "config_path", lambda *keys: other)
+    times = {superdataset / "ds000001": 100, other / "ds000001": 200}
+    monkeypatch.setattr(_update, "_last_commit_time", lambda path: times[path])
+
+    assert _update._local_openneuro_dataset("ds000001") == other / "ds000001"
+    assert _update._local_openneuro_dataset("ds000002") == superdataset / "ds000002"
+    assert _update._local_openneuro_dataset("ds000003") is None

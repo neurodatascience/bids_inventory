@@ -187,6 +187,12 @@ class BidsDataset(BaseModel):
     references_and_links: list[str] = _field(
         "List of the ReferencesAndLinks of the dataset_description.json.", default=[]
     )
+    hed_version: list[str] = _field(
+        "HEDVersion of the dataset_description.json, as a list "
+        "(the standard schema and the library schemas).",
+        default=[],
+    )
+    keywords: list[str] = _field("Keywords of the dataset_description.json.", default=[])
     raw: str | None = _field("Link to the raw dataset.", default=None)
     fmriprep: str | None = _derivative_link("fMRIPrep")
     freesurfer: str | None = _derivative_link("FreeSurfer")

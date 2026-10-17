@@ -157,7 +157,13 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         for the OpenNeuro datasets already listed and installed locally.
         """,
         nargs="+",
-        choices=["readme_size", "bidsignore_size"],
+        choices=[
+            "readme_size",
+            "bidsignore_size",
+            "references_and_links",
+            "hed_version",
+            "keywords",
+        ],
     )
     update_parser.add_argument(
         "--log-dir",
