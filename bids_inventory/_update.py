@@ -1836,7 +1836,12 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     if debug:
         output_file = Path.cwd() / output_file.name
 
-    to_update = df[df["datatypes"].apply(lambda x: bool(set(x) & set(datatypes)))]
+    # positions of the datasets with these datatypes
+    to_update = [
+        position
+        for position, dataset_datatypes in enumerate(df["datatypes"])
+        if set(dataset_datatypes) & set(datatypes)
+    ]
     cc_log.info(f"Getting the duration of {datatypes} for {len(to_update)} datasets")
     not_installed = []
     durations = df["duration"].tolist()
@@ -1845,7 +1850,8 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     channels = df["nb_channels"].tolist()
     with progress_bar(text="Getting durations") as progress:
         task = progress.add_task(description="durations", total=len(to_update))
-        for i, (index, row) in enumerate(to_update.iterrows()):
+        for i, position in enumerate(to_update):
+            row = df.iloc[position]
             if debug and i >= 5:
                 break
             progress.update(task, advance=1)
@@ -1863,11 +1869,11 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
                 continue
             # replace the durations of these datatypes, keep the others
             others = {k: v for k, v in (row["duration"] or {}).items() if k not in datatypes}
-            durations[df.index.get_loc(index)] = {**others, **duration}
-            previous = channels[df.index.get_loc(index)]
+            durations[position] = {**others, **duration}
+            previous = channels[position]
             previous = previous if isinstance(previous, dict) else {}
             # None rather than {} for the datasets without eeg, ieeg or meg channels
-            channels[df.index.get_loc(index)] = {
+            channels[position] = {
                 **{k: v for k, v in previous.items() if k not in datatypes},
                 **nb_channels,
             } or None
