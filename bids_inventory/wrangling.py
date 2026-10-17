@@ -207,6 +207,8 @@ SOURCES = [
     ("INDI", "indi"),
     ("LABS", "datalad labs"),
     ("STUDYFORREST", "studyforrest"),
+    ("DANDI", "dandi"),
+    ("NEMAR", "nemar"),
 ]
 
 

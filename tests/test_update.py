@@ -537,7 +537,14 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
     from bids_inventory.listing import _load_known_datasets
 
     base_dir = tmp_path / "non_openneuro"
-    for folder in ["abide/Caltech", "abide/NYU", "cneuromod/friends", "cneuromod/code"]:
+    for folder in [
+        "abide/Caltech",
+        "abide/NYU",
+        "cneuromod/friends",
+        "cneuromod/code",
+        "dandi/000108",
+        "dandi/not_listed",
+    ]:
         (base_dir / folder).mkdir(parents=True)
     listing = tmp_path / "non_openneuro.jsonl"
     listing.write_text("")
@@ -559,11 +566,19 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(
         _update, "_load_known_datasets", lambda f: _load_or_empty(_load_known_datasets, f)
     )
+    installs = []
+    monkeypatch.setattr(
+        _update,
+        "install_non_openneuro",
+        lambda base_dir, collections, jobs: installs.append(sorted(collections)),
+    )
 
     _update.update(debug=False, source="non-openneuro")
 
-    # only the cneuromod datasets that are listed are indexed
-    assert indexed == ["ABIDE_Caltech", "ABIDE_NYU", "CNEUROMOD_friends"]
+    # the missing datasets of non_openneuro_datasets.yml are installed first
+    assert installs[0] == sorted(_update.non_openneuro_collections())
+    # only the cneuromod subdatasets included, and the dandi datasets listed, are indexed
+    assert indexed == ["ABIDE_Caltech", "ABIDE_NYU", "CNEUROMOD_friends", "DANDI_000108"]
     assert _load_known_datasets(listing)["name"].tolist() == indexed
     # missing collections are skipped with a warning
     assert "corr not found" in caplog.text
@@ -1232,3 +1247,80 @@ def test_get_task_ids(tmp_path, monkeypatch):
         "rest": ["trm_4c8a834779883"],
     }
     assert _update.get_task_ids(tmp_path, "CogPOID") == {}
+
+
+def test_non_openneuro_collections():
+    """Each collection has a unique prefix and datasets, and a source in the dashboard."""
+    import pandas as pd
+
+    from bids_inventory._update import non_openneuro_collections
+    from bids_inventory.wrangling import _get_source_study
+
+    collections = non_openneuro_collections()
+    prefixes = [settings["prefix"] for settings in collections.values()]
+    assert len(set(prefixes)) == len(prefixes)
+    for collection, settings in collections.items():
+        assert settings["prefix"].endswith("_"), collection
+        assert bool(settings.get("superdataset")) != bool(settings.get("datasets")), collection
+    sources = _get_source_study(pd.DataFrame({"name": [f"{x}dataset" for x in prefixes]}))
+    assert "other" not in sources
+
+
+def test_install_non_openneuro(tmp_path, monkeypatch):
+    """Only the missing datasets are installed, with their root files."""
+    import subprocess
+    from pathlib import Path
+
+    from bids_inventory import _update
+
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command[1:])
+        if command[1] == "install":
+            # datalad install -s <source> <path>
+            (Path(command[-1]) / ".git").mkdir(parents=True)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    root_files = []
+    monkeypatch.setattr(_update.subprocess, "run", fake_run)
+    monkeypatch.setattr(_update, "_get_root_files", lambda path: root_files.append(path.name))
+    (tmp_path / "nemar" / "nm000103" / ".git").mkdir(parents=True)
+
+    _update.install_non_openneuro(
+        tmp_path,
+        {
+            "nemar": {
+                "prefix": "NEMAR_",
+                "datasets": {
+                    "nm000103": "https://x/nm000103.git",
+                    "nm000104": "https://x/nm000104.git",
+                },
+            }
+        },
+    )
+
+    # nm000103 is already installed
+    assert commands == [
+        ["install", "-s", "https://x/nm000104.git", str(tmp_path / "nemar" / "nm000104")]
+    ]
+    assert root_files == ["nm000104"]
+
+
+def test_install_non_openneuro_error(tmp_path, monkeypatch, caplog):
+    """A dataset that cannot be installed is skipped with an error."""
+    import subprocess
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(
+        _update.subprocess,
+        "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 1, "", "[ERROR] Failed to connect to datasets.datalad.org"
+        ),
+    )
+    _update.install_non_openneuro(
+        tmp_path, {"indi": {"prefix": "INDI_", "datasets": {"HypnosisBarrios": "///indi/x"}}}
+    )
+    assert "Could not install ///indi/x: Failed to connect to datasets.datalad.org" in caplog.text

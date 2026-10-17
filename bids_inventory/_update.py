@@ -405,32 +405,113 @@ def update_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -
         _finish_reindex(datasets, output_file)
 
 
-# Datasets that are not on OpenNeuro:
-# (folder in local_paths.non_openneuro, prefix added to their name, datasets to include)
-NON_OPENNEURO_COLLECTIONS: list[tuple[str, str, list[str] | None]] = [
-    ("abide", "ABIDE_", None),
-    ("abide2", "ABIDE2_", None),
-    ("adhd200", "ADHD200_", None),
-    ("corr", "CORR_", None),
-    (
-        "cneuromod",
-        "CNEUROMOD_",
-        ["anat", "friends", "harrypotter", "hcptrt", "movie10", "shinobi", "shinobi_training"],
-    ),
-    # other datasets of the datalad superdataset (see tools/install_extra_datasets.sh)
-    ("indi", "INDI_", None),
-    ("labs", "LABS_", None),
-    ("studyforrest", "STUDYFORREST_", None),
-]
+# Datasets that are not on OpenNeuro tracked by the inventory, by collection
+NON_OPENNEURO_DATASETS = _data_dir() / "non_openneuro_datasets.yml"
+
+
+def non_openneuro_collections() -> dict[str, dict[str, Any]]:
+    """Return the collections of datasets that are not on OpenNeuro.
+
+    See bids_inventory/data/non_openneuro_datasets.yml.
+    """
+    with open(NON_OPENNEURO_DATASETS) as f:
+        collections: dict[str, dict[str, Any]] = yaml.safe_load(f)
+    return collections
+
+
+def install_non_openneuro(
+    base_dir: Path, collections: dict[str, dict[str, Any]], jobs: int = 1
+) -> None:
+    """Install the datasets of the collections missing from base_dir/<collection>/<dataset>.
+
+    With their root TSV and JSON files (participants.tsv, dataset_description.json...).
+    A dataset that cannot be installed is skipped (with an error).
+    """
+    for collection, settings in collections.items():
+        folder = base_dir / collection
+        if source := settings.get("superdataset"):
+            if _install_dataset(source, folder, get_root_files=False):
+                _install_subdatasets(folder, settings.get("include"), jobs)
+        for name, source in (settings.get("datasets") or {}).items():
+            _install_dataset(source, folder / str(name))
+
+
+def _is_installed(dataset_pth: Path) -> bool:
+    return (dataset_pth / ".git").exists()
+
+
+def _install_dataset(source: str, dataset_pth: Path, get_root_files: bool = True) -> bool:
+    """Install a datalad dataset if it is not installed yet: return whether it is installed."""
+    if _is_installed(dataset_pth):
+        return True
+    dataset_pth.parent.mkdir(parents=True, exist_ok=True)
+    cc_log.info(f"Installing {source} in {dataset_pth}")
+    result = subprocess.run(
+        [_datalad_executable(), "install", "-s", source, str(dataset_pth)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not _is_installed(dataset_pth):
+        cc_log.error(f"Could not install {source}: {_error_reason(result.stdout, result.stderr)}")
+        return False
+    if get_root_files:
+        _get_root_files(dataset_pth)
+    return True
+
+
+def _install_subdatasets(superdataset: Path, include: list[str] | None, jobs: int = 1) -> None:
+    """Install the subdatasets of a superdataset that are not installed yet (only ``include``)."""
+    absent = [
+        Path(record["path"])
+        for record in api.Dataset(superdataset).subdatasets(
+            state="absent", result_renderer="disabled"
+        )
+    ]
+    if include is not None:
+        absent = [x for x in absent if x.name in include]
+    if not absent:
+        return
+    cc_log.info(f"Installing {len(absent)} subdatasets of {superdataset}")
+    result = subprocess.run(
+        [_datalad_executable(), "get", "-n", "-J", str(jobs), "-d", str(superdataset)]
+        + [str(x) for x in absent],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        cc_log.error(
+            f"Could not install some subdatasets of {superdataset}: "
+            f"{_error_reason(result.stdout, result.stderr)}"
+        )
+    for dataset_pth in absent:
+        if _is_installed(dataset_pth):
+            _get_root_files(dataset_pth)
+
+
+def _get_root_files(dataset_pth: Path) -> None:
+    """Get the content of the TSV and JSON files at the root of a dataset."""
+    files = sorted([*dataset_pth.glob("*.tsv"), *dataset_pth.glob("*.json")])
+    if not files:
+        return
+    try:
+        api.Dataset(dataset_pth).get([str(x) for x in files], result_renderer="disabled")
+    except IncompleteResultsError:
+        cc_log.warning(f"Could not get the root files of {dataset_pth}")
 
 
 def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -> None:
     """Update the listing of datasets that are not on OpenNeuro (ABIDE, CoRR...).
 
-    The datasets must be installed in the folder set by ``local_paths.non_openneuro``
-    in the configuration, for example with ``tools/install_extra_datasets.sh``.
+    The datasets of bids_inventory/data/non_openneuro_datasets.yml
+    missing from the folder set by ``local_paths.non_openneuro`` in the configuration
+    are installed first (except with ``debug``), then indexed.
     """
     base_dir = config_path("local_paths", "non_openneuro")
+    collections = non_openneuro_collections()
+    if debug:
+        cc_log.info("Debug mode: the missing datasets are not installed")
+    else:
+        install_non_openneuro(base_dir, collections, jobs=jobs)
 
     datasets_df = _load_known_datasets(_non_openneuro_listing())
     datasets_df = _missing_as_na(datasets_df)
@@ -440,16 +521,21 @@ def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = Fals
     if debug:
         output_file = Path.cwd() / output_file.name
 
-    for folder, study_prefix, include in NON_OPENNEURO_COLLECTIONS:
-        if not (base_dir / folder).is_dir():
-            cc_log.warning(f"{base_dir / folder} not found: skipping {study_prefix.strip('_')}")
+    for collection, settings in collections.items():
+        folder = base_dir / collection
+        if not folder.is_dir():
+            cc_log.warning(f"{folder} not found: skipping {collection}")
             continue
+        # only the datasets listed (or the subdatasets included) are indexed
+        include = settings.get("include")
+        if "datasets" in settings:
+            include = [str(x) for x in settings["datasets"]]
         datasets = list_datasets_in_dir(
             datasets,
-            base_dir / folder,
+            folder,
             debug=debug,
             dataset_name_prefix="",
-            study_prefix=study_prefix,
+            study_prefix=settings["prefix"],
             include=include,
             jobs=jobs,
             output_file=output_file,

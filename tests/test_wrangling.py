@@ -155,12 +155,21 @@ def test_wrangle_data_field_strengths():
 def test_get_source_study():
     from bids_inventory.wrangling import _get_source_study
 
-    names = ["ds000001", "ABIDE2_x", "ABIDE_x", "INDI_PRIME_nki", "LABS_haxby_life", "foo"]
+    names = [
+        "ds000001",
+        "ABIDE2_x",
+        "ABIDE_x",
+        "INDI_PRIME_nki",
+        "LABS_haxby_life",
+        "NEMAR_nm000103",
+        "foo",
+    ]
     assert _get_source_study(pd.DataFrame({"name": names})) == [
         "openneuro",
         "abide 2",
         "abide",
         "indi",
         "datalad labs",
+        "nemar",
         "other",
     ]

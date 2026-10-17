@@ -84,7 +84,7 @@ Everything is done with `bids_inventory update` (see `bids_inventory update --he
 | `bids_inventory update` | installs and indexes the OpenNeuro datasets that are not in the listing yet |
 | `bids_inventory update --reindex` | indexes again all the OpenNeuro datasets, for example after new fields were added to the listing (also installs the datasets missing locally) |
 | `bids_inventory update --durations eeg meg` | only gets again the duration of the runs of these datatypes, for the OpenNeuro datasets already listed and installed locally |
-| `bids_inventory update --source non-openneuro` | indexes the datasets that are not on OpenNeuro (ABIDE, ABIDE 2, ADHD-200, CoRR, CNeuroMod, INDI, DataLad labs, studyforrest) that are not in `non_openneuro.jsonl` yet |
+| `bids_inventory update --source non-openneuro` | installs the datasets that are not on OpenNeuro listed in `bids_inventory/data/non_openneuro_datasets.yml` (ABIDE, CoRR, CNeuroMod, DANDI, NEMAR...) that are missing locally, and indexes those that are not in `non_openneuro.jsonl` yet |
 | `bids_inventory update --source non-openneuro --reindex` | indexes again all of them |
 | `bids_inventory remove ds000001 ds000002` | removes datasets from the listing, so that the next `bids_inventory update` indexes them again (`--source non-openneuro` for the other listing) |
 
@@ -166,12 +166,14 @@ then from GitHub for those missing from it.
 The version of the pipeline is read from the superdataset when the derivative dataset is installed there,
 otherwise from GitHub.
 
-**Other datasets**: install them with `tools/install_extra_datasets.sh`,
-in the folder set by `local_paths.non_openneuro`:
+**Other datasets**: the datasets that are not on OpenNeuro tracked by the inventory
+are listed by collection in `bids_inventory/data/non_openneuro_datasets.yml`
+(ABIDE, CoRR, CNeuroMod, INDI, studyforrest, DANDI, NEMAR...).
+`bids_inventory update --source non-openneuro` installs the ones missing
+from the folder set by `local_paths.non_openneuro` (in `<collection>/<dataset>`), then indexes them.
 
-```bash
-tools/install_extra_datasets.sh ~/non_openneuro
-```
+`tools/query_datalad_registry.py` lists the BIDS datasets of the [DataLad registry](https://registry.datalad.org/)
+that are not tracked yet: add the ones to track to `non_openneuro_datasets.yml`.
 
 There are many datasets: make sure you have enough disk space.
 

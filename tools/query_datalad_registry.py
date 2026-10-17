@@ -4,8 +4,9 @@ https://blog.datalad.org/posts/registry/
 API: https://registry.datalad.org/openapi/
 
 Keeps the raw datasets (DatasetType "raw", or not specified: "raw" by default)
-with at least one subject, that are not installed by tools/install_extra_datasets.sh
-(already in the inventory), and that are not copies of OpenNeuro datasets: the ones with
+with at least one subject, that are not tracked yet
+(in bids_inventory/data/non_openneuro_datasets.yml),
+and that are not copies of OpenNeuro datasets: the ones with
 an OpenNeuro id in their URL (for example the NEMAR mirrors: nemarDatasets/on005628),
 an OpenNeuro DOI or link in their dataset_description.json,
 or (with --openneuro-dir) the same name as an OpenNeuro dataset installed locally.
@@ -21,7 +22,7 @@ Saves, in the current directory:
 Usage:
     python tools/query_datalad_registry.py [--search QUERY] [--openneuro-dir DIR]
 
-Needs: pip install requests pandas
+Needs: pip install requests pandas pyyaml
 """
 
 import argparse
@@ -33,6 +34,7 @@ from urllib.parse import urlparse
 
 import pandas as pd
 import requests
+import yaml
 
 API = "https://registry.datalad.org/api/v2/dataset-urls"
 # openfmri: the former OpenNeuro, courtois-neuromod: already in the inventory,
@@ -55,17 +57,39 @@ EXCLUDED_URLS = [
 ]
 
 
-# datasets of the datalad superdataset installed by this script: in the inventory
-INSTALL_SCRIPT = Path(__file__).parent / "install_extra_datasets.sh"
+# datasets that are not on OpenNeuro already tracked by the inventory
+NON_OPENNEURO_DATASETS = (
+    Path(__file__).parents[1] / "bids_inventory" / "data" / "non_openneuro_datasets.yml"
+)
 
 
-def installed_urls(install_script: Path = INSTALL_SCRIPT) -> set[str]:
-    """Return the URLs of the datasets installed by tools/install_extra_datasets.sh.
+def tracked_urls(collections_file: Path = NON_OPENNEURO_DATASETS) -> tuple[set[str], set[str]]:
+    """Return the URLs of the datasets of non_openneuro_datasets.yml, and of its superdatasets.
 
-    Its "<folder> ///<path>" lines: ///<path> is https://datasets.datalad.org/<path>.
+    ``///<path>`` is ``https://datasets.datalad.org/<path>``.
     """
-    sources = re.findall(r"^\S+ ///(\S+)$", install_script.read_text(), re.MULTILINE)
-    return {normalize_url(f"https://datasets.datalad.org/{source}") for source in sources}
+
+    def url(source: str) -> str:
+        return normalize_url(source.replace("///", "https://datasets.datalad.org/", 1))
+
+    collections = yaml.safe_load(collections_file.read_text())
+    datasets = {
+        url(str(source))
+        for settings in collections.values()
+        for source in (settings.get("datasets") or {}).values()
+    }
+    superdatasets = {
+        url(str(settings["superdataset"]))
+        for settings in collections.values()
+        if settings.get("superdataset")
+    }
+    return datasets, superdatasets
+
+
+def is_tracked(dataset_url: dict[str, Any], datasets: set[str], superdatasets: set[str]) -> bool:
+    """Return whether it is a dataset (or a subdataset of a superdataset) of the YAML file."""
+    url = normalize_url(dataset_url["url"])
+    return url in datasets or any(url.startswith(f"{x}/") for x in superdatasets)
 
 
 def normalize_url(url: str) -> str:
@@ -132,7 +156,8 @@ def openneuro_id(dataset_url: dict[str, Any], names: dict[str, str]) -> str:
     From its URL (nemarDatasets/on005628), an OpenNeuro DOI or link
     in its dataset_description.json, or its name (``names``: see ``openneuro_names``).
     """
-    if match := re.search(r"/(?:ds|on|nm)(\d{6})", dataset_url["url"]):
+    # nemarDatasets/on* are copies of OpenNeuro datasets, nemarDatasets/nm* are not
+    if match := re.search(r"/(?:ds|on)(\d{6})", dataset_url["url"]):
         return f"ds{match.group(1)}"
     bids = bids_metadata(dataset_url)
     text = json.dumps({field: bids.get(field) for field in OPENNEURO_FIELDS})
@@ -188,9 +213,11 @@ def main() -> None:
     args = parser.parse_args()
 
     names = openneuro_names(args.openneuro_dir) if args.openneuro_dir else {}
-    installed = installed_urls()
+    tracked = tracked_urls()
     dataset_urls = query(args.search)
     print(f"{len(dataset_urls)} dataset URLs found")
+    # the same datasets at other URLs (for example DANDI on GitHub and datasets.datalad.org)
+    tracked_ids = {x["ds_id"] for x in dataset_urls if is_tracked(x, *tracked)}
 
     # all the copies of OpenNeuro datasets found, whatever their type and subjects
     copies = pd.DataFrame(
@@ -212,8 +239,8 @@ def main() -> None:
         ("not raw (DatasetType)", is_raw),
         ("in EXCLUDED_URLS (dummy datasets, works in progress)", lambda x: not is_excluded(x)),
         (
-            "installed by tools/install_extra_datasets.sh",
-            lambda x: normalize_url(x["url"]) not in installed,
+            "already tracked (bids_inventory/data/non_openneuro_datasets.yml)",
+            lambda x: not is_tracked(x, *tracked) and x["ds_id"] not in tracked_ids,
         ),
         ("copies of OpenNeuro datasets", lambda x: not openneuro_id(x, names)),
     ]:

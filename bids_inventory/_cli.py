@@ -125,8 +125,8 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         "--source",
         help="""
         Which listing to update: datasets on OpenNeuro,
-        or other datasets (ABIDE, ABIDE 2, ADHD-200, CoRR, CNeuroMod, INDI, DataLad labs,
-        studyforrest)
+        or the other datasets of bids_inventory/data/non_openneuro_datasets.yml
+        (ABIDE, CoRR, CNeuroMod, DANDI, NEMAR...): the missing ones are first
         installed in the folder set by 'local_paths.non_openneuro' in the configuration.
         """,
         choices=["openneuro", "non-openneuro"],
