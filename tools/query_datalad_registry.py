@@ -3,20 +3,27 @@
 https://blog.datalad.org/posts/registry/
 API: https://registry.datalad.org/openapi/
 
+Keeps the raw datasets (DatasetType "raw", or not specified: "raw" by default)
+with at least one subject, that are not copies of OpenNeuro datasets: the ones with
+an OpenNeuro id in their URL (for example the NEMAR mirrors: nemarDatasets/on005628),
+an OpenNeuro DOI or link in their dataset_description.json,
+or (with --openneuro-dir) the same name as an OpenNeuro dataset installed locally.
+
 Saves, in the current directory:
 
-- datalad_registry_bids.json: the dataset URLs found (with at least one subject),
-  with their metadata;
-- datalad_registry_bids.tsv: one row per dataset URL, with a summary of its BIDS metadata.
+- datalad_registry_bids.json: the dataset URLs kept, with their metadata;
+- datalad_registry_bids.tsv: one row per dataset URL kept,
+  with a summary of its BIDS metadata.
 
 Usage:
-    python tools/query_datalad_registry.py [--search QUERY]
+    python tools/query_datalad_registry.py [--search QUERY] [--openneuro-dir DIR]
 
 Needs: pip install requests pandas
 """
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -25,11 +32,14 @@ import pandas as pd
 import requests
 
 API = "https://registry.datalad.org/api/v2/dataset-urls"
-# openfmri: the former OpenNeuro, courtois-neuromod: already in the inventory
+# openfmri: the former OpenNeuro, courtois-neuromod: already in the inventory,
+# bids_apps_test_data: test data
 DEFAULT_SEARCH = (
     'metadata[bids_dataset]:"" AND NOT url:openneuro AND NOT url:openfmri '
-    "AND NOT url:courtois-neuromod"
+    "AND NOT url:courtois-neuromod AND NOT url:bids_apps_test_data"
 )
+# fields of the dataset_description.json that can mention the OpenNeuro dataset
+OPENNEURO_FIELDS = ["DatasetDOI", "ReferencesAndLinks", "HowToAcknowledge", "SourceDatasets"]
 PER_PAGE = 100
 
 
@@ -54,9 +64,9 @@ def query(search: str) -> list[dict[str, Any]]:
         params["page"] += 1
 
 
-def summary(dataset_url: dict[str, Any]) -> dict[str, Any]:
-    """Summarize a dataset URL and its BIDS metadata."""
-    bids = next(
+def bids_metadata(dataset_url: dict[str, Any]) -> dict[str, Any]:
+    """Return the metadata of a dataset URL extracted by the bids_dataset extractor."""
+    return next(
         (
             m.get("extracted_metadata") or {}
             for m in dataset_url.get("metadata") or []
@@ -64,6 +74,44 @@ def summary(dataset_url: dict[str, Any]) -> dict[str, Any]:
         ),
         {},
     )
+
+
+def openneuro_names(openneuro_dir: Path) -> dict[str, str]:
+    """Map the (lower case) names of the OpenNeuro datasets installed locally to their id."""
+    names: dict[str, str] = {}
+    for description in sorted(openneuro_dir.glob("ds*/dataset_description.json")):
+        try:
+            name = json.loads(description.read_text()).get("Name")
+        except (OSError, ValueError, AttributeError):
+            continue
+        if isinstance(name, str) and len(name.strip()) > 3:
+            names.setdefault(name.strip().lower(), description.parent.name)
+    return names
+
+
+def openneuro_id(dataset_url: dict[str, Any], names: dict[str, str]) -> str:
+    """Return the id of the OpenNeuro dataset a dataset URL is a copy of (empty if none).
+
+    From its URL (nemarDatasets/on005628), an OpenNeuro DOI or link
+    in its dataset_description.json, or its name (``names``: see ``openneuro_names``).
+    """
+    if match := re.search(r"/(?:ds|on|nm)(\d{6})", dataset_url["url"]):
+        return f"ds{match.group(1)}"
+    bids = bids_metadata(dataset_url)
+    text = json.dumps({field: bids.get(field) for field in OPENNEURO_FIELDS})
+    if match := re.search(r"openneuro[./a-z]*?(ds\d{6})", text, re.IGNORECASE):
+        return match.group(1)
+    return names.get(str(bids.get("Name") or "").strip().lower(), "")
+
+
+def is_raw(dataset_url: dict[str, Any]) -> bool:
+    """Is it a raw dataset? DatasetType is "raw" by default."""
+    return str(bids_metadata(dataset_url).get("DatasetType") or "raw").lower() == "raw"
+
+
+def summary(dataset_url: dict[str, Any]) -> dict[str, Any]:
+    """Summarize a dataset URL and its BIDS metadata."""
+    bids = bids_metadata(dataset_url)
     entities = bids.get("entities") or {}
     url = urlparse(dataset_url["url"])
     return {
@@ -94,13 +142,26 @@ def summary(dataset_url: dict[str, Any]) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--search", default=DEFAULT_SEARCH, help="Search query (web UI syntax).")
+    parser.add_argument(
+        "--openneuro-dir",
+        type=Path,
+        help="Folder with OpenNeuro datasets installed locally (ds*): "
+        "datasets with the same name as one of them are excluded.",
+    )
     args = parser.parse_args()
 
+    names = openneuro_names(args.openneuro_dir) if args.openneuro_dir else {}
     dataset_urls = query(args.search)
-    # datasets without any subject: for example empty or toy datasets
-    nb_found = len(dataset_urls)
-    dataset_urls = [x for x in dataset_urls if summary(x)["nb_subjects"] > 0]
-    print(f"{nb_found - len(dataset_urls)} dataset URLs without subjects excluded")
+    print(f"{len(dataset_urls)} dataset URLs found")
+    for reason, keep in [
+        # for example empty or toy datasets
+        ("without subjects", lambda x: summary(x)["nb_subjects"] > 0),
+        ("not raw (DatasetType)", is_raw),
+        ("copies of OpenNeuro datasets", lambda x: not openneuro_id(x, names)),
+    ]:
+        kept = [x for x in dataset_urls if keep(x)]
+        print(f"  {len(dataset_urls) - len(kept)} excluded: {reason}")
+        dataset_urls = kept
     Path("datalad_registry_bids.json").write_text(json.dumps(dataset_urls, indent=1))
     df = pd.DataFrame([summary(x) for x in dataset_urls]).sort_values("url")
     df.to_csv("datalad_registry_bids.tsv", sep="\t", index=False)
