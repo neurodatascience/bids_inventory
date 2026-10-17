@@ -13,7 +13,9 @@ Saves, in the current directory:
 
 - datalad_registry_bids.json: the dataset URLs kept, with their metadata;
 - datalad_registry_bids.tsv: one row per dataset URL kept,
-  with a summary of its BIDS metadata.
+  with a summary of its BIDS metadata;
+- datalad_registry_openneuro_copies.tsv: the same for all the copies of OpenNeuro datasets
+  found (whatever their type and number of subjects), with the id of the OpenNeuro dataset.
 
 Usage:
     python tools/query_datalad_registry.py [--search QUERY] [--openneuro-dir DIR]
@@ -38,6 +40,8 @@ DEFAULT_SEARCH = (
     'metadata[bids_dataset]:"" AND NOT url:openneuro AND NOT url:openfmri '
     "AND NOT url:courtois-neuromod AND NOT url:bids_apps_test_data"
 )
+# all the copies of OpenNeuro datasets found
+COPIES_FILE = "datalad_registry_openneuro_copies.tsv"
 # fields of the dataset_description.json that can mention the OpenNeuro dataset
 OPENNEURO_FIELDS = ["DatasetDOI", "ReferencesAndLinks", "HowToAcknowledge", "SourceDatasets"]
 PER_PAGE = 100
@@ -153,6 +157,21 @@ def main() -> None:
     names = openneuro_names(args.openneuro_dir) if args.openneuro_dir else {}
     dataset_urls = query(args.search)
     print(f"{len(dataset_urls)} dataset URLs found")
+
+    # all the copies of OpenNeuro datasets found, whatever their type and subjects
+    copies = pd.DataFrame(
+        [
+            {**summary(x), "openneuro_id": copy_of}
+            for x in dataset_urls
+            if (copy_of := openneuro_id(x, names))
+        ]
+    ).sort_values(["openneuro_id", "url"])
+    copies.to_csv(COPIES_FILE, sep="\t", index=False)
+    print(
+        f"{len(copies)} copies of {copies['openneuro_id'].nunique()} OpenNeuro datasets "
+        f"saved to {COPIES_FILE}"
+    )
+
     for reason, keep in [
         # for example empty or toy datasets
         ("without subjects", lambda x: summary(x)["nb_subjects"] > 0),
