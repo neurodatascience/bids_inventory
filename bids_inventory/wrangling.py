@@ -195,22 +195,27 @@ def _detect_duplicate_datasets(df: pd.DataFrame) -> None:
     cc_log.debug(tmp[tmp > 1])
 
 
+# source of the datasets, from the beginning of their name
+# (ABIDE2 before ABIDE: the first matching prefix is used)
+SOURCES = [
+    ("ds", "openneuro"),
+    ("ABIDE2", "abide 2"),
+    ("ABIDE", "abide"),
+    ("ADHD200", "adhd200"),
+    ("CORR", "corr"),
+    ("CNEUROMOD", "neuromod"),
+    ("INDI", "indi"),
+    ("LABS", "datalad labs"),
+    ("STUDYFORREST", "studyforrest"),
+]
+
+
 def _get_source_study(df: pd.DataFrame) -> list[str]:
-    source = []
-    for row in df.iterrows():
-        if row[1]["name"].startswith("ds"):
-            source.append("openneuro")
-        elif row[1]["name"].startswith("ABIDE2"):
-            source.append("abide 2")
-        elif row[1]["name"].startswith("ABIDE"):
-            source.append("abide")
-        elif row[1]["name"].startswith("ADHD200"):
-            source.append("adhd200")
-        elif row[1]["name"].startswith("CORR"):
-            source.append("corr")
-        elif row[1]["name"].startswith("CNEUROMOD"):
-            source.append("neuromod")
-    return source
+    """Return the source of each dataset ("other" for unknown names)."""
+    return [
+        next((source for prefix, source in SOURCES if name.startswith(prefix)), "other")
+        for name in df["name"]
+    ]
 
 
 class FilterConfig(TypedDict):

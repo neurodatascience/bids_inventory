@@ -417,6 +417,10 @@ NON_OPENNEURO_COLLECTIONS: list[tuple[str, str, list[str] | None]] = [
         "CNEUROMOD_",
         ["anat", "friends", "harrypotter", "hcptrt", "movie10", "shinobi", "shinobi_training"],
     ),
+    # other datasets of the datalad superdataset (see tools/install_extra_datasets.sh)
+    ("indi", "INDI_", None),
+    ("labs", "LABS_", None),
+    ("studyforrest", "STUDYFORREST_", None),
 ]
 
 

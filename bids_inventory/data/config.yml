@@ -26,7 +26,7 @@ local_paths:
         # Derivatives are listed, and their version read, from it first.
         OpenNeuroDerivatives:
     # folder with the datasets that are not on openneuro
-    # (abide, abide2, adhd200, corr and cneuromod subfolders),
+    # (abide, abide2, adhd200, corr, cneuromod, indi, labs and studyforrest subfolders),
     # for example installed with tools/install_extra_datasets.sh
     # only needed for: bids_inventory update --source non-openneuro
     non_openneuro:
