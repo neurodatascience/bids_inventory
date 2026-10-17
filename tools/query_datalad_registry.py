@@ -24,7 +24,11 @@ import pandas as pd
 import requests
 
 API = "https://registry.datalad.org/api/v2/dataset-urls"
-DEFAULT_SEARCH = 'metadata[bids_dataset]:"" AND NOT url:openneuro'
+# openfmri: the former OpenNeuro, courtois-neuromod: already in the inventory
+DEFAULT_SEARCH = (
+    'metadata[bids_dataset]:"" AND NOT url:openneuro AND NOT url:openfmri '
+    "AND NOT url:courtois-neuromod"
+)
 PER_PAGE = 100
 
 
@@ -69,6 +73,11 @@ def summary(dataset_url: dict[str, Any]) -> dict[str, Any]:
         "ds_id": dataset_url.get("ds_id"),
         "name": bids.get("Name"),
         "bids_version": bids.get("BIDSVersion"),
+        # "raw" if not specified, but derivatives do not always specify it
+        "dataset_type": bids.get("DatasetType"),
+        "generated_by": ", ".join(
+            str(x.get("Name")) for x in bids.get("GeneratedBy") or [] if isinstance(x, dict)
+        ),
         "license": bids.get("License"),
         "nb_authors": len(bids.get("Authors") or []),
         "nb_subjects": len(entities.get("subject") or []),
