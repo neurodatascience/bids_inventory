@@ -207,7 +207,11 @@ found in the JSON sidecars of the datasets:
 The names that could not be located are the alternative names of the `unlocated` entry.
 This file can be edited by hand, to fix a location or to group the names of an institution:
 the commands below never change the institutions already in it,
-they only add new names.
+they only add new names (except `relocate`).
+
+Names with a country code are only searched in that country:
+DICOM addresses end with it, followed by the ZIP code (`...,Magdeburg,District,DE,39120`).
+Otherwise a part of the address (`IBMI`) can be found anywhere in the world.
 
 ```bash
 pip install -e '.[institutions]'
@@ -215,6 +219,12 @@ pip install -e '.[institutions]'
 # geocode the institution names of the inventory that are not in the file yet
 # (OpenStreetMap, 1 request per second; if stopped, run it again to continue)
 bids_inventory institutions update
+
+# geocode again the institutions found in the wrong country:
+# all those with a country code that are located in another country...
+bids_inventory institutions relocate
+# ...or some of them, in a given country if their names have no country code
+bids_inventory institutions relocate "University of Geneva" --country ch
 
 # regroup the names of the same institution:
 # write the pairs that are probably the same to institution_matches.tsv,
