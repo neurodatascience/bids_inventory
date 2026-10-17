@@ -148,10 +148,18 @@ def remove_datasets(names: Iterable[str], listing: Path) -> list[str]:
     return removed
 
 
+# columns of integers that can be missing
+NULLABLE_INT_COLUMNS = ["readme_size", "bidsignore_size"]
+
+
 def _load_known_datasets(listing: Path) -> pd.DataFrame:
     """Load a listing of datasets stored as JSON lines (one dataset per line)."""
     df = pd.read_json(listing, lines=True, dtype=False, convert_dates=False)
     df["created_on"] = pd.to_datetime(df["created_on"], utc=True)
+    # integers with missing values: not floats
+    for column in NULLABLE_INT_COLUMNS:
+        if column in df:
+            df[column] = df[column].astype("Int64")
     return df
 
 

@@ -1108,3 +1108,127 @@ def test_get_nb_channels(tmp_path, monkeypatch):
         "ieeg": [30],
         "meg": [306, 306],
     }
+
+
+def test_get_readme_and_bidsignore_size(tmp_path):
+    import os
+
+    from bids_inventory._update import get_bidsignore_size, get_readme_size
+
+    assert get_readme_size(tmp_path) is None
+    assert get_bidsignore_size(tmp_path) is None
+
+    (tmp_path / "README.md").write_text("# a dataset\n")
+    assert get_readme_size(tmp_path) == 12
+    (tmp_path / ".bidsignore").write_text("extra/\n")
+    assert get_bidsignore_size(tmp_path) == 7
+
+    # annexed README whose content is not downloaded: size from its git-annex key
+    (tmp_path / "README.md").unlink()
+    os.symlink(".git/annex/objects/xx/MD5E-s1234--abcd/MD5E-s1234--abcd", tmp_path / "README")
+    assert get_readme_size(tmp_path) == 1234
+
+
+def test_update_fields(tmp_path, monkeypatch):
+    """Only the requested fields of the installed datasets change, sizes stay integers."""
+    import pandas as pd
+
+    from bids_inventory import _update
+
+    listing = pd.DataFrame({"name": ["ds000001", "ds000002"], "readme_size": [None, 10]})
+    saved = {}
+    monkeypatch.setattr(_update, "_load_known_datasets", lambda _: listing.copy())
+    monkeypatch.setattr(
+        _update, "save_known_datasets", lambda df, output_file: saved.update(df=df.copy())
+    )
+    monkeypatch.setattr(
+        _update,
+        "_local_openneuro_dataset",
+        lambda name: tmp_path if name == "ds000001" else None,
+    )
+    (tmp_path / "README").write_text("hello")
+
+    _update.update_fields(["readme_size", "bidsignore_size"], debug=False)
+
+    assert saved["df"]["readme_size"].tolist() == [5, 10]
+    assert saved["df"]["bidsignore_size"].tolist() == [None, None]
+
+    with pytest.raises(ValueError, match="Unknown fields"):
+        _update.update_fields(["foo"], debug=False)
+
+
+@pytest.mark.parametrize(
+    "description, expected",
+    [
+        ({"HEDVersion": "8.2.0", "Keywords": ["EEG", " vision "]}, (["8.2.0"], ["EEG", "vision"])),
+        ({"HEDVersion": ["8.2.0", "sc:score_1.0.0"]}, (["8.2.0", "sc:score_1.0.0"], [])),
+        # empty values and placeholders
+        ({"HEDVersion": "", "Keywords": ["n/a", None, ""]}, ([], [])),
+        ({}, ([], [])),
+    ],
+)
+def test_get_hed_version_and_keywords(tmp_path, description, expected):
+    import json
+
+    from bids_inventory._update import get_hed_version, get_keywords
+
+    (tmp_path / "dataset_description.json").write_text(json.dumps(description))
+    assert (get_hed_version(tmp_path), get_keywords(tmp_path)) == expected
+
+
+def test_get_references_and_links_invalid_description(tmp_path):
+    """An empty dataset_description.json is not an error."""
+    from bids_inventory._update import get_references_and_links
+
+    (tmp_path / "dataset_description.json").write_text("")
+    assert get_references_and_links(tmp_path) == []
+
+
+def test_local_openneuro_dataset_most_recent_copy(tmp_path, monkeypatch):
+    """A dataset installed twice is read from the copy with the most recent commit."""
+    from bids_inventory import _update
+
+    superdataset, other = tmp_path / "superdataset", tmp_path / "other"
+    for folder in [superdataset, other]:
+        _touch(folder / "ds000001" / "dataset_description.json", "{}")
+    _touch(superdataset / "ds000002" / "dataset_description.json", "{}")
+    monkeypatch.setattr(_update, "superdataset_dir", lambda: superdataset)
+    monkeypatch.setattr(_update, "config_path", lambda *keys: other)
+    times = {superdataset / "ds000001": 100, other / "ds000001": 200}
+    monkeypatch.setattr(_update, "_last_commit_time", lambda path: times[path])
+
+    assert _update._local_openneuro_dataset("ds000001") == other / "ds000001"
+    assert _update._local_openneuro_dataset("ds000002") == superdataset / "ds000002"
+    assert _update._local_openneuro_dataset("ds000003") is None
+
+
+def test_get_task_ids(tmp_path, monkeypatch):
+    """The CogAtlasID of each task, from the sidecars of its runs (with inheritance)."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    func = tmp_path / "sub-01" / "func"
+    for run in [1, 2]:
+        _touch(func / f"sub-01_task-rest_run-{run}_bold.nii.gz")
+        # not runs: their sidecars do not describe the task
+        _touch(func / f"sub-01_task-rest_run-{run}_events.tsv")
+    _touch(tmp_path / "task-rest_bold.json", json.dumps({"CogAtlasID": "trm_4c8a834779883"}))
+    _touch(tmp_path / "task-rest_events.json", json.dumps({"CogAtlasID": "not a run"}))
+    eeg = _touch(tmp_path / "sub-01" / "eeg" / "sub-01_task-nback_eeg.edf")
+    _touch(
+        eeg.with_name("sub-01_task-nback_eeg.json"),
+        json.dumps(
+            {"CogAtlasID": ["tsk_4a57abb949e1a", "https://www.cognitiveatlas.org/fillYourID"]}
+        ),
+    )
+    # no sidecar, or no suffix
+    _touch(tmp_path / "sub-01" / "beh" / "sub-01_task-other_beh.tsv")
+    _touch(tmp_path / "sub-01" / "beh" / "sub-01_task-other.tsv")
+
+    assert _update.get_task_ids(tmp_path, "CogAtlasID") == {
+        "nback": ["tsk_4a57abb949e1a"],
+        "rest": ["trm_4c8a834779883"],
+    }
+    assert _update.get_task_ids(tmp_path, "CogPOID") == {}

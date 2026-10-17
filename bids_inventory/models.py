@@ -175,8 +175,33 @@ class BidsDataset(BaseModel):
         "assumes that all participants followed the same protocol.",
         default=None,
     )
+    readme_size: int | None = _field(
+        "Size (in bytes) of the README of the dataset (README, README.md, README.txt "
+        "or README.rst), None if it has none.",
+        default=None,
+    )
+    bidsignore_size: int | None = _field(
+        "Size (in bytes) of the .bidsignore of the dataset, None if it has none.",
+        default=None,
+    )
     references_and_links: list[str] = _field(
         "List of the ReferencesAndLinks of the dataset_description.json.", default=[]
+    )
+    hed_version: list[str] = _field(
+        "HEDVersion of the dataset_description.json, as a list "
+        "(the standard schema and the library schemas).",
+        default=[],
+    )
+    keywords: list[str] = _field("Keywords of the dataset_description.json.", default=[])
+    cog_atlas_id: dict[str, list[str]] = _field(
+        "CogAtlasID of each task (Cognitive Atlas), from the JSON sidecars of its runs.",
+        FIRST_PARTICIPANT,
+        default={},
+    )
+    cogpo_id: dict[str, list[str]] = _field(
+        "CogPOID of each task (Cognitive Paradigm Ontology), from the JSON sidecars of its runs.",
+        FIRST_PARTICIPANT,
+        default={},
     )
     raw: str | None = _field("Link to the raw dataset.", default=None)
     fmriprep: str | None = _derivative_link("fMRIPrep")

@@ -27,6 +27,7 @@ from bids_inventory._utils import glob_files, list_participants_in_dataset, prog
 from bids_inventory.listing import (
     KNOWN_DATATYPES,
     MAX_RUN_DURATION,
+    NULLABLE_INT_COLUMNS,
     _data_dir,
     _load_known_datasets,
     _non_openneuro_listing,
@@ -359,7 +360,7 @@ def update_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -
         Index again the datasets already in the listing.
     """
     datasets_df = _load_known_datasets(_openneuro_listing())
-    datasets_df.replace({pd.NA: "n/a"}, inplace=True)
+    datasets_df = _missing_as_na(datasets_df)
     datasets = listing_to_dict(datasets_df)
 
     output_file = _openneuro_listing()
@@ -428,7 +429,7 @@ def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = Fals
     base_dir = config_path("local_paths", "non_openneuro")
 
     datasets_df = _load_known_datasets(_non_openneuro_listing())
-    datasets_df.replace({pd.NA: "n/a"}, inplace=True)
+    datasets_df = _missing_as_na(datasets_df)
     datasets = listing_to_dict(datasets_df)
 
     output_file = _non_openneuro_listing()
@@ -547,6 +548,12 @@ def request_list_of_repos(
         # fail loudly: an incomplete list of repos would silently skip datasets
         raise RuntimeError(f"Error {response.status_code} for {url}: {response.text}")
     return response.json()
+
+
+def _missing_as_na(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace the missing values by "n/a" (the integer columns become objects for that)."""
+    df = df.astype({column: object for column in NULLABLE_INT_COLUMNS if column in df})
+    return df.replace({pd.NA: "n/a"})
 
 
 def init_dataset() -> dict[str, list[Any]]:
@@ -862,8 +869,14 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.authors = get_authors(dataset_pth)
     dataset.license = get_license(dataset_pth)
     dataset.references_and_links = get_references_and_links(dataset_pth)
+    dataset.hed_version = get_hed_version(dataset_pth)
+    dataset.keywords = get_keywords(dataset_pth)
+    dataset.cog_atlas_id = get_task_ids(dataset_pth, "CogAtlasID")
+    dataset.cogpo_id = get_task_ids(dataset_pth, "CogPOID")
 
     dataset.bids_version = get_bids_version(dataset_pth)
+    dataset.readme_size = get_readme_size(dataset_pth)
+    dataset.bidsignore_size = get_bidsignore_size(dataset_pth)
 
     sidecars = read_sidecars(dataset_pth)
     dataset.institutions = get_institutions(dataset_pth, sidecars)
@@ -1424,6 +1437,84 @@ def get_duration_for_datatype(
     return [durations[x] for x in files]
 
 
+README_NAMES = ["README", "README.md", "README.txt", "README.rst"]
+
+
+def get_readme_size(dataset_pth: Path) -> int | None:
+    """Return the size in bytes of the README of a dataset (None if it has none).
+
+    Even if its content is not downloaded (annexed file).
+    """
+    for name in README_NAMES:
+        if (size := _annexed_file_size(dataset_pth / name)) is not None:
+            return size
+    return None
+
+
+def get_bidsignore_size(dataset_pth: Path) -> int | None:
+    """Return the size in bytes of the .bidsignore of a dataset (None if it has none)."""
+    return _annexed_file_size(dataset_pth / ".bidsignore")
+
+
+# fields that 'bids_inventory update --fields' can get again without indexing everything
+# (lambdas: some of these functions are defined further down)
+FIELDS: dict[str, Any] = {
+    "readme_size": get_readme_size,
+    "bidsignore_size": get_bidsignore_size,
+    "references_and_links": lambda dataset_pth: get_references_and_links(dataset_pth),
+    "hed_version": lambda dataset_pth: get_hed_version(dataset_pth),
+    "keywords": lambda dataset_pth: get_keywords(dataset_pth),
+    "cog_atlas_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogAtlasID"),
+    "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
+}
+
+
+def update_fields(fields: list[str], debug: bool = True) -> None:
+    """Get again some fields for the openneuro datasets listed, without indexing everything.
+
+    Only for the datasets installed locally: the other ones keep their values.
+    """
+    if unknown := sorted(set(fields) - set(FIELDS)):
+        raise ValueError(f"Unknown fields: {unknown}, choose from {sorted(FIELDS)}")
+    output_file = _openneuro_listing()
+    df = _load_known_datasets(output_file)
+    if debug:
+        output_file = Path.cwd() / output_file.name
+
+    values: dict[str, list[Any]] = {
+        field: df[field].tolist() if field in df else [None] * len(df) for field in fields
+    }
+    not_installed = []
+    with progress_bar(text="Getting fields") as progress:
+        task = progress.add_task(description="fields", total=len(df))
+        for i, name in enumerate(df["name"]):
+            if debug and i >= 5:
+                break
+            progress.update(task, advance=1)
+            set_current_dataset(name)
+            dataset_pth = _local_openneuro_dataset(name)
+            if dataset_pth is None:
+                not_installed.append(name)
+                continue
+            for field in fields:
+                try:
+                    values[field][i] = FIELDS[field](dataset_pth)
+                except Exception:
+                    # one dataset should not stop the update: it keeps its value
+                    cc_log.exception(f"Could not get {field}")
+    set_current_dataset(None)
+
+    if not_installed:
+        cc_log.warning(
+            f"{len(not_installed)} datasets are not installed locally "
+            f"and keep their values: {not_installed}"
+        )
+    cc_log.info(f"Saving to {output_file}")
+    # object columns: sizes stay integers next to the missing values
+    columns = {field: pd.Series(x, index=df.index, dtype=object) for field, x in values.items()}
+    save_known_datasets(df.assign(**columns), output_file)
+
+
 def get_authors(dataset_pth: Path) -> list[str]:
     if not (dataset_pth / "dataset_description.json").exists():
         return []
@@ -1453,12 +1544,100 @@ def get_license(dataset_pth: Path) -> str:
         return license
 
 
+def _dataset_description(dataset_pth: Path) -> dict[str, Any]:
+    """Return the content of the dataset_description.json (empty if it cannot be read)."""
+    try:
+        content = json.loads((dataset_pth / "dataset_description.json").read_text())
+    except (OSError, ValueError) as e:
+        cc_log.warning(f"Could not read the dataset_description.json: {e!r}")
+        return {}
+    return content if isinstance(content, dict) else {}
+
+
+def _list_of_strings(value: Any) -> list[str]:
+    """Return a field that should be a list of strings as one (a string is a list of one).
+
+    Without the empty values and the placeholders ("n/a"...).
+    """
+    values = value if isinstance(value, list) else [value]
+    strings = [str(x).strip() for x in values if x is not None]
+    return [x for x in strings if x and x.lower() not in {"n/a", "na", "none", "null"}]
+
+
 def get_references_and_links(dataset_pth: Path) -> list[str]:
-    if not (dataset_pth / "dataset_description.json").exists():
-        return []
-    with open(dataset_pth / "dataset_description.json") as f:
-        dataset_description = json.load(f)
-        return dataset_description.get("ReferencesAndLinks", [])
+    return _list_of_strings(_dataset_description(dataset_pth).get("ReferencesAndLinks"))
+
+
+def get_hed_version(dataset_pth: Path) -> list[str]:
+    """Return the HEDVersion of the dataset_description.json, as a list.
+
+    A string for the standard schema ("8.2.0"), or a list with library schemas
+    (["8.2.0", "sc:score_1.0.0"]).
+    """
+    return _list_of_strings(_dataset_description(dataset_pth).get("HEDVersion"))
+
+
+def get_keywords(dataset_pth: Path) -> list[str]:
+    return _list_of_strings(_dataset_description(dataset_pth).get("Keywords"))
+
+
+# files with a task entity whose sidecar does not describe the task
+_NOT_TASK_RUNS = {
+    "channels",
+    "coordsystem",
+    "electrodes",
+    "events",
+    "headshape",
+    "markers",
+    "photo",
+    "physio",
+    "scans",
+    "stim",
+}
+
+
+def get_task_ids(dataset_pth: Path, field: str) -> dict[str, list[str]]:
+    """Return the values of a field of the task sidecars (CogAtlasID...), for each task.
+
+    From the JSON sidecars of the runs of the first participant
+    (following the inheritance principle): their unique values for each task.
+    """
+    participants = list_participants_in_dataset(dataset_pth)
+    if not participants:
+        return {}
+    first_sub = participants[0]
+    # (entities, suffix) of each run: its task and its file
+    runs: dict[tuple[str, str], tuple[str, Path]] = {}
+    for filepath in sorted(glob_files(dataset_pth, f"{first_sub}/**/{first_sub}*_task-*")):
+        if filepath.suffix == ".json" or (filepath.is_dir() and filepath.suffix != ".ds"):
+            continue
+        # sub-01_task-rest_run-1_bold.nii.gz: suffix "bold"
+        entities, _, rest = filepath.name.rpartition("_")
+        suffix = rest.split(".")[0]
+        task = re.search(r"_task-([a-zA-Z0-9]+)", f"_{entities}")
+        if suffix in _NOT_TASK_RUNS or task is None:
+            # for example a file without suffix: "sub-01_task-rest.tsv"
+            continue
+        runs.setdefault((entities, suffix), (task.group(1), filepath))
+
+    ids: dict[str, set[str]] = {}
+    for (_, suffix), (task, filepath) in runs.items():
+        sidecar = _find_sidecar(dataset_pth, filepath, suffix)
+        if sidecar is None:
+            continue
+        try:
+            if not sidecar.exists():
+                _get_file(api.Dataset(dataset_pth), sidecar)
+            metadata = json.loads(sidecar.read_text())
+        except Exception as e:
+            cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+            continue
+        values = _list_of_strings(metadata.get(field)) if isinstance(metadata, dict) else []
+        # left from templates: "https://www.cognitiveatlas.org/fillYourID", "Unknown"
+        values = [x for x in values if "fillyourid" not in x.lower() and x.lower() != "unknown"]
+        if values:
+            ids.setdefault(task, set()).update(values)
+    return {task: sorted(values) for task, values in sorted(ids.items())}
 
 
 def read_sidecars(dataset_pth: Path) -> list[dict[str, Any]]:
@@ -1684,12 +1863,31 @@ def count_physio_files(dataset_pth: Path) -> int:
 
 
 def _local_openneuro_dataset(name: str) -> Path | None:
-    """Return where an openneuro dataset is installed locally (None if it is not)."""
+    """Return where an openneuro dataset is installed locally (None if it is not).
+
+    If it is installed in several places (the superdataset and the folder of the
+    other openneuro datasets), the one with the most recent commit:
+    the subdatasets of the superdataset can be older versions.
+    """
     folders = [superdataset_dir(), config_path("local_paths", "openneuro", OPENNEURO)]
-    for folder in folders:
-        if folder is not None and (folder / name / "dataset_description.json").exists():
-            return folder / name
-    return None
+    copies = [
+        folder / name
+        for folder in folders
+        if folder is not None and (folder / name / "dataset_description.json").exists()
+    ]
+    if len(copies) <= 1:
+        return copies[0] if copies else None
+    return max(copies, key=_last_commit_time)
+
+
+def _last_commit_time(dataset_pth: Path) -> int:
+    """Return the time of the last commit of a dataset (0 if it has none)."""
+    result = subprocess.run(
+        ["git", "-C", str(dataset_pth), "log", "-1", "--format=%ct"],
+        capture_output=True,
+        text=True,
+    )
+    return int(result.stdout.strip() or 0)
 
 
 def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:
@@ -1705,7 +1903,12 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     if debug:
         output_file = Path.cwd() / output_file.name
 
-    to_update = df[df["datatypes"].apply(lambda x: bool(set(x) & set(datatypes)))]
+    # positions of the datasets with these datatypes
+    to_update = [
+        position
+        for position, dataset_datatypes in enumerate(df["datatypes"])
+        if set(dataset_datatypes) & set(datatypes)
+    ]
     cc_log.info(f"Getting the duration of {datatypes} for {len(to_update)} datasets")
     not_installed = []
     durations = df["duration"].tolist()
@@ -1714,7 +1917,8 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     channels = df["nb_channels"].tolist()
     with progress_bar(text="Getting durations") as progress:
         task = progress.add_task(description="durations", total=len(to_update))
-        for i, (index, row) in enumerate(to_update.iterrows()):
+        for i, position in enumerate(to_update):
+            row = df.iloc[position]
             if debug and i >= 5:
                 break
             progress.update(task, advance=1)
@@ -1732,13 +1936,14 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
                 continue
             # replace the durations of these datatypes, keep the others
             others = {k: v for k, v in (row["duration"] or {}).items() if k not in datatypes}
-            durations[df.index.get_loc(index)] = {**others, **duration}
-            previous = channels[df.index.get_loc(index)]
+            durations[position] = {**others, **duration}
+            previous = channels[position]
             previous = previous if isinstance(previous, dict) else {}
-            channels[df.index.get_loc(index)] = {
+            # None rather than {} for the datasets without eeg, ieeg or meg channels
+            channels[position] = {
                 **{k: v for k, v in previous.items() if k not in datatypes},
                 **nb_channels,
-            }
+            } or None
             if i % 20 == 0:
                 save_known_datasets(
                     df.assign(duration=durations, nb_channels=channels), output_file
