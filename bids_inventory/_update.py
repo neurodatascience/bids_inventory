@@ -1866,10 +1866,11 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
             durations[df.index.get_loc(index)] = {**others, **duration}
             previous = channels[df.index.get_loc(index)]
             previous = previous if isinstance(previous, dict) else {}
+            # None rather than {} for the datasets without eeg, ieeg or meg channels
             channels[df.index.get_loc(index)] = {
                 **{k: v for k, v in previous.items() if k not in datatypes},
                 **nb_channels,
-            }
+            } or None
             if i % 20 == 0:
                 save_known_datasets(
                     df.assign(duration=durations, nb_channels=channels), output_file
