@@ -81,3 +81,37 @@ def test_institutions_map(institutions):
     fig = institutions_map(institutions_locations(institutions, counts))
     # only the located institutions are plotted
     assert list(fig.data[0].lat) == [46.2]
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("BMMR, Leipziger Str. 44,Magdeburg,District,DE,39120", "de"),
+        ("IBMI, Brenneckestr._6_Magdeburg_District_DE_39118", "de"),
+        ("Weizmann, Street_StreetNo_Rehovot_91E162_District_IL_ZIP", "il"),
+        ("USC, McClintock_3520A_Los_Angeles_CA_US_90089", "us"),
+        # a state and a country, or no country code
+        ("Army Research Laboratory, Aberdeen, MD, USA", None),
+        ("Stanford Hospital and Clinics, 300 Pasteur Dr, Stanford, CA 94305", None),
+        ("NIMH", None),
+    ],
+)
+def test_country_code(name, expected):
+    from bids_inventory.institutions import country_code
+
+    assert country_code(name) == expected
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("BMMR, Leipziger Str. 44,Magdeburg,District,DE,39120", "39120"),
+        ("Queens_University, Botterall_Hall_234_Kingston_Ontario_CA_K7L3N6", "K7L3N6"),
+        ("Weizmann, Street_StreetNo_Rehovot_91E162_District_IL_ZIP", None),
+        ("NIMH", None),
+    ],
+)
+def test_postal_code(name, expected):
+    from bids_inventory.institutions import postal_code
+
+    assert postal_code(name) == expected

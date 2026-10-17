@@ -20,8 +20,10 @@
     "72ND RAD, E 72nd Street 516,NYC ,NYC,US,10021": {
         "Address": "516, East 72nd Street, Lenox Hill, Manhattan Community Board 8, Manhattan, New York County, New York, 10021, United States",
         "AlternativeNames": [
+            "CBIC",
             "CBIC, E 72nd Street 516,NYC ,NYC,US,10021",
             "CBIC, E_72nd_Street_516_NYC_NYC_US_10021",
+            "CBIC, NYC 10021 E 72 nd ST 516",
             "CBIC, NYC 10021 E 72ND ST 516",
             "CGB WCM MR IMAGING, E 72nd Street 516,NYC ,NYC,US,10021"
         ],
@@ -127,17 +129,18 @@
         "Longitude": -8.4291478
     },
     "BBL - University of Geneva, Rue Michel-Servet 1,Geneve,District,CH,1211": {
-        "Address": "Route de Genève, Commugny, District de Nyon, Vaud, 1291, Schweiz/Suisse/Svizzera/Svizra",
+        "Address": "CMU (Centre Médical Universitaire), 1, Rue Michel-Servet, La Cluse, Plainpalais, Genève, 1206, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [
             "BBL_-_University_of_Geneva",
             "BBL_-_University_of_Geneva, Rue_Michel-Servet_1_Geneve_7B6CD6_District_CH_1211",
             "BBL_-_University_of_Geneva, Rue_Michel-Servet_1_Geneve_District_CH_1211",
-            "Fondation Campus Biotech Geneva, Chemin des Mines 9,Geneve,District,CH,1211"
+            "Fondation Campus Biotech Geneva, Chemin des Mines 9,Geneve,District,CH,1211",
+            "University of Geneva"
         ],
-        "City": "Commugny",
+        "City": "Genève",
         "Country": "Schweiz/Suisse/Svizzera/Svizra",
-        "Latitude": 46.3158103,
-        "Longitude": 6.1745005
+        "Latitude": 46.1942947,
+        "Longitude": 6.1512909
     },
     "BCH, Harvard Medical School, 1 Autumn Street, Boston, MA 02215, USA": {
         "Address": "1, Autumn Street, West Roxbury, Boston, Suffolk County, Massachusetts, 02132, United States",
@@ -146,14 +149,6 @@
         "Country": "United States",
         "Latitude": 42.276414,
         "Longitude": -71.1609597
-    },
-    "BIC, Street StreetNo,City,District,CA,ZIP": {
-        "Address": "Long Beach, Los Angeles County, California, United States",
-        "AlternativeNames": [],
-        "City": "Long Beach",
-        "Country": "United States",
-        "Latitude": 33.7690164,
-        "Longitude": -118.191604
     },
     "BIC, Street_StreetNo_Berkeley_District_US_ZIP": {
         "Address": "Berkeley, Alameda County, California, United States",
@@ -166,20 +161,12 @@
         "Longitude": -122.272863
     },
     "BMMR, Leipziger Str. 44,Magdeburg,District,DE,39120": {
-        "Address": "Колона Магдебурзького права, Набережне шосе, Аскольдова Могила, Садиба Мерінга, Подільський район, Київ, 01008, Україна",
+        "Address": "Haus 19, 44, Leipziger Straße, Magdeburg, Sachsen-Anhalt, 39120, Deutschland",
         "AlternativeNames": [],
-        "City": "Київ",
-        "Country": "Україна",
-        "Latitude": 50.4560114,
-        "Longitude": 30.5295222
-    },
-    "BNU for Research Use Only, Street StreetNo,Bei Jing,District,CN,ZIP": {
-        "Address": "청진시, 함경북도, 조선민주주의인민공화국",
-        "AlternativeNames": [],
-        "City": "청진시",
-        "Country": "조선민주주의인민공화국",
-        "Latitude": 41.783248,
-        "Longitude": 129.8206615
+        "City": "Magdeburg",
+        "Country": "Deutschland",
+        "Latitude": 52.1012103,
+        "Longitude": 11.619966
     },
     "BNU_MRI_Center, Xinjiekouwai_Street_No_19_Beijing_Haidian_District_CN_100875": {
         "Address": "新街口外大街, 北太平庄街道, 海淀区, 北京市, 100875, 中国",
@@ -206,7 +193,9 @@
     },
     "BROWN_UNIVERSITY_MRF, Olive_Street_60_Providence_RI_US_02912": {
         "Address": "60, Olive Street, College Hill, Providence, Providence County, Rhode Island, 02906, United States",
-        "AlternativeNames": ["BROWN_UNIVERSITY_MRF"],
+        "AlternativeNames": [
+            "BROWN_UNIVERSITY_MRF"
+        ],
         "City": "Providence",
         "Country": "United States",
         "Latitude": 41.8283397,
@@ -252,6 +241,7 @@
     "BeiJing_Normal_University, Street_StreetNo_Bei_Jing_District_CN_ZIP": {
         "Address": "北京师范大学, 19, 新街口外大街, 德胜街道, 首都功能核心区, 西城区, 北京市, 100875, 中国",
         "AlternativeNames": [
+            "BNU for Research Use Only, Street StreetNo,Bei Jing,District,CN,ZIP",
             "BeiJing Normal University, Street StreetNo,Bei Jing,District,CN,ZIP",
             "Beijing Normal University, 19 Xinjiekouwai Avenue, Haidian Beijing, China",
             "Beijing Normal University, Beijing, China",
@@ -264,7 +254,9 @@
     },
     "Beijing Institute of Basic Medical Sciences, Beijing,China": {
         "Address": "北京市, 中国",
-        "AlternativeNames": ["XYZ University, Beijing, China"],
+        "AlternativeNames": [
+            "XYZ University, Beijing, China"
+        ],
         "City": "北京市",
         "Country": "中国",
         "Latitude": 39.9057136,
@@ -340,6 +332,7 @@
     "Brains Unlimited, Oxfordlaan 55,Maastricht,Limburg,NL,6229 EV": {
         "Address": "55, Oxfordlaan, Randwyck, Maastricht-Zuidoost, Maastricht, Limburg, Nederland, 6229 EV, Nederland",
         "AlternativeNames": [
+            "SCANNEXUS, Oxfordlaan 55,Maastricht,District,NL,6229 EV",
             "Scannexus, Oxfordlaan 55, Maastricht, Limburg, NL, 6229 EV",
             "Scannexus, Oxfordlaan 55,Maastricht,Limburg,NL,6229 EV",
             "Scannexus, Oxfordlaan_55_Maastricht_12C0A2_Limburg_NL_6229_EV",
@@ -420,14 +413,6 @@
         "Latitude": 41.8951917,
         "Longitude": -87.6204367
     },
-    "CBIC": {
-        "Address": "Central Board of Indirect Taxes and Customs (CBIC), Brassey Avenue, Central Secretariat, Raisina Hill, New Delhi, Delhi, 110004, India",
-        "AlternativeNames": ["CBIC, NYC 10021 E 72 nd ST 516"],
-        "City": "New Delhi",
-        "Country": "India",
-        "Latitude": 28.6157643,
-        "Longitude": 77.2053039
-    },
     "CBS_Neuroimaging, Oxford_52_Cambridge_MA_US_02138": {
         "Address": "52, Oxford Street, Baldwin, Cambridge, Middlesex County, Massachusetts, 02138, United States",
         "AlternativeNames": [],
@@ -444,17 +429,11 @@
         "Latitude": 46.1679892,
         "Longitude": -60.0905367
     },
-    "CBU, Chaucer Road 15,Cambridge,District,GB,CB2 7EF": {
-        "Address": "District, 7, New Union Square, Nine Elms, London Borough of Wandsworth, Greater London, England, SW11 7DN, United Kingdom",
-        "AlternativeNames": [],
-        "City": "Greater London",
-        "Country": "United Kingdom",
-        "Latitude": 51.48186,
-        "Longitude": -0.1337767
-    },
     "CCBBI, Neil_Ave_1835_Columbus_Ohio_US_43210": {
         "Address": "Psychology Building, 1835, Neil Avenue Mall, University District District 4, Columbus, Franklin County, Ohio, 43210, United States",
-        "AlternativeNames": ["CCBBI, Neil Ave 1835,Columbus,Ohio,US,43210"],
+        "AlternativeNames": [
+            "CCBBI, Neil Ave 1835,Columbus,Ohio,US,43210"
+        ],
         "City": "Columbus",
         "Country": "United States",
         "Latitude": 39.9985554,
@@ -469,12 +448,12 @@
         "Longitude": -90.266044
     },
     "CEMEREM 7T, RUE ST PIERRE 264,Marseille,District,FR,13006": {
-        "Address": "Rue de Marseille, Agriswil, Ried bei Kerzers, Seebezirk / District du Lac, Fribourg/Freiburg, 3216, Schweiz/Suisse/Svizzera/Svizra",
+        "Address": "264, Rue Saint-Pierre, Baille, Marseille 5e Arrondissement, Marseille, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur, France métropolitaine, 13005, France",
         "AlternativeNames": [],
-        "City": "Ried bei Kerzers",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
-        "Latitude": 46.9581891,
-        "Longitude": 7.1838483
+        "City": "Marseille",
+        "Country": "France",
+        "Latitude": 43.2920671,
+        "Longitude": 5.4017137
     },
     "CEMEREM, RUE ST PIERRE 264 ,MARSEILLE...4D762D...,District,FR,13006": {
         "Address": "District, Traverse Jean Charcot, Grand Port Maritime de Marseille, Arenc, Marseille 2e Arrondissement, Marseille, Bouches-du-Rhône, Provence-Alpes-Côte d'Azur, France métropolitaine, 13002, France",
@@ -569,28 +548,16 @@
         "Latitude": 39.9995451,
         "Longitude": 116.2832118
     },
-    "CMRR 10.5T PTX, 6th Street SE 2021,Minneapolis,District,US,55455": {
-        "Address": "Minneapolis Armory, 5th Avenue South, Elliot Park, Gateway District, Central, Minneapolis, Hennepin County, Minnesota, 55487, United States",
-        "AlternativeNames": [
-            "CMRR 7T/AS PTX, Sixth Street SE 2021,Minneapolis,District,US,55455",
-            "CMRR 7T/AS, Sixth Street SE 2021,Minneapolis,District,US,55455"
-        ],
-        "City": "Minneapolis",
-        "Country": "United States",
-        "Latitude": 44.9752066,
-        "Longitude": -93.2635039
-    },
-    "CMRR 7T Terra, 6th Street SE 2021,Minneapolis 400-628709,Chicago,US,55455": {
-        "Address": "Chicago, South Chicago Township, Cook County, Illinois, United States",
-        "AlternativeNames": [],
-        "City": "Chicago",
-        "Country": "United States",
-        "Latitude": 41.8755616,
-        "Longitude": -87.6244212
-    },
     "CMRR 7T/PS, 6th Street SE 2021,Minneapolis/23c034/,Chicago,US,55455": {
         "Address": "Children’s Minnesota – Minneapolis, 2525, Chicago Avenue, Midtown Phillips, Phillips, Minneapolis, Hennepin County, Minnesota, 55404, United States",
         "AlternativeNames": [
+            "CMRR 10.5T PTX, 6th Street SE 2021,Minneapolis,District,US,55455",
+            "CMRR 3T-B, 6th SE 2021,Minneapolis,Minneapolis,US,55455",
+            "CMRR 7T Terra, 6th Street SE 2021,Minneapolis 400-628709,Chicago,US,55455",
+            "CMRR 7T/AS PTX, Sixth Street SE 2021,Minneapolis,District,US,55455",
+            "CMRR 7T/AS, Sixth Street SE 2021,Minneapolis,District,US,55455",
+            "CMRR_3T-A, 6th_SE_2021_Minneapolis_Minnesota_US_55455",
+            "CMRR_3T-B, 6th_SE_2021_Minneapolis_Minneapolis_US_55455",
             "CMRR_7T_PS, 6th_Street_SE_2021_Minneapolis_0735BC_Chicago_US_55455",
             "CMRR_7T_PS, 6th_Street_SE_2021_Minneapolis_114426_Chicago_US_55455",
             "CMRR_7T_PS, 6th_Street_SE_2021_Minneapolis_408126_Chicago_US_55455"
@@ -599,25 +566,6 @@
         "Country": "United States",
         "Latitude": 44.9561286,
         "Longitude": -93.2613295
-    },
-    "CMRR_3T-A, 6th_SE_2021_Minneapolis_Minnesota_US_55455": {
-        "Address": "Center for Magnetic Resonance Research, 2021, Southeast 6th Street, Prospect Park, Stadium Village, University, Minneapolis, Hennepin County, Minnesota, 55455, United States",
-        "AlternativeNames": [
-            "CMRR 3T-B, 6th SE 2021,Minneapolis,Minneapolis,US,55455",
-            "CMRR_3T-B, 6th_SE_2021_Minneapolis_Minneapolis_US_55455"
-        ],
-        "City": "Minneapolis",
-        "Country": "United States",
-        "Latitude": 44.9789752,
-        "Longitude": -93.2243348
-    },
-    "CNI": {
-        "Address": "Centro Nacional de Inteligencia, Calle de Cercis, Valdemarín, Moncloa-Aravaca, Madrid, Comunidad de Madrid, 28023, España",
-        "AlternativeNames": [],
-        "City": "Madrid",
-        "Country": "España",
-        "Latitude": 40.4626183,
-        "Longitude": -3.763464
     },
     "CORSTIM, Montpellier, France": {
         "Address": "Montpellier, Hérault, Occitanie, France métropolitaine, France",
@@ -776,15 +724,15 @@
         "Longitude": 116.3649096
     },
     "Chong Qing Southwest Normal University Hospital, Tian Sheng 2,Chong Qing//464ed4/,Chong Qing,CN,400715": {
-        "Address": "南充市高级中学（顺庆校区）, 文华巷, 中城街道, 南充市, 顺庆区, 南充市, 四川省, 637002, 中国",
+        "Address": "400715, 天生街道, 北碚区, 重庆市, 中国",
         "AlternativeNames": [
             "Chong Qing Southwest Normal University Hospital, Tian Sheng 2,Chong Qing//6A9234//,Chong Qing,CN,400715",
             "Chong_Qing_Southwest_Normal_University_Hospital, Tian_Sheng_2_Chong_Qing_464ed4_Chong_Qing_CN_400715"
         ],
-        "City": "南充市",
+        "City": "北碚区",
         "Country": "中国",
-        "Latitude": 30.7928183,
-        "Longitude": 106.0786947
+        "Latitude": 29.8228157,
+        "Longitude": 106.4203871
     },
     "CiNet, 1-4,\r\nYamadaoka,\r\nSuita,\r\nOsaka,\r\nJP": {
         "Address": "山田丘, 吹田市, 大阪府, 565-0871, 日本",
@@ -867,14 +815,6 @@
         "Latitude": 55.6494633,
         "Longitude": 12.4650789
     },
-    "Dartmouth Brain Imaging Center, Dartmouth College, 6207 Moore Hall, Hanover NH, 03755": {
-        "Address": "03755, Hanover, Grafton County, New Hampshire, United States",
-        "AlternativeNames": [],
-        "City": "Hanover",
-        "Country": "United States",
-        "Latitude": 43.7052034,
-        "Longitude": -72.279849
-    },
     "Dartmouth College, 6207 Moore Hall, Hanover NH, 03755, USA": {
         "Address": "Marker Völkl USA, 112, Etna Road, Lebanon, Grafton County, New Hampshire, 03766, United States",
         "AlternativeNames": [],
@@ -886,6 +826,7 @@
     "Dartmouth_College_-_PBS, Maynard_3_Hanover_NH_US_03755": {
         "Address": "Moore Psychology Building, 3, Maynard Street, Hanover, Grafton County, New Hampshire, 03755, United States",
         "AlternativeNames": [
+            "Dartmouth Brain Imaging Center, Dartmouth College, 6207 Moore Hall, Hanover NH, 03755",
             "Dartmouth College - PBS, Maynard 3,Hanover,NH,US,03755",
             "Maynard 3,Hanover,NH,US,03755"
         ],
@@ -895,15 +836,22 @@
         "Longitude": -72.2878769
     },
     "De Pintelaan 185,Gent,District,BE,9000": {
-        "Address": "Jan van Gentstraat, Zuid, Antwerpen, Vlaanderen, 2000, België / Belgique / Belgien",
+        "Address": "De Pintelaan, Zwijnaardse Dries, Gent, Oost-Vlaanderen, Vlaanderen, 9000, België / Belgique / Belgien",
         "AlternativeNames": [
+            "De_Pintelaan_185_Gent_District_BE_9000",
+            "Experimental_Psychology, De_Pintelaan_185_Gent_District_BE_9000",
             "UGent, De Pintelaan 185,Gent,District,BE,9000",
-            "UZ, De Pintelaan 185,Gent /88C96F/,District,BE,9000"
+            "UGent, De_Pintelaan_185_Gent_District_BE_9000",
+            "UZ Gent, Corneel Heymanslaan 10,Gent,,BE,9000",
+            "UZ, De Pintelaan 185,Gent /88C96F/,District,BE,9000",
+            "UZ, De_Pintelaan_185_Gent_88C96F_District_BE_9000",
+            "UZ_Gent, De_Pintelaan_185_Gent_9C4B6E_District_BE_9000",
+            "UZ_Gent, De_Pintelaan_185_Gent_District_BE_9000"
         ],
-        "City": "Antwerpen",
+        "City": "Gent",
         "Country": "België / Belgique / Belgien",
-        "Latitude": 51.2060891,
-        "Longitude": 4.3871072
+        "Latitude": 51.0287849,
+        "Longitude": 3.7259093
     },
     "Department of Cognitive Sciences, 2201 Social & Behavioral Sciences Gateway Building, University of California, Irvine. Irvine, CA 92697-5100": {
         "Address": "University of California, Irvine, Sand Canyon Wash Trail, Turtle Rock, Irvine, Orange County, California, 92612, United States",
@@ -939,7 +887,9 @@
     },
     "Duke University": {
         "Address": "Duke University, West Markham Avenue, Trinity Park, Durham, Durham County, North Carolina, 27708, United States",
-        "AlternativeNames": ["Duke University, Durham, North Carolina, USA"],
+        "AlternativeNames": [
+            "Duke University, Durham, North Carolina, USA"
+        ],
         "City": "Durham",
         "Country": "United States",
         "Latitude": 36.0001557,
@@ -965,14 +915,6 @@
         "Country": "中国",
         "Latitude": 31.2284923,
         "Longitude": 121.4021139
-    },
-    "ECAT": {
-        "Address": "ECAT, Rond-Point des Travaux دوار الأشغال, Djamba Ngato جامبا انقاتو, 1er Arrondissement / الدائرة الأولى, N'Djaména انجمينا, Tchad تشاد",
-        "AlternativeNames": [],
-        "City": "N'Djaména انجمينا",
-        "Country": "Tchad تشاد",
-        "Latitude": 12.136742,
-        "Longitude": 15.0175868
     },
     "EPFL": {
         "Address": "École Polytechnique Fédérale de Lausanne, Route Cantonale, Quartier Sorge, Ecublens, District de l'Ouest lausannois, Vaud, 1015, Schweiz/Suisse/Svizzera/Svizra",
@@ -1042,14 +984,6 @@
         "Latitude": 42.0660173,
         "Longitude": -87.6843385
     },
-    "Experimental_Psychology, De_Pintelaan_185_Gent_District_BE_9000": {
-        "Address": "Faculty of Education and Psychology, City Bus Stand Internal Road, Alkapuri, Vadodara, Vadodara Rural Taluka, Vadodara, Gujarat, 390001, India",
-        "AlternativeNames": [],
-        "City": "Vadodara",
-        "Country": "India",
-        "Latitude": 22.311521,
-        "Longitude": 73.183293
-    },
     "FIBRE, Social Science Ct 214,Irvine,CA,US,92697": {
         "Address": "Irvine, Orange County, California, United States",
         "AlternativeNames": [
@@ -1061,24 +995,26 @@
         "Longitude": -117.825981
     },
     "FIL, Queen Square 12,London,Southeast,GB,WC1N 3BG": {
-        "Address": "Southeast, Edmonton, Alberta, Canada",
+        "Address": "WC1N 3BG, London Borough of Camden, Greater London, England, United Kingdom",
         "AlternativeNames": [],
-        "City": "Edmonton",
-        "Country": "Canada",
-        "Latitude": 53.4231146,
-        "Longitude": -113.427807
+        "City": "Greater London",
+        "Country": "United Kingdom",
+        "Latitude": 51.5223642,
+        "Longitude": -0.1225255
     },
     "FIU Center For Imaging Science, SW 8TH ST, OE116 11200,MIAMI,Med-Lab,US,33199": {
-        "Address": "HealthFirst Medical Group - Lab Services, 1810, Eldron Boulevard Southeast, Bayside Lakes, Palm Bay, Brevard County, Florida, 32909, United States",
+        "Address": "33199, Miami-Dade County, Florida, United States",
         "AlternativeNames": [],
-        "City": "Palm Bay",
+        "City": "",
         "Country": "United States",
-        "Latitude": 27.9507287,
-        "Longitude": -80.6600768
+        "Latitude": 25.7561174,
+        "Longitude": -80.3742071
     },
     "FSU_Jena, Philosophenweg_3_Jena_Thueringen_DE_07743": {
         "Address": "Gebäude 1, 3, Philosophenweg, Jena-Zentrum, Jena, Thüringen, 07743, Deutschland",
-        "AlternativeNames": ["PFL, Philosophenweg_3_Jena_Thueringen_DE_07743"],
+        "AlternativeNames": [
+            "PFL, Philosophenweg_3_Jena_Thueringen_DE_07743"
+        ],
         "City": "Jena",
         "Country": "Deutschland",
         "Latitude": 50.9325839,
@@ -1086,7 +1022,9 @@
     },
     "FUNDACIO PASQUAL MARAGALL": {
         "Address": "Fundació Pasqual Maragall, 30, Carrer de Wellington, la Vila Olímpica del Poblenou, Sant Martí, Barcelona, Barcelonès, Barcelona, Catalunya, 08005, España",
-        "AlternativeNames": ["FUNDACIO_PASQUAL_MARAGALL"],
+        "AlternativeNames": [
+            "FUNDACIO_PASQUAL_MARAGALL"
+        ],
         "City": "Barcelona",
         "Country": "España",
         "Latitude": 41.3890746,
@@ -1112,36 +1050,14 @@
         "Address": "District, Mulackstraße, Scheunenviertel, Rosenthaler Vorstadt, Mitte, Berlin, 10119, Deutschland",
         "AlternativeNames": [
             "Freie Universität Berlin, Habelschwerdter Allee 45,Berlin,District,DE,14195",
+            "Freie Universität, Habelschwerdter Allee 45, 14195 Berlin, Germany",
+            "Freie_Universitaet, Habelschwerdter_Allee_45_Berlin_District_DE_14195",
             "MPI for Human Development, Lentzallee 94,Berlin,District,DE,14195"
         ],
         "City": "Berlin",
         "Country": "Deutschland",
         "Latitude": 52.5277013,
         "Longitude": 13.4043836
-    },
-    "Freie Universität, Habelschwerdter Allee 45, 14195 Berlin, Germany": {
-        "Address": "Silberlaube, 45, Habelschwerdter Allee, Dahlem, Steglitz-Zehlendorf, Berlin, 14195, Deutschland",
-        "AlternativeNames": [],
-        "City": "Berlin",
-        "Country": "Deutschland",
-        "Latitude": 52.4526085,
-        "Longitude": 13.2911769
-    },
-    "Freie_Universitaet, Habelschwerdter_Allee_45_Berlin_District_DE_14195": {
-        "Address": "Freie Universität (Thielplatz), Löhleinstraße, Dahlem, Steglitz-Zehlendorf, Berlin, 14195, Deutschland",
-        "AlternativeNames": [],
-        "City": "Berlin",
-        "Country": "Deutschland",
-        "Latitude": 52.4510388,
-        "Longitude": 13.281744
-    },
-    "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France": {
-        "Address": "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
-        "AlternativeNames": [],
-        "City": "La Tronche",
-        "Country": "France",
-        "Latitude": 45.198626,
-        "Longitude": 5.7441708
     },
     "Georgia Institute of Technology, Atlanta": {
         "Address": "Georgia Tech, 10th Street Northeast, Midtown, Old Fourth Ward, Atlanta, Fulton County, Georgia, 30332, United States",
@@ -1153,7 +1069,9 @@
     },
     "Goethe University Frankfurt": {
         "Address": "Johann-Wolfgang-Goethe Universität - Campus Riedberg, Riedbergallee, Riedberg, Kalbach-Riedberg, Frankfurt am Main, Hessen, 60438, Deutschland",
-        "AlternativeNames": ["Scene Grammar Lab, Goethe University Frankfurt"],
+        "AlternativeNames": [
+            "Scene Grammar Lab, Goethe University Frankfurt"
+        ],
         "City": "Frankfurt am Main",
         "Country": "Deutschland",
         "Latitude": 50.1723275,
@@ -1221,22 +1139,15 @@
         "Longitude": 35.197995
     },
     "Hertie-Institut, Geissweg 3,Tuebingen,District,DE,72076": {
-        "Address": "Place de Tübingen, Choëx, Monthey, Bas-Valais, Valais/Wallis, 1870, Schweiz/Suisse/Svizzera/Svizra",
+        "Address": "Verwaltung des Klinikums, 3, Geissweg, Kliniken Tal, Universität, Tübingen, Landkreis Tübingen, Baden-Württemberg, 72076, Deutschland",
         "AlternativeNames": [
+            "Hertie-Institut, Geissweg_3_Tuebingen_District_DE_72076",
             "IDM_Hemholtz, Geissweg 3,Tuebingen,District,DE,72076"
         ],
-        "City": "Monthey",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
-        "Latitude": 46.252417,
-        "Longitude": 6.9476362
-    },
-    "Hertie-Institut, Geissweg_3_Tuebingen_District_DE_72076": {
-        "Address": "Hertie-Institut für klinische Hirnforschung, 27, Otfried-Müller-Straße, Universität, Tübingen, Landkreis Tübingen, Baden-Württemberg, 72076, Deutschland",
-        "AlternativeNames": [],
         "City": "Tübingen",
         "Country": "Deutschland",
-        "Latitude": 48.5313803,
-        "Longitude": 9.0420082
+        "Latitude": 48.5277394,
+        "Longitude": 9.0489311
     },
     "HiroshimaCOI, Minami-ku Kasumi 1-2-3,/Hiroshima-shi/,Hiroshima,JP,734-0037": {
         "Address": "広島市, 広島県, 日本",
@@ -1278,14 +1189,6 @@
         "Latitude": 19.2859246,
         "Longitude": -99.1432159
     },
-    "IBMI, Brenneckestr._6_Magdeburg_District_DE_39118": {
-        "Address": "IBMI, Avenida 8 de Abril, Cidade Alta, Cuiabá, Mato Grosso, Região Centro-Oeste, 78030-970, Brasil",
-        "AlternativeNames": [],
-        "City": "Cuiabá",
-        "Country": "Brasil",
-        "Latitude": -15.6055546,
-        "Longitude": -56.1149469
-    },
     "INRA/03E5C6/, Street StreetNo,Nouzilly,District,FR,37380": {
         "Address": "INRAE Nouzilly, Lieu Dit la Maloire, La Maloire, Nouzilly, Loches, Indre-et-Loire, Centre-Val de Loire, France métropolitaine, 37380, France",
         "AlternativeNames": [],
@@ -1302,25 +1205,25 @@
         "Latitude": 43.6115115,
         "Longitude": 1.4007283
     },
-    "INSTITUTO DE NEUROBIOLOGIA": {
-        "Address": "Instituto de Neurobiología, 201, Calle Norzagaray, La Perla, Viejo San Juan, San Juan, Puerto Rico, 00901, United States",
-        "AlternativeNames": ["INSTITUTO_DE_NEUROBIOLOGIA"],
-        "City": "San Juan",
-        "Country": "United States",
-        "Latitude": 18.4687694,
-        "Longitude": -66.1187596
-    },
     "INSTITUTO DE NEUROBIOLOGIA, Blvd. Juriquilla 3001, Juriquilla, Santiago de Querétaro, Qro., 76230, Mexico": {
         "Address": "Avenida de las Ciencias, Delegación Santa Rosa Jáuregui, Juriquilla, Municipio de Querétaro, Querétaro, 76226, México",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "INSTITUTO DE NEUROBIOLOGIA",
+            "INSTITUTO_DE_NEUROBIOLOGIA"
+        ],
         "City": "Juriquilla",
         "Country": "México",
         "Latitude": 20.7058736,
         "Longitude": -100.4458998
     },
-    "IRMaGe, Value was not specified": {
+    "Grenoble Institut des Neurosciences": {
         "Address": "IRMaGe - 3T, Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "IRMaGe, Value was not specified",
+            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
+            "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France",
+            "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France"
+        ],
         "City": "La Tronche",
         "Country": "France",
         "Latitude": 45.1988831,
@@ -1337,6 +1240,7 @@
     "IUGM": {
         "Address": "Institut universitaire de gériatrie de Montréal, Chemin Queen-Mary, Côte-des-Neiges–Notre-Dame-de-Grâce, Montréal, Agglomération de Montréal, Montréal (région administrative), Québec, H3W 1W6, Canada",
         "AlternativeNames": [
+            "IUGM, Chemin Queen-Mary 4565,Montreal,District,CA,H3W 1W5",
             "IUGM, Chemin_Queen-Mary_4565_Montreal_District_CA_H3W_1W5",
             "Institut_Universitaire_de_Geriatrie_de_Montreal, Chemin_Queen-Mary_4565_Montreal_District_CA_H3W_1W5"
         ],
@@ -1344,14 +1248,6 @@
         "Country": "Canada",
         "Latitude": 45.4912097,
         "Longitude": -73.6242369
-    },
-    "IUGM, Chemin Queen-Mary 4565,Montreal,District,CA,H3W 1W5": {
-        "Address": "Montreal Avenue, South River, Parry Sound District, Central Ontario, Ontario, P0A 1X0, Canada",
-        "AlternativeNames": [],
-        "City": "South River",
-        "Country": "Canada",
-        "Latitude": 45.8411347,
-        "Longitude": -79.3760323
     },
     "Independent University, Bangladesh, Dhaka, Bangladesh": {
         "Address": "Bangladesh, Lane 1, কালশী, মিরপুর, ঢাকা, ঢাকা মহানগর, ঢাকা জেলা, ঢাকা বিভাগ, 1216, বাংলাদেশ",
@@ -1478,12 +1374,12 @@
         "Longitude": 21.0181978
     },
     "Instytut Biologii Doswiadczalnej, Pasteura 3,Warszawa,District,PL,02093": {
-        "Address": "East 70th Place, Warszawa Historic District, Slavic Village, Cleveland, Cuyahoga County, Ohio, 44105, United States",
+        "Address": "3, Ludwika Pasteura, Osiedle Grójecka, Stara Ochota, Ochota, Warszawa, województwo mazowieckie, 02-093, Polska",
         "AlternativeNames": [],
-        "City": "Cleveland",
-        "Country": "United States",
-        "Latitude": 41.4570367,
-        "Longitude": -81.6395723
+        "City": "Warszawa",
+        "Country": "Polska",
+        "Latitude": 52.2135128,
+        "Longitude": 20.9841421
     },
     "Intermountain Neuroimaging Consortium, Exposition Drive 1777,Boulder,Denver,US,80301": {
         "Address": "Denver, Colorado, United States",
@@ -1499,7 +1395,9 @@
     },
     "Iowa MRRF": {
         "Address": "",
-        "AlternativeNames": ["Iowa_MRRF"],
+        "AlternativeNames": [
+            "Iowa_MRRF"
+        ],
         "City": "",
         "Country": "",
         "Latitude": null,
@@ -1570,28 +1468,25 @@
         "Longitude": 15.4498491
     },
     "KFU, Kopernikusstr._26_Graz_Graz_AT_8010": {
-        "Address": "Kohand, MDR114, Kohana, Gharaunda, Karnal, Haryana, India",
-        "AlternativeNames": ["KFU, deleted_by_bidsonym"],
-        "City": "Kohana",
-        "Country": "India",
-        "Latitude": 29.4956582,
-        "Longitude": 76.9685943
-    },
-    "KUL, MOsaic": {
-        "Address": "モザイク, ハーバーロード, 神戸ハーバーランド umie, 中央区, 神戸市, 兵庫県, 650-8571, 日本",
-        "AlternativeNames": [],
-        "City": "神戸市",
-        "Country": "日本",
-        "Latitude": 34.6796142,
-        "Longitude": 135.184569
+        "Address": "8010, Ries, Graz, Steiermark, Österreich",
+        "AlternativeNames": [
+            "KFU, deleted_by_bidsonym"
+        ],
+        "City": "Graz",
+        "Country": "Österreich",
+        "Latitude": 47.0830388,
+        "Longitude": 15.478848
     },
     "KULeuven, Belgium": {
-        "Address": "België / Belgique / Belgien",
-        "AlternativeNames": ["University of Mons, Belgium"],
-        "City": "",
+        "Address": "Anatomisch Amfitheater KU Leuven, Minderbroedersstraat, Janseniushof, Leuven, Vlaams-Brabant, Vlaanderen, 3000, België / Belgique / Belgien",
+        "AlternativeNames": [
+            "KUL, MOsaic",
+            "University of Mons, Belgium"
+        ],
+        "City": "Leuven",
         "Country": "België / Belgique / Belgien",
-        "Latitude": 50.6402809,
-        "Longitude": 4.6667145
+        "Latitude": 50.8775987,
+        "Longitude": 4.6937047
     },
     "Kansas State University, biosemie": {
         "Address": "Kansas State University, Oakdale Drive, Manhattan, Riley County, Kansas, 66502, United States",
@@ -1653,17 +1548,13 @@
         "Latitude": 36.6108894,
         "Longitude": 127.2934174
     },
-    "LIN, Brenneckestr._6_Magdeburg_District_DE_39118": {
-        "Address": "Aeroporto di Milano-Linate, Strada Provinciale ex Strada Statale 415 Paullese, Mecenate, Municipio 4, Milano, Rodano, Milano, Lombardia, 20138, Italia",
-        "AlternativeNames": [],
-        "City": "Milano",
-        "Country": "Italia",
-        "Latitude": 45.444205,
-        "Longitude": 9.2778329
-    },
     "Leibniz Institute for Neurobiology, Brenneckestr. 6, 39118 Magdeburg, Germany": {
         "Address": "Leibniz-Institut für Neurobiologie (LIN), 6, Brenneckestraße, Leipziger Straße, Magdeburg, Sachsen-Anhalt, 39120, Deutschland",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "IBMI, Brenneckestr._6_Magdeburg_District_DE_39118",
+            "IFN_Magdeburg, Brenneckestr._6_Magdeburg_District_DE_39118",
+            "LIN, Brenneckestr._6_Magdeburg_District_DE_39118"
+        ],
         "City": "Magdeburg",
         "Country": "Deutschland",
         "Latitude": 52.1018484,
@@ -1679,45 +1570,25 @@
     },
     "Leibniz Research Centre for Working Environment and Human Factors, Ardeystrasse 67, 44139 Dortmund, North-Rhine Westphalia, Germany": {
         "Address": "67, Ardeystraße, Innenstadt Ost, Dortmund, Nordrhein-Westfalen, 44139, Deutschland",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Leibniz Research Centre for Working Environment and Human Factors, Dortmund, Germany"
+        ],
         "City": "Dortmund",
         "Country": "Deutschland",
         "Latitude": 51.4902201,
         "Longitude": 7.4582948
     },
-    "Leibniz Research Centre for Working Environment and Human Factors, Dortmund, Germany": {
-        "Address": "Dortmund, Nordrhein-Westfalen, Deutschland",
-        "AlternativeNames": [],
-        "City": "Dortmund",
-        "Country": "Deutschland",
-        "Latitude": 51.5142273,
-        "Longitude": 7.4652789
-    },
-    "Lewis Building, Franklin Blvd 1440,Eugene,District,US,97403": {
-        "Address": "Eugene Street, Irvington District, Fremont, Alameda County, California, 94538, United States",
-        "AlternativeNames": [],
-        "City": "Fremont",
-        "Country": "United States",
-        "Latitude": 37.5386849,
-        "Longitude": -121.9649305
-    },
     "Lewis Center for Neuroimaging, University of Oregon, Franklin Blvd 1440, Eugene, Oregon, 97403, USA": {
         "Address": "Lewis Integrative Science, 1440, Franklin Boulevard, College Hill, Eugene, Lane County, Oregon, 97403, United States",
         "AlternativeNames": [
+            "Lewis Building, Franklin Blvd 1440,Eugene,District,US,97403",
+            "Lewis_Building, Franklin_Blvd_1440_Eugene_District_US_97403",
             "University_of_Oregon, Franklin_Blvd._1440_Eugene_Oregon_US_97403"
         ],
         "City": "Eugene",
         "Country": "United States",
         "Latitude": 44.0464004,
         "Longitude": -123.0713824
-    },
-    "Lewis_Building, Franklin_Blvd_1440_Eugene_District_US_97403": {
-        "Address": "Lewis Building, 134-136, Gower Street, Fitzrovia, London Borough of Camden, Greater London, England, WC1E 6BP, United Kingdom",
-        "AlternativeNames": [],
-        "City": "Greater London",
-        "Country": "United Kingdom",
-        "Latitude": 51.5250709,
-        "Longitude": -0.1351014
     },
     "Life u. Brain GmbH, Sigmund-Freund-Strasse 25,Bonn,Koeln,DE,53127": {
         "Address": "Flughafen Köln/Bonn, 12, Heinrich-Steinmann-Straße, Grengel, Porz, Köln, Nordrhein-Westfalen, 51147, Deutschland",
@@ -1737,7 +1608,9 @@
     },
     "Lucas Center": {
         "Address": "Richard M. Lucas Center for Imaging, Cooper Lane, Stanford, Santa Clara County, California, 94305, United States",
-        "AlternativeNames": ["Lucas_Center"],
+        "AlternativeNames": [
+            "Lucas_Center"
+        ],
         "City": "",
         "Country": "United States",
         "Latitude": 37.4332074,
@@ -1789,12 +1662,14 @@
         "Longitude": -71.0619957
     },
     "MGH_7T, 13_St_149_Charlestown_Massachusetts_US_02129": {
-        "Address": "مغ احمد بالا, دهستان گچین, بخش مرکزی شهرستان بندرعباس, شهرستان بندرعباس, استان هرمزگان, ایران",
-        "AlternativeNames": [],
-        "City": "دهستان گچین",
-        "Country": "ایران",
-        "Latitude": 27.1538163,
-        "Longitude": 55.8776211
+        "Address": "02129, Charlestown, Boston, Suffolk County, Massachusetts, United States",
+        "AlternativeNames": [
+            "Martinos_Center_7T, 13_St_149_Charlestown_Massachusetts_US_02129"
+        ],
+        "City": "Boston",
+        "Country": "United States",
+        "Latitude": 42.3779443,
+        "Longitude": -71.0638312
     },
     "MIRCen_LaboratoryOfNeurodegenerativeDiseases, France, FontenayAuxRoses, 92265": {
         "Address": "92265, Edelsfeld, Landkreis Amberg-Sulzbach, Bayern, Deutschland",
@@ -1838,6 +1713,7 @@
     "MRC Cognition & Brain Sciences Unit, 15 Chaucer Road, Cambridge, UK": {
         "Address": "MRC Cognition and Brain Sciences Unit, 15, Chaucer Road, Newnham, Cambridge, Cambridgeshire, Cambridgeshire and Peterborough, England, CB2 7EF, United Kingdom",
         "AlternativeNames": [
+            "CBU, Chaucer Road 15,Cambridge,District,GB,CB2 7EF",
             "MRC Cognition and Brain Sciences Unit, 15 Chaucer Road, Cambridge CB2 7EF, UK"
         ],
         "City": "Cambridge",
@@ -1902,22 +1778,6 @@
         "Country": "Polska",
         "Latitude": 50.0251664,
         "Longitude": 19.901598
-    },
-    "Martinos_Center_7T, 13_St_149_Charlestown_Massachusetts_US_02129": {
-        "Address": "Madame Estate Shopping Center, Over the Pond, Philipsburg, Sint Maarten, Nederland",
-        "AlternativeNames": [],
-        "City": "Philipsburg",
-        "Country": "Sint Maarten",
-        "Latitude": 18.0402372,
-        "Longitude": -63.0501197
-    },
-    "Maryland Neuroimaging Center, University of Maryland, 8077 Greenmead Drive, College Park, MD, USA": {
-        "Address": "8077, Greenmead Drive, Crystal Springs, College Park Woods, Adelphi, Prince George's County, Maryland, 20740, United States",
-        "AlternativeNames": [],
-        "City": "Adelphi",
-        "Country": "United States",
-        "Latitude": 39.0015777,
-        "Longitude": -76.9440809
     },
     "Max Planck Institute for Biological Cybernetics, Max-Planck-Ring 11, 72076 Tübingen, Germany": {
         "Address": "Magnetresonanzzentrum, 11, Max-Planck-Ring, Max-Planck-Institut, Schönblick/Winkelwiese, Tübingen, Landkreis Tübingen, Baden-Württemberg, 72076, Deutschland",
@@ -1985,7 +1845,9 @@
     },
     "Michigan State University": {
         "Address": "Michigan State University, 426, Auditorium Road, North Neighborhood, East Lansing, Ingham County, Michigan, 48824, United States",
-        "AlternativeNames": ["Michigan_State_University"],
+        "AlternativeNames": [
+            "Michigan_State_University"
+        ],
         "City": "East Lansing",
         "Country": "United States",
         "Latitude": 42.7023794,
@@ -2025,26 +1887,28 @@
         "Latitude": 39.0000143,
         "Longitude": -77.1040039
     },
-    "NIH 7T Research, Center Drive 10,Bethesda, Maryland, US,20892": {
-        "Address": "10, Center Drive, Sonoma, Pooks Hill, Bethesda, Montgomery County, Maryland, 20892, United States",
-        "AlternativeNames": [
-            "NIH 7T Research, Center Drive 10,Bethesda,Maryland,US,20892",
-            "NIMH, CENTER DR 10,Bethesda,Maryland,US,20892",
-            "NIMH, Center Drive 10,Bethesda,MD,US,20892",
-            "NIMH, Center_Drive_10_Bethesda_MD_US_20892"
-        ],
-        "City": "Bethesda",
-        "Country": "United States",
-        "Latitude": 39.0031302,
-        "Longitude": -77.1085922
-    },
     "NIH Clinical Center": {
         "Address": "NIH Clinical Center, 10, Center Drive, Maplewood, Pooks Hill, Bethesda, Montgomery County, Maryland, 20892, United States",
         "AlternativeNames": [
+            "NIH 7T Research, Center Drive 10,Bethesda, Maryland, US,20892",
+            "NIH 7T Research, Center Drive 10,Bethesda,Maryland,US,20892",
             "NIH Clinical Center, 10 Center Drive, Bethesda, MD 20892",
+            "NIH, 10 Center Drive Building 10 Room B1D307,Bethesda--,Maryland,US,20892",
             "NIH, 10 Center Drive, Bethesda, MD 20892",
             "NIH, CENTER DR 10,Bethesda,Maryland,US,20892",
-            "NINDS/NIH, 10 Center Drive, Bethesda, MD, United States"
+            "NIH_7T_Research, Center_Drive_10_Bethesda.336812._Maryland_US_20892",
+            "NIH_7T_Research, Center_Drive_10_Bethesda.3A6882.10JUN13_Maryland_US_20892",
+            "NIH_7T_Research, Center_Drive_10_Bethesda.ea6fdd._Maryland_US_20892",
+            "NIMH",
+            "NIMH, 10 Center Drive Building 10 Room B1D307,Bethesda--,Maryland,US,20892",
+            "NIMH, CENTER DR 10,Bethesda,Maryland,US,20892",
+            "NIMH, Center Drive 10,Bethesda,MD,US,20892",
+            "NIMH, Center_Drive_10_Bethesda.3A6882.10JUN13_Maryland_US_20892",
+            "NIMH, Center_Drive_10_Bethesda_MD_US_20892",
+            "NINDS, Center_Drive_10_Bethesda.336812._Maryland_US_20892",
+            "NINDS/NIH, 10 Center Drive, Bethesda, MD, United States",
+            "National Institutes of Health",
+            "National Istitutes of Health, 9000 Rockville Pike, Bethesda, MD, USA"
         ],
         "City": "Bethesda",
         "Country": "United States",
@@ -2053,21 +1917,13 @@
     },
     "NIH FMRIF": {
         "Address": "",
-        "AlternativeNames": ["NIH_FMRIF"],
+        "AlternativeNames": [
+            "NIH_FMRIF"
+        ],
         "City": "",
         "Country": "",
         "Latitude": null,
         "Longitude": null
-    },
-    "NIH, 10 Center Drive Building 10 Room B1D307,Bethesda--,Maryland,US,20892": {
-        "Address": "Bethesda, Montgomery County, Maryland, 22814, United States",
-        "AlternativeNames": [
-            "NIMH, 10 Center Drive Building 10 Room B1D307,Bethesda--,Maryland,US,20892"
-        ],
-        "City": "Bethesda",
-        "Country": "United States",
-        "Latitude": 38.9846816,
-        "Longitude": -77.0942447
     },
     "NIH, Bethesa": {
         "Address": "Templo Cristiano Bethesa, Avenida Niños Héroes, La Palmas, Durango, Municipio de Durango, Durango, 34045, México",
@@ -2076,24 +1932,6 @@
         "Country": "México",
         "Latitude": 24.0437007,
         "Longitude": -104.697755
-    },
-    "NIMH": {
-        "Address": "Nederlands Instituut voor Militaire Historie, Hubertustunnel, Scheveningen, Den Haag, Zuid-Holland, Nederland, 2597 JE, Nederland",
-        "AlternativeNames": [
-            "NIMH, Center_Drive_10_Bethesda.3A6882.10JUN13_Maryland_US_20892"
-        ],
-        "City": "Den Haag",
-        "Country": "Nederland",
-        "Latitude": 52.1046996,
-        "Longitude": 4.313837
-    },
-    "NINDS, Center_Drive_10_Bethesda.336812._Maryland_US_20892": {
-        "Address": "Ninds Creek, Mourilyan, Queensland, 4858, Australia",
-        "AlternativeNames": [],
-        "City": "Mourilyan",
-        "Country": "Australia",
-        "Latitude": -17.5560735,
-        "Longitude": 146.0622197
     },
     "NMKHTS im. Pirogova, Nizhnyaya Pervomayskaya str.,70 ST,Moscow,Mpscow,RU,105203": {
         "Address": "105203, район Восточное Измайлово, Москва, Центральный федеральный округ, Россия",
@@ -2105,7 +1943,9 @@
     },
     "NTU_NCSC, Fanglan_Rd._49_Taipei_Da_An_TW_10672": {
         "Address": "永齡生醫工程館, 49, 芳蘭路, 學府里, 大安區, 公館, 臺北市, 106038, 臺灣",
-        "AlternativeNames": ["NTU_NCSC, Fanglan Rd. 49,Taipei,Da An,TW,10672"],
+        "AlternativeNames": [
+            "NTU_NCSC, Fanglan Rd. 49,Taipei,Da An,TW,10672"
+        ],
         "City": "臺北市",
         "Country": "臺灣",
         "Latitude": 25.0135779,
@@ -2122,12 +1962,12 @@
         "Longitude": -87.6226534
     },
     "NYU AD, Street StreetNo,Abu Dhabi,Saadyiat Island,AE,ZIP": {
-        "Address": "الإمارات العربية المتحدة",
+        "Address": "أبو ظبي, أبوظبي, أبو ظبي, الإمارات العربية المتحدة",
         "AlternativeNames": [],
-        "City": "",
+        "City": "أبو ظبي",
         "Country": "الإمارات العربية المتحدة",
-        "Latitude": 24.0002488,
-        "Longitude": 53.9994829
+        "Latitude": 24.4538352,
+        "Longitude": 54.3774014
     },
     "NYU LANGONE CBI, First Avenue 660,New York,NYC,US,10016": {
         "Address": "First Avenue Loop, Stuy Town, Manhattan Community Board 6, Manhattan, New York County, New York, 10010, United States",
@@ -2159,12 +1999,12 @@
         "Longitude": 20.8419004
     },
     "Nanyang Technological University, Nanyang Drive 59,Singapore,SG,SG,636921": {
-        "Address": "Trường Quốc tế Singapore, Trần Cao Vân, Khu phố 1, Phường Tam Thắng, Thành phố Hồ Chí Minh, 78860, Việt Nam",
+        "Address": "Nanyang Technological University, 50, Nanyang Avenue, Murai, Western Water Catchment, West Region, Singapore, 639798, Singapore",
         "AlternativeNames": [],
-        "City": "Thành phố Hồ Chí Minh",
-        "Country": "Việt Nam",
-        "Latitude": 10.3746949,
-        "Longitude": 107.0871315
+        "City": "Singapore",
+        "Country": "Singapore",
+        "Latitude": 1.3484104,
+        "Longitude": 103.6829332
     },
     "National Brain mapping Lab, Tehran, Iran": {
         "Address": "شهر تهران, بخش مرکزی شهرستان تهران, شهرستان تهران, استان تهران, ایران",
@@ -2176,22 +2016,6 @@
         "Country": "ایران",
         "Latitude": 35.6892523,
         "Longitude": 51.3896004
-    },
-    "National Institutes of Health": {
-        "Address": "National Institutes of Health, 9000, Rockville Pike, Pooks Hill, Bethesda, Montgomery County, Maryland, 20892, United States",
-        "AlternativeNames": [],
-        "City": "Bethesda",
-        "Country": "United States",
-        "Latitude": 39.0000143,
-        "Longitude": -77.1040039
-    },
-    "National Istitutes of Health, 9000 Rockville Pike, Bethesda, MD, USA": {
-        "Address": "9000, Rockville Pike, Glenbrook, Pooks Hill, Bethesda, Montgomery County, Maryland, 20892, United States",
-        "AlternativeNames": [],
-        "City": "Bethesda",
-        "Country": "United States",
-        "Latitude": 39.0001168,
-        "Longitude": -77.0980358
     },
     "National Research University, Higher School of Economics": {
         "Address": "Высшая школа экономики, 51, бульвар Гагарина, Городские горки, Мотовилихинский район, Пермь, Пермский городской округ, Пермский край, Приволжский федеральный округ, 614070, Россия",
@@ -2225,32 +2049,18 @@
         "Latitude": 52.2132937,
         "Longitude": 20.9827618
     },
-    "NeuroSpin, RD306_-_SACLAY_-_FR_91400": {
-        "Address": "Raoul Dautry - CEA Porte Est, D 306, Saclay, Palaiseau, Essonne, Île-de-France, France métropolitaine, 91400, France",
-        "AlternativeNames": [
-            "NeuroSpin, RD306 -,SACLAY,-,FR,91400",
-            "NeuroSpin, RD306_StreetNo_SACLAY_IDF_FR_91190"
-        ],
-        "City": "Saclay",
-        "Country": "France",
-        "Latitude": 48.7237852,
-        "Longitude": 2.1561967
-    },
     "NeuroSpin, Street N306,SACLAY,IdF,FR,91400": {
         "Address": "Saclay, Palaiseau, Essonne, Île-de-France, France métropolitaine, 91400, France",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "NeuroSpin, RD306 -,SACLAY,-,FR,91400",
+            "NeuroSpin, RD306_-_SACLAY_-_FR_91400",
+            "NeuroSpin, RD306_StreetNo_SACLAY_IDF_FR_91190",
+            "NeuroSpin, Street_N306_SACLAY_IdF_FR_91400"
+        ],
         "City": "Saclay",
         "Country": "France",
         "Latitude": 48.7305162,
         "Longitude": 2.172576
-    },
-    "NeuroSpin, Street_N306_SACLAY_IdF_FR_91400": {
-        "Address": "Bâtiment 145, D 306, Saint-Aubin, Palaiseau, Essonne, Île-de-France, France métropolitaine, 91190, France",
-        "AlternativeNames": [],
-        "City": "Saint-Aubin",
-        "Country": "France",
-        "Latitude": 48.7197822,
-        "Longitude": 2.150957
     },
     "Neurochirurgie, UniversitätsSpital Zürich, Rämistrasse 100, 8091 Zurich": {
         "Address": "Universitätsspital Zürich, 100, Rämistrasse, Hochschulen, Altstadt, Zürich, Bezirk Zürich, Zürich, 8091, Schweiz/Suisse/Svizzera/Svizra",
@@ -2289,22 +2099,6 @@
         "Country": "United States",
         "Latitude": 39.978478,
         "Longitude": -75.155573
-    },
-    "Nottingham Medical School": {
-        "Address": "Medical School, Clifton Boulevard, Dunkirk, City of Nottingham, East Midlands, England, NG7 2UH, United Kingdom",
-        "AlternativeNames": [],
-        "City": "City of Nottingham",
-        "Country": "United Kingdom",
-        "Latitude": 52.9424889,
-        "Longitude": -1.1857997
-    },
-    "Nottingham University, University Park": {
-        "Address": "University of Nottingham, University Boulevard, Dunkirk, City of Nottingham, East Midlands, England, NG7 2RD, United Kingdom",
-        "AlternativeNames": [],
-        "City": "City of Nottingham",
-        "Country": "United Kingdom",
-        "Latitude": 52.9387428,
-        "Longitude": -1.2002957
     },
     "Novosib Neurosurgery Center, Nemirovicha-Danchenko 132": {
         "Address": "",
@@ -2412,30 +2206,16 @@
         "Latitude": 41.3351751,
         "Longitude": -72.9186845
     },
-    "Princeton University, Washington Rd, Princeton, NJ 08540": {
-        "Address": "Washington Road, Princeton, Mercer County, New Jersey, 08544, United States",
-        "AlternativeNames": [
-            "Princeton University, Washington Rd, Princeton, NJ 08540, USA"
-        ],
-        "City": "Princeton",
-        "Country": "United States",
-        "Latitude": 40.3501918,
-        "Longitude": -74.6569055
-    },
-    "Princeton_University": {
-        "Address": "Princeton University, Palmer Square West, Palmer Square, Princeton Center, Princeton, Mercer County, New Jersey, 08540, United States",
-        "AlternativeNames": [
-            "Princeton_University, washington_avegreenhall_BDD552_new_jersey_08544_US"
-        ],
-        "City": "Princeton",
-        "Country": "United States",
-        "Latitude": 40.3386752,
-        "Longitude": -74.6583655
-    },
     "Princeton_University, Stadium_1952_Princeton_NJ_US_08544": {
         "Address": "Class of 1952 Stadium, Woodland Way, Princeton, Mercer County, New Jersey, 08544, United States",
         "AlternativeNames": [
-            "Princeton University, Stadium 1952,Princeton,NJ,US,08544"
+            "Princeton University, Stadium 1952,Princeton,NJ,US,08544",
+            "Princeton University, Washington Rd, Princeton, NJ 08540",
+            "Princeton University, Washington Rd, Princeton, NJ 08540, USA",
+            "Princeton_University",
+            "Princeton_University, washington_avegreenhall_BDD552_new_jersey_08544_US",
+            "Princeton_University_-_Neuroscience_Institute",
+            "Princeton_University_-_Neuroscience_Institute, Washington_and_Faculty_Rd._-_Building_25_25_Princeton_NJ_US_085"
         ],
         "City": "Princeton",
         "Country": "United States",
@@ -2477,20 +2257,12 @@
         "Longitude": -76.481323
     },
     "Queens_University, Botterall_Hall_234_Kingston_Ontario_CA_K7L3N6": {
-        "Address": "Queens University, 1900, Selwyn Avenue, Myers Park, Charlotte, Mecklenburg County, North Carolina, 28274, United States",
+        "Address": "K7L 3N6, Kingston, Eastern Ontario, Ontario, Canada",
         "AlternativeNames": [],
-        "City": "Charlotte",
-        "Country": "United States",
-        "Latitude": 35.1888238,
-        "Longitude": -80.8332959
-    },
-    "Queensland Brain Institute, The University of Queensland": {
-        "Address": "The University of Queensland, University Drive, St Lucia, Brisbane, Queensland, 4067, Australia",
-        "AlternativeNames": [],
-        "City": "Brisbane",
-        "Country": "Australia",
-        "Latitude": -27.497418,
-        "Longitude": 153.0131666
+        "City": "Kingston",
+        "Country": "Canada",
+        "Latitude": 44.2272475,
+        "Longitude": -76.4961164
     },
     "R, Medical Center Dr 5,Columbia,SC,US,29203": {
         "Address": "Columbia, Richland County, South Carolina, United States",
@@ -2625,21 +2397,13 @@
         "Latitude": 51.4441576,
         "Longitude": 7.2610046
     },
-    "SCANNEXUS, Oxfordlaan 55,Maastricht,District,NL,6229 EV": {
-        "Address": "District, 1, Jan van Scorelstraat, Schildersbuurt, Wilhelminapark, Rijnsweerd, Oost, Utrecht, Nederland, 3583 CJ, Nederland",
-        "AlternativeNames": [],
-        "City": "Utrecht",
-        "Country": "Nederland",
-        "Latitude": 52.0869235,
-        "Longitude": 5.144703
-    },
     "SDSU EIS Complex, Campanile Dr 5500,San Diego,Los Angeles,US,92182": {
-        "Address": "San Diego Freeway, Long Beach, Los Angeles County, California, 90840, United States",
+        "Address": "92182, San Diego, San Diego County, California, United States",
         "AlternativeNames": [],
-        "City": "Long Beach",
+        "City": "San Diego",
         "Country": "United States",
-        "Latitude": 33.7860604,
-        "Longitude": -118.0932078
+        "Latitude": 32.774423,
+        "Longitude": -117.0736539
     },
     "SH RENJI HOSP, Street StreetNo,ShangHai,District,CN,ZIP": {
         "Address": "上海市, 中国",
@@ -2650,12 +2414,14 @@
         "Longitude": 121.4700152
     },
     "SIBR, Frew_4805_Pittsburgh_District_US_15213": {
-        "Address": "Ribeirão Shopping, Avenida Bráz Olaia Acosta, Jardim Nova Aliança, Ribeirão Preto, São Paulo, Região Sudeste, 14026-040, Brasil",
-        "AlternativeNames": ["SIBR, Frew_4805_Pittsburgh_PA_District_US_15213"],
-        "City": "Ribeirão Preto",
-        "Country": "Brasil",
-        "Latitude": -21.2118027,
-        "Longitude": -47.8179867
+        "Address": "Scaife Hall, 4805, Frew Street, Squirrel Hill North, Pittsburgh, Allegheny County, Pennsylvania, 15213, United States",
+        "AlternativeNames": [
+            "SIBR, Frew_4805_Pittsburgh_PA_District_US_15213"
+        ],
+        "City": "Pittsburgh",
+        "Country": "United States",
+        "Latitude": 40.441685,
+        "Longitude": -79.9475208
     },
     "SKKU, Street StreetNo,City/1c4204/,District,KR,ZIP": {
         "Address": "성균관대학교 인문사회과학캠퍼스, 25-2, 성균관로, 명륜1가, 혜화동, 종로구, 서울특별시, 03063, 대한민국",
@@ -2673,27 +2439,23 @@
     },
     "SNUBIC, kwanakro_599_73B779_Seoul_KR_ZIP": {
         "Address": "",
-        "AlternativeNames": ["SNUBIC, kwanakro_599_C4F276_Seoul_KR_ZIP"],
+        "AlternativeNames": [
+            "SNUBIC, kwanakro_599_C4F276_Seoul_KR_ZIP"
+        ],
         "City": "",
         "Country": "",
         "Latitude": null,
         "Longitude": null
     },
-    "SUBIC": {
-        "Address": "Subic, Zambales, Central Luzon, 2209, Philippines",
-        "AlternativeNames": [],
-        "City": "Subic",
-        "Country": "Philippines",
-        "Latitude": 14.8774796,
-        "Longitude": 120.2344695
-    },
     "SUBIC, Svante Arrhenius vaeg 16,Stockholm,District,SE,11418": {
-        "Address": "Stockholm, Göteborg, Lidens distrikt, Indals-Lidens kommundel, Sundsvalls kommun, Västernorrlands län, 860 41, Sverige",
-        "AlternativeNames": [],
-        "City": "Indals-Lidens kommundel",
+        "Address": "Stockholm, Stockholms kommun, Stockholms län, 111 29, Sverige",
+        "AlternativeNames": [
+            "SUBIC"
+        ],
+        "City": "Stockholm",
         "Country": "Sverige",
-        "Latitude": 62.7096111,
-        "Longitude": 16.7752209
+        "Latitude": 59.3251172,
+        "Longitude": 18.0710935
     },
     "Sabanci University, Orta, Üniversite Cd. No: 27, 34956 Tuzla/İstanbul, Türkiye": {
         "Address": "Üniversite Caddesi, Orta Mahallesi, Tuzla, İstanbul, Marmara Bölgesi, 34956, Türkiye",
@@ -2807,7 +2569,9 @@
     },
     "Spinoza Centre for Neuroimaging, location REC": {
         "Address": "Spinoza Centre for Neuroimaging, Meibergdreef, Zuidoost, Amsterdam, Noord-Holland, Nederland, 1105 BK, Nederland",
-        "AlternativeNames": ["Spinoza_Centre, Amsterdam"],
+        "AlternativeNames": [
+            "Spinoza_Centre, Amsterdam"
+        ],
         "City": "Amsterdam",
         "Country": "Nederland",
         "Latitude": 52.2921032,
@@ -2821,35 +2585,26 @@
         "Latitude": -27.5014381,
         "Longitude": 153.0124976
     },
-    "Stanford Hospital and Clinics, 300 Pasteur Dr, Stanford, CA 94305": {
-        "Address": "Lane Medical Library, 300, Pasteur Drive, Palo Alto, Santa Clara County, California, 94305, United States",
-        "AlternativeNames": [],
-        "City": "Palo Alto",
-        "Country": "United States",
-        "Latitude": 37.4326911,
-        "Longitude": -122.1755409
-    },
     "Stanford University": {
         "Address": "Stanford University, 450, Jane Stanford Way, Stanford, Santa Clara County, California, 94305, United States",
         "AlternativeNames": [
-            "Stanford University, 450 Jane Stanford WAy, Stanford, CA 94305-2004, USA"
+            "CNI",
+            "Stanford CNI",
+            "Stanford Hospital and Clinics, 300 Pasteur Dr, Stanford, CA 94305",
+            "Stanford University - School of Medicine, 1201 Welch Road Stanford, CA 94305",
+            "Stanford University, 450 Jane Stanford WAy, Stanford, CA 94305-2004, USA",
+            "cni"
         ],
         "City": "",
         "Country": "United States",
         "Latitude": 37.4313138,
         "Longitude": -122.1693654
     },
-    "Stanford University - School of Medicine, 1201 Welch Road Stanford, CA 94305": {
-        "Address": "1201, Welch Road, Stanford, Santa Clara County, California, 94305, United States",
-        "AlternativeNames": [],
-        "City": "",
-        "Country": "United States",
-        "Latitude": 37.43361,
-        "Longitude": -122.179469
-    },
     "Street StreetNo,City,District,CH,ZIP": {
         "Address": "Schweiz/Suisse/Svizzera/Svizra",
-        "AlternativeNames": ["CIBM Center for Biomedical Imaging, Switzerland"],
+        "AlternativeNames": [
+            "CIBM Center for Biomedical Imaging, Switzerland"
+        ],
         "City": "",
         "Country": "Schweiz/Suisse/Svizzera/Svizra",
         "Latitude": 46.7985624,
@@ -2880,12 +2635,12 @@
         "Longitude": 145.0377413
     },
     "TCIN, PEARSE_STREET_._City_District_IE_D2": {
-        "Address": "Pearse Street, The Butts, Kilkenny, County Kilkenny, Leinster, Éire / Ireland",
+        "Address": "Pearse Street, Mansion House A ED, Dublin, County Dublin, Leinster, D02 CP08, Éire / Ireland",
         "AlternativeNames": [],
-        "City": "Kilkenny",
+        "City": "Dublin",
         "Country": "Éire / Ireland",
-        "Latitude": 52.6562205,
-        "Longitude": -7.2618367
+        "Latitude": 53.3433028,
+        "Longitude": -6.2451742
     },
     "TEL_AVIV_MEDICAL_CENTER": {
         "Address": "בית חולים תל השומר, שדרות אהרון קציר, תל השומר, רמת גן, נפת תל אביב, מחוז תל אביב, 5262657, ישראל",
@@ -2919,37 +2674,17 @@
         "Latitude": 32.7768128,
         "Longitude": 35.0225446
     },
-    "Technische Universitaet Berlin, Fasanenstr. 1, 10623, Berlin, Germany": {
-        "Address": "Z, 1, Fasanenstraße, Spreestadt Charlottenburg, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10623, Deutschland",
-        "AlternativeNames": [],
-        "City": "Berlin",
-        "Country": "Deutschland",
-        "Latitude": 52.5117423,
-        "Longitude": 13.3302141
-    },
     "Technische Universitaet zu Berlin, Strasse des 17. Juni 135, 10623, Berlin, Germany": {
         "Address": "Hauptgebäude, 135, Straße des 17. Juni, Spreestadt Charlottenburg, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10623, Deutschland",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Technische Universitaet Berlin, Fasanenstr. 1, 10623, Berlin, Germany",
+            "Technische Universitaet zu Berlin, Strasse des 17. Juni, Berlin, Germany",
+            "Technische Universitat Berlin"
+        ],
         "City": "Berlin",
         "Country": "Deutschland",
         "Latitude": 52.512119,
         "Longitude": 13.3270012
-    },
-    "Technische Universitaet zu Berlin, Strasse des 17. Juni, Berlin, Germany": {
-        "Address": "Straße des 17. Juni, Tiergarten, Mitte, Berlin, 10787, Deutschland",
-        "AlternativeNames": [],
-        "City": "Berlin",
-        "Country": "Deutschland",
-        "Latitude": 52.5138047,
-        "Longitude": 13.3399943
-    },
-    "Technische Universitat Berlin": {
-        "Address": "Technische Universität Berlin, Körnerstraße, Bismarckviertel, Steglitz, Steglitz-Zehlendorf, Berlin, 12157, Deutschland",
-        "AlternativeNames": [],
-        "City": "Berlin",
-        "Country": "Deutschland",
-        "Latitude": 52.5110159,
-        "Longitude": 13.3269541
     },
     "Tecnologico de Monterrey, Ave. Eugenio Garza Sada 2501, Monterrey, N.L., Mexico, 64849": {
         "Address": "Casino Monterrey, José Mariano Abasolo, Centro, Monterrey, Nuevo León, 64000, México",
@@ -3073,17 +2808,12 @@
         "Latitude": 40.0022905,
         "Longitude": 116.320963
     },
-    "UC Berkeley": {
-        "Address": "University of California, Berkeley, Siler Place, Oakland, Alameda County, California, 94618, United States",
-        "AlternativeNames": [],
-        "City": "Oakland",
-        "Country": "United States",
-        "Latitude": 37.8754996,
-        "Longitude": -122.2390685
-    },
     "UC Berkeley, Oxford Street 1951,Berkeley,SFO,US,94720": {
         "Address": "San Francisco International Airport, 780, South Airport Boulevard, San Francisco, San Mateo County, California, 94128, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "UC Berkeley",
+            "UC_Berkeley, Street_StreetNo_Berkeley_District_US_ZIP"
+        ],
         "City": "San Francisco",
         "Country": "United States",
         "Latitude": 37.622452,
@@ -3098,14 +2828,17 @@
         "Longitude": -117.086106
     },
     "UCSB Brain Imaging Center, UCEN Rd 551   Bldg 251,Isla Vista,Los Angeles,US,93117": {
-        "Address": "Isla Vista Drive, Vesper Village, Panorama City Neighborhood Council District, Los Angeles, Los Angeles County, California, 91343, United States",
+        "Address": "93117, Goleta, Santa Barbara County, California, United States",
         "AlternativeNames": [
-            "UCSB Psychology and Brain Imaging, UCEN Rd 551   Bldg 251,Isla Vista,Los Angeles,US,93117"
+            "UCSB Psychology and Brain Imaging, UCEN Rd 551   Bldg 251,Isla Vista,Los Angeles,US,93117",
+            "UCSB_Brain_Imaging_Center, UCEN_Rd_551_Bldg_251_Isla_Vista_Los_Angeles_US_93117",
+            "UCSB_Psychology_and_Brain_Imaging",
+            "UCSB_Psychology_and_Brain_Imaging, UCEN_Rd_551_Bldg_251_Isla_Vista_Los_Angeles_US_93117"
         ],
-        "City": "Los Angeles",
+        "City": "Goleta",
         "Country": "United States",
-        "Latitude": 34.2475019,
-        "Longitude": -118.4506895
+        "Latitude": 34.4334196,
+        "Longitude": -119.862249
     },
     "UCSD": {
         "Address": "University of California, San Diego, 9500, Gilman Drive, Torrey Pines, San Diego, San Diego County, California, 92093, United States",
@@ -3116,14 +2849,6 @@
         "Country": "United States",
         "Latitude": 32.8792438,
         "Longitude": -117.2311247
-    },
-    "UC_Berkeley, Street_StreetNo_Berkeley_District_US_ZIP": {
-        "Address": "UC Berkeley, The Crescent, Downtown Berkeley, Berkeley, Alameda County, California, 94704, United States",
-        "AlternativeNames": [],
-        "City": "Berkeley",
-        "Country": "United States",
-        "Latitude": 37.8713958,
-        "Longitude": -122.2651394
     },
     "UC_Davis, Da_Vinci_Court_1629_Davis_San_Francisco_Service_US_95618": {
         "Address": "University of California, Davis, 1, Pedrick Road, Davis, Solano County, California, 95616, United States",
@@ -3140,14 +2865,6 @@
         "Country": "中国",
         "Latitude": 30.7367729,
         "Longitude": 103.9719267
-    },
-    "UGent, De_Pintelaan_185_Gent_District_BE_9000": {
-        "Address": "Plantentuin UGent, Muinkparkwijk, Gent, Oost-Vlaanderen, Vlaanderen, België / Belgique / Belgien",
-        "AlternativeNames": [],
-        "City": "Gent",
-        "Country": "België / Belgique / Belgien",
-        "Latitude": 51.0353588,
-        "Longitude": 3.7225342
     },
     "UI_Hospitals_and_Clinics, Hawkins_200_Iowa_City_IA_US_52242": {
         "Address": "University of Iowa Stead Family Children’s Hospital, 200, Hawkins Drive, Iowa City, Johnson County, Iowa, 52242, United States",
@@ -3167,7 +2884,9 @@
     },
     "UMCBIR, Wade_Avenue_55_250F90_Maryland_US_21228": {
         "Address": "Spring Grove Hospital Center, 55, Wade Avenue, Paradise, Catonsville, Baltimore County, Maryland, 21228, United States",
-        "AlternativeNames": ["UMCBIR, Wade_Avenue_55_48CA09_Maryland_US_21228"],
+        "AlternativeNames": [
+            "UMCBIR, Wade_Avenue_55_48CA09_Maryland_US_21228"
+        ],
         "City": "Catonsville",
         "Country": "United States",
         "Latitude": 39.2653388,
@@ -3197,44 +2916,25 @@
         "Latitude": 34.0602762,
         "Longitude": -118.2063146
     },
-    "USC, McClintock 3520A,Los Angeles //SVC0e0594213b1104//,CA,US,90089": {
-        "Address": "Calloway Trail, Pinal County, Arizona, 85141, United States",
-        "AlternativeNames": [],
-        "City": "",
-        "Country": "United States",
-        "Latitude": 32.6413009,
-        "Longitude": -111.4015504
-    },
-    "USC, McClintock_3520A_Los_Angeles_CA_US_90089": {
-        "Address": "McClintock Avenue, Saint James Park, University Park, Exposition Park, Los Angeles, Los Angeles County, California, 90089, United States",
-        "AlternativeNames": [],
-        "City": "Los Angeles",
-        "Country": "United States",
-        "Latitude": 34.0272799,
-        "Longitude": -118.2854629
-    },
     "USC, McClintock_3520A_Los_Angeles_SVC0e0594213b1104_CA_US_90089": {
         "Address": "University of Southern California, West Jefferson Boulevard, University Park, Exposition Park, Los Angeles, Los Angeles County, California, 90089, United States",
         "AlternativeNames": [
+            "USC, McClintock 3520A,Los Angeles //SVC0e0594213b1104//,CA,US,90089",
+            "USC, McClintock_3520A_Los_Angeles_CA_US_90089",
             "USC, Medical_Center_Dr_5_Columbia_SC_US_29203",
-            "University of Southern California"
+            "University of Southern California",
+            "University of Southern California, 3715 McClintock Ave. Los Angeles, CA 90089"
         ],
         "City": "Los Angeles",
         "Country": "United States",
         "Latitude": 34.021869,
         "Longitude": -118.2858579
     },
-    "UT Southwestern, Dallas, Texas": {
-        "Address": "UT Southwestern, Hatchard's Street, Dallas, Dallas County, Texas, 75063, United States",
-        "AlternativeNames": [],
-        "City": "Dallas",
-        "Country": "United States",
-        "Latitude": 32.9352349,
-        "Longitude": -96.9809668
-    },
     "UT_Southwestern, Dallas_75390_Wyche_6110": {
         "Address": "6110, Wyche Boulevard, Dallas, Dallas County, Texas, 75235, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "UT Southwestern, Dallas, Texas"
+        ],
         "City": "Dallas",
         "Country": "United States",
         "Latitude": 32.8194262,
@@ -3247,30 +2947,6 @@
         "Country": "United States",
         "Latitude": 47.6526539,
         "Longitude": -122.3106159
-    },
-    "UZ Gent, Corneel Heymanslaan 10,Gent,,BE,9000": {
-        "Address": "Hoofdgebouw K12, 10, Corneel Heymanslaan, Ottergemse Dries, Gent, Oost-Vlaanderen, Vlaanderen, 9000, België / Belgique / Belgien",
-        "AlternativeNames": [],
-        "City": "Gent",
-        "Country": "België / Belgique / Belgien",
-        "Latitude": 51.0234906,
-        "Longitude": 3.7287169
-    },
-    "UZ, De_Pintelaan_185_Gent_88C96F_District_BE_9000": {
-        "Address": "Oʻzbekiston",
-        "AlternativeNames": [],
-        "City": "",
-        "Country": "Oʻzbekiston",
-        "Latitude": 41.32373,
-        "Longitude": 63.9528098
-    },
-    "UZ_Gent, De_Pintelaan_185_Gent_9C4B6E_District_BE_9000": {
-        "Address": "Universitair Ziekenhuis Gent, 10, Corneel Heymanslaan, Ottergemse Dries, Gent, Oost-Vlaanderen, Vlaanderen, 9000, België / Belgique / Belgien",
-        "AlternativeNames": ["UZ_Gent, De_Pintelaan_185_Gent_District_BE_9000"],
-        "City": "Gent",
-        "Country": "België / Belgique / Belgien",
-        "Latitude": 51.0235356,
-        "Longitude": 3.726631
     },
     "Univ. Erlangen, Value was not specified": {
         "Address": "UB Erlangen-Nürnberg: Teilbibliothek Pädagogik, Philosophie und Psychologie, 1, Bismarckstraße, Innenstadt, Erlangen, Bayern, 91054, Deutschland",
@@ -3306,7 +2982,9 @@
     },
     "Universidad Autónoma de Madrid": {
         "Address": "Universidad Autónoma de Madrid (U.A.M.) Campus de Cantoblanco, Calle Kant, El Goloso, Fuencarral-El Pardo, Madrid, Comunidad de Madrid, 28049, España",
-        "AlternativeNames": ["Universidad Autónoma de Madrid, Madrid, Spain"],
+        "AlternativeNames": [
+            "Universidad Autónoma de Madrid, Madrid, Spain"
+        ],
         "City": "Madrid",
         "Country": "España",
         "Latitude": 40.5453765,
@@ -3345,14 +3023,6 @@
         "Country": "Canada",
         "Latitude": 46.7811677,
         "Longitude": -71.2741361
-    },
-    "University College London": {
-        "Address": "University College London, Southampton Row, Bloomsbury, London Borough of Camden, Greater London, England, WC1B 5AG, United Kingdom",
-        "AlternativeNames": [],
-        "City": "Greater London",
-        "Country": "United Kingdom",
-        "Latitude": 51.524203,
-        "Longitude": -0.1330007
     },
     "University College, Bedford Way 26,London,London,GB,WC1H 0AP": {
         "Address": "26 Bedford Way, 26, Bedford Way, St Pancras, London Borough of Camden, Greater London, England, WC1H 0AL, United Kingdom",
@@ -3434,21 +3104,15 @@
         "Latitude": 52.3633211,
         "Longitude": 4.9109191
     },
-    "University of Arizona": {
-        "Address": "University of Arizona, North Stone Avenue, Tucson, Pima County, Arizona, 85721, United States",
-        "AlternativeNames": [],
+    "University of Arizona, North Warren Ave 1609,Tucson,Denver,US,85719": {
+        "Address": "85719, Hedrick Acres, Tucson, Pima County, Arizona, United States",
+        "AlternativeNames": [
+            "University of Arizona"
+        ],
         "City": "Tucson",
         "Country": "United States",
-        "Latitude": 32.2356985,
-        "Longitude": -110.951744
-    },
-    "University of Arizona, North Warren Ave 1609,Tucson,Denver,US,85719": {
-        "Address": "North Tucson Street, Montbello, Denver, Colorado, 80239, United States",
-        "AlternativeNames": [],
-        "City": "Denver",
-        "Country": "United States",
-        "Latitude": 39.7839979,
-        "Longitude": -104.8417694
+        "Latitude": 32.2627162,
+        "Longitude": -110.9495275
     },
     "University of Barcelona": {
         "Address": "Universitat de Barcelona, Gran Via de les Corts Catalanes (lateral muntanya), l'Antiga Esquerra de l'Eixample, l'Eixample, Barcelona, Barcelonès, Barcelona, Catalunya, 08011, España",
@@ -3476,17 +3140,11 @@
         "Latitude": 52.4497025,
         "Longitude": -1.9315942
     },
-    "University of California Merced": {
-        "Address": "University of California, Merced, 5200, Bellevue Road, Merced, Merced County, California, 95343, United States",
-        "AlternativeNames": [],
-        "City": "Merced",
-        "Country": "United States",
-        "Latitude": 37.365182,
-        "Longitude": -120.4225275
-    },
     "University of California Merced, 5200 North Lake Rd., Merced, CA 95343": {
         "Address": "Merced, Merced County, California, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of California Merced"
+        ],
         "City": "Merced",
         "Country": "United States",
         "Latitude": 37.3029568,
@@ -3526,19 +3184,13 @@
     },
     "University of Chicago, 5835 S. Cottage Grove Ave": {
         "Address": "University of Chicago Auto Service Facility, 5601, South Cottage Grove Avenue, Hyde Park, Chicago, Hyde Park Township, Cook County, Illinois, 60637, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of Chicago, Chicago, IL 60637, USA"
+        ],
         "City": "Chicago",
         "Country": "United States",
         "Latitude": 41.7929341,
         "Longitude": -87.6056158
-    },
-    "University of Chicago, Chicago, IL 60637, USA": {
-        "Address": "The University of Chicago, 5801, South Ellis Avenue, Hyde Park, Chicago, Hyde Park Township, Cook County, Illinois, 60637, United States",
-        "AlternativeNames": [],
-        "City": "Chicago",
-        "Country": "United States",
-        "Latitude": 41.7913274,
-        "Longitude": -87.6008421
     },
     "University of Coimbra, Polo III - Health Sciences Campus • Azinhaga Santa Comba, Celas • 3000-548 Coimbra | PORTUGAL": {
         "Address": "Celas, Santo António dos Olivais, Coimbra, 3000-132, Portugal",
@@ -3569,7 +3221,8 @@
         "AlternativeNames": [
             "University of Florida, 1275 Center Drive, Gainesville, FL 32611 USA",
             "University of Florida, 1275 Center Drive, Gainesville, Florida, USA",
-            "University_of_Florida"
+            "University_of_Florida",
+            "Univesity of Florida, Gainesville"
         ],
         "City": "Gainesville",
         "Country": "United States",
@@ -3592,14 +3245,6 @@
         "Latitude": 46.8035356,
         "Longitude": 7.1556189
     },
-    "University of Geneva": {
-        "Address": "Geneva House, 182, Frontenac Street, University District, Kingston, Eastern Ontario, Ontario, K7L 3S7, Canada",
-        "AlternativeNames": [],
-        "City": "Kingston",
-        "Country": "Canada",
-        "Latitude": 44.2276965,
-        "Longitude": -76.4985204
-    },
     "University of Granada, Campus de Cartuja s/n - 18071 Granada, Spain": {
         "Address": "España",
         "AlternativeNames": [],
@@ -3608,17 +3253,11 @@
         "Latitude": 39.3260685,
         "Longitude": -4.8379791
     },
-    "University of Granada, Campus de Cartuja, Granada, ES": {
-        "Address": "Campus de Cartuja, Calle Profesor Vicente Callao, San Ildefonso, Beiro, Granada, Comarca de la Vega de Granada, Granada, Andalucía, 18003, España",
-        "AlternativeNames": [],
-        "City": "Granada",
-        "Country": "España",
-        "Latitude": 37.1926292,
-        "Longitude": -3.596909
-    },
     "University of Granada, Granada, Spain": {
         "Address": "Tienda Universidad de Granada, Calle Doctor Severo Ochoa, Pajaritos, Centro - Sagrario, Beiro, Granada, Comarca de la Vega de Granada, Granada, Andalucía, 18071, España",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of Granada, Campus de Cartuja, Granada, ES"
+        ],
         "City": "Granada",
         "Country": "España",
         "Latitude": 37.1827211,
@@ -3658,23 +3297,19 @@
     },
     "University of Maryland, South Paca St 110,Baltimore,District,US,21201": {
         "Address": "Baltimore Avenue and Hotel Drive at UMD, Hotel Drive, Discovery District, Old Town, College Park, Prince George's County, Maryland, 20742, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Maryland Neuroimaging Center, University of Maryland, 8077 Greenmead Drive, College Park, MD, USA"
+        ],
         "City": "College Park",
         "Country": "United States",
         "Latitude": 38.986639,
         "Longitude": -76.936073
     },
-    "University of Michigan, Ann Arbor, MI, USA": {
-        "Address": "University of Michigan, 500, South State Street, Old Fourth Ward, Ann Arbor, Washtenaw County, Michigan, 48109, United States",
-        "AlternativeNames": [],
-        "City": "Ann Arbor",
-        "Country": "United States",
-        "Latitude": 42.2942142,
-        "Longitude": -83.7100389
-    },
     "University of Michigan, Ann Arbor, Michigan 48109, USA": {
         "Address": "University of Michigan, 500, South State Street, Ann Arbor, Washtenaw County, Michigan, 48109, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of Michigan, Ann Arbor, MI, USA"
+        ],
         "City": "Ann Arbor",
         "Country": "United States",
         "Latitude": 42.2942142,
@@ -3706,7 +3341,10 @@
     },
     "University of Nottingham, University Park, Nottingham, United Kingdom": {
         "Address": "University of Nottingham King's Meadow Campus, Lenton Lane, Dunkirk, City of Nottingham, East Midlands, England, NG7 2NR, United Kingdom",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Nottingham Medical School",
+            "Nottingham University, University Park"
+        ],
         "City": "City of Nottingham",
         "Country": "United Kingdom",
         "Latitude": 52.9385099,
@@ -3736,41 +3374,22 @@
         "Latitude": 40.7289708,
         "Longitude": -73.9944716
     },
-    "University of Oxford, Institute of Biomedical Engineering, Department of Engineering Science, Old Road Campus Research Building, University of Oxford, Headington, Oxford OX3 7DQ, UK": {
-        "Address": "Headington, Oxford, Oxfordshire, England, United Kingdom",
-        "AlternativeNames": [],
-        "City": "Oxford",
-        "Country": "United Kingdom",
-        "Latitude": 51.7601673,
-        "Longitude": -1.2109282
-    },
     "University of Oxford, Warneford Hospital, Oxford, OX3 7JX": {
         "Address": "Warneford Hospital, Southfield Road, Little Minster, East Oxford, Oxford, Oxfordshire, England, OX4 1NY, United Kingdom",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of Oxford, Institute of Biomedical Engineering, Department of Engineering Science, Old Road Campus Research Building, University of Oxford, Headington, Oxford OX3 7DQ, UK",
+            "University of Oxford, Warneford Hospital, Warneford Lane"
+        ],
         "City": "Oxford",
         "Country": "United Kingdom",
         "Latitude": 51.7507042,
         "Longitude": -1.2214135
     },
-    "University of Oxford, Warneford Hospital, Warneford Lane": {
-        "Address": "Warneford Hospital, Warneford Lane, Headington Hill, Headington, Oxford, Oxfordshire, England, OX3 7QQ, United Kingdom",
-        "AlternativeNames": [],
-        "City": "Oxford",
-        "Country": "United Kingdom",
-        "Latitude": 51.7524533,
-        "Longitude": -1.2212772
-    },
-    "University of Pennsylvania, 425 S University Ave, Philadelphia, PA 19104": {
-        "Address": "425, South University Avenue, West Philadelphia, Philadelphia, Philadelphia County, Pennsylvania, 19104, United States",
-        "AlternativeNames": [],
-        "City": "Philadelphia",
-        "Country": "United States",
-        "Latitude": 39.9494894,
-        "Longitude": -75.1995288
-    },
     "University of Pennsylvania, Philadelphia, PA 19104": {
         "Address": "University of Pennsylvania, 1, Admirals Way, Naval Square, South Philadelphia, Philadelphia, Philadelphia County, Pennsylvania, 19104, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University of Pennsylvania, 425 S University Ave, Philadelphia, PA 19104"
+        ],
         "City": "Philadelphia",
         "Country": "United States",
         "Latitude": 39.9522148,
@@ -3783,14 +3402,6 @@
         "Country": "United States",
         "Latitude": 40.442814,
         "Longitude": -79.961803
-    },
-    "University of Queensland, Research Road Bld 57,Brisbane,Queensland,AU,4072": {
-        "Address": "Brisbane, Queensland, Australia",
-        "AlternativeNames": [],
-        "City": "Brisbane",
-        "Country": "Australia",
-        "Latitude": -27.4689623,
-        "Longitude": 153.0235009
     },
     "University of Rochester, University of Rochester Medical Center, 601 Elmwood Avenue, Box 603, KMRB G.9602, Rochester, NY 14642, USA": {
         "Address": "City of Rochester, Monroe County, New York, United States",
@@ -3807,14 +3418,6 @@
         "Country": "Australia",
         "Latitude": -34.9123807,
         "Longitude": 138.6759482
-    },
-    "University of Southern California, 3715 McClintock Ave. Los Angeles, CA 90089": {
-        "Address": "USC Leonard Davis School of Gerontology, 3715, McClintock Avenue, University Park, Exposition Park, Los Angeles, Los Angeles County, California, 90089, United States",
-        "AlternativeNames": [],
-        "City": "Los Angeles",
-        "Country": "United States",
-        "Latitude": 34.0202376,
-        "Longitude": -118.2904702
     },
     "University of Sydney": {
         "Address": "Sydney Court, La Jolla Crossroads, Rennaissance, University City, San Diego, San Diego County, California, 92039, United States",
@@ -3867,16 +3470,18 @@
         "Longitude": -122.3001692
     },
     "University of Western Ontario, Richmond Street North 1151,London,Ontario,CA,N6A 5B7": {
-        "Address": "Ontario, San Bernardino County, California, United States",
+        "Address": "Western University, Thames Valley Parkway, London, Southwestern Ontario, Ontario, N6G 1E2, Canada",
         "AlternativeNames": [],
-        "City": "Ontario",
-        "Country": "United States",
-        "Latitude": 34.065846,
-        "Longitude": -117.64843
+        "City": "London",
+        "Country": "Canada",
+        "Latitude": 43.0054234,
+        "Longitude": -81.274801
     },
     "University of Wisconsin - Waisman Center, Madison 53705 Highland Ave 1500": {
         "Address": "Waisman Center, 1500, Highland Avenue, Madison, Dane County, Wisconsin, 53705, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Waisman"
+        ],
         "City": "Madison",
         "Country": "United States",
         "Latitude": 43.0783873,
@@ -3934,12 +3539,12 @@
         "Longitude": -76.9434923
     },
     "University_of_Maryland, South_Paca_St_110_Baltimore_District_US_21201": {
-        "Address": "University of Maryland (ehemaliges Gelände der US-Streitkräfte), Peter-Auzinger-Straße, Neuharlaching, Untergiesing-Harlaching, Giesing, München, Bayern, 81547, Deutschland",
+        "Address": "Paca-Pratt Building, 110, South Paca Street, Downtown West, Sowebo, Baltimore, Maryland, 21201, United States",
         "AlternativeNames": [],
-        "City": "München",
-        "Country": "Deutschland",
-        "Latitude": 48.098968,
-        "Longitude": 11.5820325
+        "City": "Baltimore",
+        "Country": "United States",
+        "Latitude": 39.2864855,
+        "Longitude": -76.6225403
     },
     "University_of_Melbourne_-_Brain_Institute, Royal_Parade_30_Parkville_Victoria_AU_3052": {
         "Address": "Kenneth Myer Building, 30, Royal Parade, Parkville, Melbourne, Victoria, 3052, Australia",
@@ -3961,7 +3566,10 @@
     },
     "University_of_Queensland, Research_Road_Bld_57_Brisbane_Queensland_AU_4072": {
         "Address": "University of Queensland, Chancellors Place, St Lucia, Brisbane, Queensland, 4067, Australia",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Queensland Brain Institute, The University of Queensland",
+            "University of Queensland, Research Road Bld 57,Brisbane,Queensland,AU,4072"
+        ],
         "City": "Brisbane",
         "Country": "Australia",
         "Latitude": -27.4981423,
@@ -3983,21 +3591,13 @@
         "Latitude": 47.5616817,
         "Longitude": 7.5831365
     },
-    "Univesity of Florida, Gainesville": {
-        "Address": "Gainesville, Alachua County, Florida, United States",
-        "AlternativeNames": [],
-        "City": "Gainesville",
-        "Country": "United States",
-        "Latitude": 29.6519684,
-        "Longitude": -82.3249846
-    },
     "Univie-Zahnklinik, Sensengasse 2a,Wien,District,AT,1090": {
-        "Address": "ໂພນສະອາດ, ວຽງຈັນ, ໄຊເສດຖາ, ນະຄອນຫຼວງວຽງຈັນ, 01009, ປະເທດລາວ",
+        "Address": "2A, Sensengasse, Michelbeuern, Katastralgemeinde Alsergrund, Alsergrund, Wien, 1090, Österreich",
         "AlternativeNames": [],
-        "City": "ວຽງຈັນ",
-        "Country": "ປະເທດລາວ",
-        "Latitude": 17.9775966,
-        "Longitude": 102.627945
+        "City": "Wien",
+        "Country": "Österreich",
+        "Latitude": 48.2195524,
+        "Longitude": 16.3545299
     },
     "UoR, Whiteknights_Campus_StreetNo_Reading_District_GB_RG6_7BE": {
         "Address": "Whiteknights Campus, Whitley, Reading, England, United Kingdom",
@@ -4051,7 +3651,9 @@
     },
     "VUIIS, VUMC, Nashville, TN": {
         "Address": "Vanderbilt University Medical Center, 1211, Medical Center Drive, Nashville, Davidson County, Middle Tennessee, Tennessee, 37232, United States",
-        "AlternativeNames": ["Vanderbilt University Medical Center, n/a"],
+        "AlternativeNames": [
+            "Vanderbilt University Medical Center, n/a"
+        ],
         "City": "Nashville",
         "Country": "United States",
         "Latitude": 36.1409238,
@@ -4075,7 +3677,9 @@
     },
     "WTCN University College London, 12 Queen’s Square, London, WC1B 5JS": {
         "Address": "12, Queen's Elm Square, Brompton, Royal Borough of Kensington and Chelsea, Greater London, England, SW3 6ED, United Kingdom",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "University College London"
+        ],
         "City": "Greater London",
         "Country": "United Kingdom",
         "Latitude": 51.4889063,
@@ -4097,14 +3701,6 @@
         "Latitude": 38.6353276,
         "Longitude": -90.2606527
     },
-    "Waisman": {
-        "Address": "Waisman, Lavalle, Abasto, Once, Balvanera, Buenos Aires, Comuna 3, Ciudad Autónoma de Buenos Aires, C1213AAG, Argentina",
-        "AlternativeNames": [],
-        "City": "Buenos Aires",
-        "Country": "Argentina",
-        "Latitude": -34.603067,
-        "Longitude": -58.4064066
-    },
     "Warneford Hospital, Warneford Lane StreetNo,Oxford,District,GB,OX3 7JX": {
         "Address": "Main Block, Warneford Lane, Headington Hill, Headington, Oxford, Oxfordshire, England, OX3 7JX, United Kingdom",
         "AlternativeNames": [],
@@ -4123,7 +3719,9 @@
     },
     "Washington University School of Medicine, 660 S Euclid Ave, St. Louis, MO 63110, USA": {
         "Address": "Bernard Becker Medical Library, 660, South Euclid Avenue, Central West End, Saint Louis, Missouri, 63110, United States",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "Washington University in St. Louis School of Medicine"
+        ],
         "City": "Saint Louis",
         "Country": "United States",
         "Latitude": 38.6348056,
@@ -4191,32 +3789,20 @@
         "Latitude": 30.5866945,
         "Longitude": 114.269286
     },
-    "Yale University - Dunham Lab. Bldg., Hillhouse Ave. 10,New Haven ,Northeast,US,06519": {
-        "Address": "Northeast, Hartford, Capitol Planning Region, Connecticut, 06120, United States",
-        "AlternativeNames": [],
-        "City": "Hartford",
-        "Country": "United States",
-        "Latitude": 41.7957813,
-        "Longitude": -72.6789295
-    },
-    "Yale_MRRC, Cedar_Street_333_New_Haven_Connecticut_US_06510": {
-        "Address": "Harvey Cushing/John Hay Whitney Medical Library, 333, Cedar Street, Dixwell, New Haven, Connecticut, 06510, United States",
+    "Yale University": {
+        "Address": "06519, New Haven, South Central Connecticut Planning Region, Connecticut, United States",
         "AlternativeNames": [
+            "Yale_University_-_Dunham_Lab._Bldg., Hillhouse_Ave._10_New_Haven_Northeast_US_06519",
             "Yale MRRC, Cedar Street 333, New Haven, Connecticut, US 06510",
-            "Yale University MRRC, Cedar Street 333,New Haven ,Connecticut,US,06510"
+            "Yale University MRRC, Cedar Street 333,New Haven ,Connecticut,US,06510",
+            "Yale_University_MRRC, Cedar_300_New_Haven_CT_US_06519",
+            "Yale_MRRC, Cedar_Street_333_New_Haven_Connecticut_US_06510",
+            "Yale University - Dunham Lab. Bldg., Hillhouse Ave. 10,New Haven ,Northeast,US,06519"
         ],
         "City": "New Haven",
         "Country": "United States",
-        "Latitude": 41.303002,
-        "Longitude": -72.9332441
-    },
-    "Yale_University_MRRC, Cedar_300_New_Haven_CT_US_06519": {
-        "Address": "The Anlyan Center, 300, Cedar Street, Dixwell, New Haven, Connecticut, 06511, United States",
-        "AlternativeNames": [],
-        "City": "New Haven",
-        "Country": "United States",
-        "Latitude": 41.30118,
-        "Longitude": -72.9340723
+        "Latitude": 41.2956601,
+        "Longitude": -72.9371922
     },
     "Yanshan University, Qinhuangdao, Hebei, China": {
         "Address": "秦皇岛市, 河北省, 中国",
@@ -4227,20 +3813,12 @@
         "Longitude": 119.5942213
     },
     "York Neuro Imaging Centre, Innovation Way  Heslington,York,District,GB,YO10 5NY": {
-        "Address": "York, Billington and Langho, Langho, Ribble Valley, Lancashire, England, BB6 8DZ, United Kingdom",
+        "Address": "Innovation Way, Heslington, York, York and North Yorkshire, England, YO10 5ZD, United Kingdom",
         "AlternativeNames": [],
-        "City": "Ribble Valley",
+        "City": "Heslington",
         "Country": "United Kingdom",
-        "Latitude": 53.7975688,
-        "Longitude": -2.4430653
-    },
-    "cni": {
-        "Address": "Centro Nacional de Inteligencia, Bus-VAO, Aravaca, Moncloa-Aravaca, Madrid, Comunidad de Madrid, 28023, España",
-        "AlternativeNames": [],
-        "City": "Madrid",
-        "Country": "España",
-        "Latitude": 40.4626183,
-        "Longitude": -3.763464
+        "Latitude": 53.9496687,
+        "Longitude": -1.0467604
     },
     "crc, B30Av 6 Aout, Liege, Brussels, 4000, BE": {
         "Address": "Liège - Luik, Tunnel Cinquantenaire - Jubelparktunnel, Bruxelles - Brussel, Brussel-Hoofdstad - Bruxelles-Capitale, Région de Bruxelles-Capitale - Brussels Hoofdstedelijk Gewest, 1040, België / Belgique / Belgien",
@@ -4252,7 +3830,9 @@
     },
     "deleted_by_bidsonym": {
         "Address": "",
-        "AlternativeNames": ["deleted_by_bidsonym, deleted_by_bidsonym"],
+        "AlternativeNames": [
+            "deleted_by_bidsonym, deleted_by_bidsonym"
+        ],
         "City": "",
         "Country": "",
         "Latitude": null,
@@ -4290,6 +3870,7 @@
             "Az.Osp._Udine",
             "BCBL",
             "BCBL, Mikeletegi_69_San_Sebastian_District_ES_20009",
+            "BIC, Street StreetNo,City,District,CA,ZIP",
             "BMMR, Brenneckestr._6_Magdeburg_District_DE_39118",
             "Brain_Imaging_Center_(BIC), Schleusenweg_2-16_Frankfurt_District_DE_60528",
             "Brain_Imaging_Center_UCDenver_3T",
@@ -4299,19 +3880,17 @@
             "CNSA_CHARLOTTE",
             "CUBIC_MRI_Unit, Street_StreetNo_Egham_SE_GB_TW20_0EX",
             "Chemin_Queen-Mary_4565_Montreal_District_CA_H3W_1W5",
-            "De_Pintelaan_185_Gent_District_BE_9000",
             "Deutsches_Primatenzentrum_GmbH",
             "Douglas Mental Health Research Center, Value was not specified",
             "Duke Univ Hosp MR5",
+            "ECAT",
             "EVKB_Mara_1, Maraweg_21_Bielefeld_District_DE_33617",
             "FIU_Center_For_Imaging_Science, SW_8TH_ST_OE116_11200_MIAMI_Med-Lab_US_33199",
             "Fondation_Campus_Biotech_Geneva, Chemin_des_Mines_9_Geneve_District_CH_1211",
             "Fudan_University_EENT_Hospital, Fenyang_Road_83_Shanghai_8fa792_Xuhui_CN_ZIP",
             "HUP6",
             "IATM",
-            "IFN_Magdeburg, Brenneckestr._6_Magdeburg_District_DE_39118",
             "IM-FUNDACION_FAVALORO",
-            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
             "INPRFM",
             "ITC SB RAS",
             "Institute_of_Psychology_CAS",
@@ -4323,9 +3902,6 @@
             "NEURO_CAMPUS BAUDOT",
             "NIH CC DRD MR2",
             "NIH VERIO 3T",
-            "NIH_7T_Research, Center_Drive_10_Bethesda.336812._Maryland_US_20892",
-            "NIH_7T_Research, Center_Drive_10_Bethesda.3A6882.10JUN13_Maryland_US_20892",
-            "NIH_7T_Research, Center_Drive_10_Bethesda.ea6fdd._Maryland_US_20892",
             "NYU Center for Brain Imaging",
             "National Institute of Mental Health",
             "O.H.S.U.",
@@ -4336,8 +3912,6 @@
             "PSU-SLEIC, University_Park_Chandlee_Laboratory_State_College_PA_US_16802",
             "Peking_Univeristy, Yiheyuan_Road_5_Beijing3cd14b_Haidian_CN_100871",
             "Penn_State_SLEIC, University_Park_Chandlee_Laboratory_State_College_Great_Lakes_U",
-            "Princeton_University_-_Neuroscience_Institute",
-            "Princeton_University_-_Neuroscience_Institute, Washington_and_Faculty_Rd._-_Building_25_25_Princeton_NJ_US_085",
             "SBIC Singapore, Value was not specified",
             "SC3T",
             "SNUBIC",
@@ -4346,7 +3920,6 @@
             "Schleusenweg_2-16_Frankfurt_District_DE_60528",
             "Scientific Imaging & Brain Research Center at Carnegie Mellon University",
             "Spruce_MRI_Assoc_MR2",
-            "Stanford CNI",
             "TNO laboratory (Netherlands)",
             "The 7th Medical Center PLAGH",
             "The_1st_Hospital_of_CQMU",
@@ -4356,10 +3929,7 @@
             "U of M FMRi",
             "UCI_Research_Center",
             "UCSB_Brain_Imaging_Center",
-            "UCSB_Brain_Imaging_Center, UCEN_Rd_551_Bldg_251_Isla_Vista_Los_Angeles_US_93117",
             "UCSB_Brain_Imaging_Center, deleted_by_bidsonym",
-            "UCSB_Psychology_and_Brain_Imaging",
-            "UCSB_Psychology_and_Brain_Imaging, UCEN_Rd_551_Bldg_251_Isla_Vista_Los_Angeles_US_93117",
             "UCSF QB3",
             "UKM-TRIC",
             "ULB_ERASME",
@@ -4374,10 +3944,8 @@
             "University of South Florida (USF) or Brigham Young University (BYU)",
             "Vassar_Street_43_Cambridge_Boston_US_02139",
             "WTCN, Queen_Square_12_London_Southeast_GB_WC1N_3BG",
-            "Washington University in St. Louis School of Medicine",
             "Western_CFMM",
             "XXXXXXXXXXXXXXXXXXXX, XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-            "Yale_University_-_Dunham_Lab._Bldg., Hillhouse_Ave._10_New_Haven_Northeast_US_06519",
             "Yale_University_School_of_Medicine, Gilbert_1_New_Haven-1763f8-_CT_US_06520",
             "fmri3tw",
             "è¥¿åå¸èå¤§å­¦",
