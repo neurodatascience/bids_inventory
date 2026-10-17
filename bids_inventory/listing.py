@@ -2,6 +2,7 @@
 
 import functools
 import json
+import re
 from collections.abc import Iterable
 from math import isnan
 from pathlib import Path
@@ -39,6 +40,11 @@ def _physio_recordings() -> dict[str, list[str]]:
     return {**types, **content["combined"]}
 
 
+def _normalize_physio_name(name: Any) -> str:
+    # ECG2 is ecg, eye1 is eye, CO2 is co
+    return str(name).strip().lower().rstrip("0123456789")
+
+
 def physio_recording_types(labels: Iterable[str]) -> list[str]:
     """Return the types of signals of physio files from their recording labels.
 
@@ -48,8 +54,26 @@ def physio_recording_types(labels: Iterable[str]) -> list[str]:
     known = _physio_recordings()
     types = set()
     for label in labels:
-        # ECG2 is ecg, eye1 is eye
-        types.update(known.get(str(label).lower().rstrip("0123456789"), ["other"]))
+        types.update(known.get(_normalize_physio_name(label), ["other"]))
+    return sorted(types)
+
+
+def physio_column_types(columns: Iterable[str]) -> list[str]:
+    """Return the types of signals of physio files from the columns of their sidecars.
+
+    A column is of a type if its name, or one of the words of its name, is known
+    (Zyg - EMG100C is emg): see bids_inventory/data/physio_recordings.json.
+    Unknown columns (time...) are ignored.
+    """
+    known = _physio_recordings()
+    types = set()
+    for column in columns:
+        name = _normalize_physio_name(column)
+        words = [name, *(_normalize_physio_name(x) for x in re.findall(r"[a-z]+[0-9]*", name))]
+        for word in words:
+            if word in known:
+                types.update(known[word])
+                break
     return sorted(types)
 
 

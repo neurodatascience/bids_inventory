@@ -94,6 +94,12 @@ class BidsDataset(BaseModel):
         NOT_BIDS_VALIDATED,
         default=[],
     )
+    physio_columns: list[str] = _field(
+        "Columns of the physio files (Columns of their JSON sidecars), "
+        "for example cardiac, respiratory, trigger.",
+        FIRST_PARTICIPANT,
+        default=[],
+    )
     has_phenotype_dir: bool | None = _field(
         "Whether the dataset has a 'phenotype' folder.", default=None
     )

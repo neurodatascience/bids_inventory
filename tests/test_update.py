@@ -1408,3 +1408,34 @@ def test_local_non_openneuro_dataset(tmp_path, monkeypatch):
     assert _update._local_non_openneuro_dataset("ABIDE2_Caltech") == tmp_path / "abide2" / "Caltech"
     assert _update._local_non_openneuro_dataset("ABIDE_NYU") is None
     assert _update._local_non_openneuro_dataset("ds000001") is None
+
+
+def test_get_physio_columns(tmp_path, monkeypatch):
+    """From the sidecars of the physio files of the first participant (with inheritance)."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    func = tmp_path / "sub-01" / "func"
+    _touch(func / "sub-01_task-rest_physio.tsv.gz")
+    _touch(func / "sub-01_task-rest_physio.json", json.dumps({"Columns": ["cardiac", "trigger"]}))
+    _touch(func / "sub-01_task-nback_physio.tsv.gz")
+    # inherited, and a single column as a string
+    _touch(tmp_path / "task-nback_physio.json", json.dumps({"Columns": "respiratory"}))
+
+    assert _update.get_physio_columns(tmp_path) == ["cardiac", "respiratory", "trigger"]
+
+
+def test_get_physio_columns_first_participant_with_physio(tmp_path, monkeypatch):
+    """The first participant with physio files, and a physio.json at the root."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01", "sub-02"])
+    _touch(tmp_path / "sub-01" / "func" / "sub-01_task-rest_bold.nii.gz")
+    _touch(tmp_path / "sub-02" / "func" / "sub-02_task-rest_physio.tsv.gz")
+    _touch(tmp_path / "physio.json", json.dumps({"Columns": ["cardiac"]}))
+
+    assert _update.get_physio_columns(tmp_path) == ["cardiac"]

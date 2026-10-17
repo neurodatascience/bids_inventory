@@ -496,15 +496,16 @@ def nb_datatypes_histogram(df: pd.DataFrame) -> go.Figure:
     return fig.update_xaxes(dtick=1)
 
 
-NO_RECORDING_LABEL = "no recording label"
+# datasets with physio files whose recording labels and columns are not known
+NO_RECORDING_LABEL = "not identified"
 
 
 def physio_types_histogram(df: pd.DataFrame) -> go.Figure:
     """Plot the number of datasets with physio files of each type of signal.
 
-    From the recording labels of the physio files (``physio_types`` column):
-    a dataset with several types is counted for each one.
-    The datasets with physio files without recording labels are counted apart.
+    From the recording labels of the physio files and the columns of their sidecars
+    (``physio_types`` column): a dataset with several types is counted for each one.
+    The datasets with physio files whose types are not identified are counted apart.
     """
     with_physio = df[df["has_physio"].fillna(False).astype(bool)]
     types = with_physio["physio_types"].apply(
@@ -526,8 +527,8 @@ def physio_types_histogram(df: pd.DataFrame) -> go.Figure:
     return fig.update_layout(
         title=(
             f"Types of physiological recordings ({len(with_physio)} datasets with physio files)"
-            "<br><sup>from the recording labels of the physio files: "
-            "a dataset can have several types</sup>"
+            "<br><sup>from the recording labels of the physio files and the columns "
+            "of their sidecars: a dataset can have several types</sup>"
         ),
         xaxis={"type": "category", "title": {"text": "type of recording"}},
         yaxis={"title": {"text": "number of datasets"}},

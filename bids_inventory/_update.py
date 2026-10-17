@@ -949,6 +949,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.nb_scans_tsv = count_scans_tsv(dataset_pth)
     dataset.nb_physio_files = count_physio_files(dataset_pth)
     dataset.physio_recordings = get_physio_recordings(dataset_pth)
+    dataset.physio_columns = get_physio_columns(dataset_pth)
     dataset.nb_stim_files = count_stim_files(dataset_pth)
 
     dataset.has_phenotype_dir = bool((dataset_pth / "phenotype").exists())
@@ -1561,6 +1562,7 @@ FIELDS: dict[str, Any] = {
     "cog_atlas_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogAtlasID"),
     "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
     "physio_recordings": lambda dataset_pth: get_physio_recordings(dataset_pth),
+    "physio_columns": lambda dataset_pth: get_physio_columns(dataset_pth),
 }
 
 
@@ -1965,6 +1967,39 @@ def count_scans_tsv(dataset_pth: Path) -> int:
 
 def count_physio_files(dataset_pth: Path) -> int:
     return len(list(glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")))
+
+
+def get_physio_columns(dataset_pth: Path) -> list[str]:
+    """Return the columns of the physio files of a participant (unique, sorted).
+
+    The first participant with physio files.
+    From the Columns of their JSON sidecars (following the inheritance principle,
+    or a physio.json at the root of the dataset).
+    """
+    columns: set[str] = set()
+    sidecars = set()
+    for participant in list_participants_in_dataset(dataset_pth):
+        files = list(glob_files(dataset_pth, f"{participant}/**/*_physio.tsv.gz"))
+        if not files:
+            continue
+        for filepath in files:
+            if (sidecar := _find_sidecar(dataset_pth, filepath, "physio")) is not None:
+                sidecars.add(sidecar)
+        if not sidecars and (dataset_pth / "physio.json").exists():
+            sidecars.add(dataset_pth / "physio.json")
+        break
+    for sidecar in sorted(sidecars):
+        try:
+            if not sidecar.exists():
+                _get_file(api.Dataset(dataset_pth), sidecar)
+            value = json.loads(sidecar.read_text()).get("Columns")
+        except Exception as e:
+            cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+            continue
+        # a single column can be given as a string
+        values = value if isinstance(value, list) else [value]
+        columns.update(str(x).strip() for x in values if x is not None and str(x).strip())
+    return sorted(columns)
 
 
 def get_physio_recordings(dataset_pth: Path) -> list[str]:

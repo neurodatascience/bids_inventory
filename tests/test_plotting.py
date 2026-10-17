@@ -177,10 +177,10 @@ def test_physio_types_histogram():
         }
     )
     fig = physio_types_histogram(df)
-    # the datasets with physio files without recording label are last
+    # the datasets with physio files whose types are not identified are last
     assert dict(zip(fig.data[0].x, fig.data[0].y)) == {
         "cardiac": 2,
         "respiratory": 1,
-        "no recording label": 1,
+        "not identified": 1,
     }
-    assert list(fig.data[0].x)[-1] == "no recording label"
+    assert list(fig.data[0].x)[-1] == "not identified"

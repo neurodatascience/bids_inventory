@@ -113,3 +113,12 @@ def test_physio_recording_types():
     assert physio_recording_types(["ECG2", "eye1", "Eye"]) == ["cardiac", "eye tracking"]
     assert physio_recording_types(["brainamp"]) == ["other"]
     assert physio_recording_types([]) == []
+
+
+def test_physio_column_types():
+    from bids_inventory.listing import physio_column_types
+
+    columns = ["cardiac", "RSP", "TTL", "CO2", "Zyg - EMG100C", "left_grip", "time", "Happy"]
+    # unknown columns are ignored
+    assert physio_column_types(columns) == ["cardiac", "force", "muscle", "respiratory", "trigger"]
+    assert physio_column_types(["time", "timestamp"]) == []

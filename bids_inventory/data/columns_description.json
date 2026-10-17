@@ -56,6 +56,11 @@
             "Format": "list[str]",
             "Assumptions": "Does not check if the name of files are BIDS valid."
         },
+        "physio_columns": {
+            "Description": "Columns of the physio files (Columns of their JSON sidecars), for example cardiac, respiratory, trigger.",
+            "Format": "list[str]",
+            "Assumptions": "Based on data from the first participant only."
+        },
         "has_phenotype_dir": {
             "Description": "Whether the dataset has a 'phenotype' folder.",
             "Format": "bool",
