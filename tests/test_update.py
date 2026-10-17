@@ -1050,6 +1050,9 @@ def test_update_durations(tmp_path, monkeypatch):
         "get_duration",
         lambda dataset_pth, datatypes, tasks, jobs: {"meg": {"a": [(1, 120.0)]}},
     )
+    monkeypatch.setattr(
+        _update, "get_nb_channels", lambda dataset_pth, datatypes, tasks: {"meg": [306]}
+    )
 
     _update.update_durations(["meg"], debug=False)
 
@@ -1058,6 +1061,7 @@ def test_update_durations(tmp_path, monkeypatch):
         {"meg": {"b": None}},
         {},
     ]
+    assert saved["df"]["nb_channels"].tolist() == [{"meg": [306]}, None, None]
 
 
 def test_get_duration_pet_without_task(tmp_path, monkeypatch):
@@ -1076,3 +1080,31 @@ def test_get_duration_pet_without_task(tmp_path, monkeypatch):
         )
 
     assert _update.get_duration(tmp_path, ["anat", "pet"], []) == {"pet": [(1, 90.0), (1, 90.0)]}
+
+
+def test_get_nb_channels(tmp_path, monkeypatch):
+    """The number of channels of each run is read from the sidecars."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    eeg = _touch(tmp_path / "sub-01" / "eeg" / "sub-01_task-a_eeg.edf")
+    _touch(eeg.with_name("sub-01_task-a_eeg.json"), json.dumps({"EEGChannelCount": 64}))
+    ieeg = _touch(tmp_path / "sub-01" / "ieeg" / "sub-01_task-a_ieeg.edf")
+    _touch(
+        ieeg.with_name("sub-01_task-a_ieeg.json"),
+        json.dumps({"ECOGChannelCount": 20, "SEEGChannelCount": 10}),
+    )
+    # inherited from the root, for all the runs of the task
+    for run in [1, 2]:
+        _touch(tmp_path / "sub-01" / "meg" / f"sub-01_task-a_run-{run}_meg.fif")
+    _touch(tmp_path / "task-a_meg.json", json.dumps({"MEGChannelCount": 306}))
+    # no channel count, and not a datatype with channels
+    _touch(tmp_path / "sub-01" / "nirs" / "sub-01_task-a_nirs.snirf")
+
+    assert _update.get_nb_channels(tmp_path, ["eeg", "ieeg", "meg", "nirs"], ["a"]) == {
+        "eeg": [64],
+        "ieeg": [30],
+        "meg": [306, 306],
+    }

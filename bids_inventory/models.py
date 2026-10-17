@@ -114,6 +114,13 @@ class BidsDataset(BaseModel):
         FIRST_PARTICIPANT,
         default=[],
     )
+    nb_channels: dict[str, list[int]] | None = _field(
+        "Number of channels of each EEG, iEEG and MEG run, by datatype, "
+        "from the JSON sidecars: EEGChannelCount, ECOGChannelCount + SEEGChannelCount, "
+        "MEGChannelCount.",
+        FIRST_PARTICIPANT,
+        default=None,
+    )
     datatypes: list[str] = _field(
         "List of BIDS supported datatypes found in the dataset.",
         "A datatype will be listed even if it occurs only in a single subject.",

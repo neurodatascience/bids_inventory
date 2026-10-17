@@ -870,6 +870,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.field_strength = get_field_strength(sidecars)
 
     dataset.duration = get_duration(dataset_pth, datatypes, tasks, jobs=jobs)
+    dataset.nb_channels = get_nb_channels(dataset_pth, datatypes, tasks)
 
     return dataset
 
@@ -1242,6 +1243,59 @@ def _find_sidecar(dataset_pth: Path, filepath: Path, datatype: str) -> Path | No
         folder = folder.parent
 
 
+def _read_sidecar(dataset_pth: Path, filepath: Path) -> dict[str, Any] | None:
+    """Return the content of the JSON sidecar of a run (None if it has none)."""
+    datatype = filepath.parent.name
+    sidecar = _find_sidecar(dataset_pth, filepath, datatype)
+    if sidecar is None:
+        return None
+    try:
+        if not sidecar.exists():
+            # annexed sidecar whose content is not there yet
+            _get_file(api.Dataset(dataset_pth), sidecar)
+        metadata = json.loads(sidecar.read_text())
+    except Exception as e:
+        cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+        return None
+    return metadata if isinstance(metadata, dict) else None
+
+
+# sidecar fields with the number of channels of each datatype (summed)
+CHANNEL_COUNTS = {
+    "eeg": ["EEGChannelCount"],
+    "ieeg": ["ECOGChannelCount", "SEEGChannelCount"],
+    "meg": ["MEGChannelCount"],
+}
+
+
+def get_nb_channels(
+    dataset_pth: Path, datatypes: list[str], tasks: list[str] | None
+) -> dict[str, list[int]]:
+    """Get the number of channels of each eeg, ieeg and meg run of the first participant.
+
+    From the JSON sidecars: ``EEGChannelCount``, ``ECOGChannelCount`` + ``SEEGChannelCount``,
+    ``MEGChannelCount``. Runs without them are left out.
+    """
+    first_sub = list_participants_in_dataset(dataset_pth)[0]
+    datatypes = [x for x in datatypes if x in CHANNEL_COUNTS]
+    files_per_datatype = _files_for_duration(dataset_pth, first_sub, datatypes, tasks)
+    nb_channels: dict[str, list[int]] = {}
+    for datatype, value in files_per_datatype.items():
+        runs = [x for files in value.values() for x in files] if isinstance(value, dict) else value
+        counts = []
+        for run in runs:
+            metadata = _read_sidecar(dataset_pth, run) or {}
+            try:
+                count = sum(int(metadata.get(key) or 0) for key in CHANNEL_COUNTS[datatype])
+            except (TypeError, ValueError):
+                continue
+            if count > 0:
+                counts.append(count)
+        if counts:
+            nb_channels[datatype] = counts
+    return nb_channels
+
+
 def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
     """Return the duration of a run in seconds from its JSON sidecar (None if not there).
 
@@ -1251,14 +1305,10 @@ def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
     datatype = filepath.parent.name
     if datatype not in DURATION_DATATYPES or datatype == "func":
         return None
-    sidecar = _find_sidecar(dataset_pth, filepath, datatype)
-    if sidecar is None:
+    metadata = _read_sidecar(dataset_pth, filepath)
+    if metadata is None:
         return None
     try:
-        if not sidecar.exists():
-            # annexed sidecar whose content is not there yet
-            _get_file(api.Dataset(dataset_pth), sidecar)
-        metadata = json.loads(sidecar.read_text())
         if datatype == "pet":
             duration = sum(float(x) for x in metadata.get("FrameDuration") or [])
             if duration > MAX_RUN_DURATION:
@@ -1266,8 +1316,8 @@ def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
                 duration /= 1000
         else:
             duration = float(metadata.get("RecordingDuration") or 0)
-    except Exception as e:
-        cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+    except (TypeError, ValueError) as e:
+        cc_log.warning(f"Invalid duration in the sidecar of {filepath.name}: {e!r}")
         return None
     return duration if duration > 0 else None
 
@@ -1645,6 +1695,7 @@ def _local_openneuro_dataset(name: str) -> Path | None:
 def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:
     """Get again the duration of the runs of some datatypes for the openneuro datasets listed.
 
+    And their number of channels for eeg, ieeg and meg.
     Only for the datasets installed locally: the other ones keep their durations.
     Faster than re-indexing everything, for example after adding a datatype
     whose duration can be read.
@@ -1658,6 +1709,9 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     cc_log.info(f"Getting the duration of {datatypes} for {len(to_update)} datasets")
     not_installed = []
     durations = df["duration"].tolist()
+    if "nb_channels" not in df:
+        df["nb_channels"] = None
+    channels = df["nb_channels"].tolist()
     with progress_bar(text="Getting durations") as progress:
         task = progress.add_task(description="durations", total=len(to_update))
         for i, (index, row) in enumerate(to_update.iterrows()):
@@ -1672,14 +1726,23 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
             dataset_datatypes = [x for x in datatypes if x in row["datatypes"]]
             try:
                 duration = get_duration(dataset_pth, dataset_datatypes, row["tasks"], jobs=jobs)
+                nb_channels = get_nb_channels(dataset_pth, dataset_datatypes, row["tasks"])
             except Exception:
                 cc_log.exception(f"Could not get the durations of {row['name']}")
                 continue
             # replace the durations of these datatypes, keep the others
             others = {k: v for k, v in (row["duration"] or {}).items() if k not in datatypes}
             durations[df.index.get_loc(index)] = {**others, **duration}
+            previous = channels[df.index.get_loc(index)]
+            previous = previous if isinstance(previous, dict) else {}
+            channels[df.index.get_loc(index)] = {
+                **{k: v for k, v in previous.items() if k not in datatypes},
+                **nb_channels,
+            }
             if i % 20 == 0:
-                save_known_datasets(df.assign(duration=durations), output_file)
+                save_known_datasets(
+                    df.assign(duration=durations, nb_channels=channels), output_file
+                )
     set_current_dataset(None)
 
     if not_installed:
@@ -1688,7 +1751,7 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
             f"and keep their durations: {not_installed}"
         )
     cc_log.info(f"Saving to {output_file}")
-    save_known_datasets(df.assign(duration=durations), output_file)
+    save_known_datasets(df.assign(duration=durations, nb_channels=channels), output_file)
 
 
 def update(
