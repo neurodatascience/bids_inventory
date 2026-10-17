@@ -5,7 +5,8 @@ API: https://registry.datalad.org/openapi/
 
 Saves, in the current directory:
 
-- datalad_registry_bids.json: all the dataset URLs found, with their metadata;
+- datalad_registry_bids.json: the dataset URLs found (with at least one subject),
+  with their metadata;
 - datalad_registry_bids.tsv: one row per dataset URL, with a summary of its BIDS metadata.
 
 Usage:
@@ -96,6 +97,10 @@ def main() -> None:
     args = parser.parse_args()
 
     dataset_urls = query(args.search)
+    # datasets without any subject: for example empty or toy datasets
+    nb_found = len(dataset_urls)
+    dataset_urls = [x for x in dataset_urls if summary(x)["nb_subjects"] > 0]
+    print(f"{nb_found - len(dataset_urls)} dataset URLs without subjects excluded")
     Path("datalad_registry_bids.json").write_text(json.dumps(dataset_urls, indent=1))
     df = pd.DataFrame([summary(x) for x in dataset_urls]).sort_values("url")
     df.to_csv("datalad_registry_bids.tsv", sep="\t", index=False)
