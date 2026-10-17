@@ -1059,14 +1059,6 @@
         "Latitude": 52.5277013,
         "Longitude": 13.4043836
     },
-    "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France": {
-        "Address": "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
-        "AlternativeNames": [],
-        "City": "La Tronche",
-        "Country": "France",
-        "Latitude": 45.198626,
-        "Longitude": 5.7441708
-    },
     "Georgia Institute of Technology, Atlanta": {
         "Address": "Georgia Tech, 10th Street Northeast, Midtown, Old Fourth Ward, Atlanta, Fulton County, Georgia, 30332, United States",
         "AlternativeNames": [],
@@ -1224,9 +1216,14 @@
         "Latitude": 20.7058736,
         "Longitude": -100.4458998
     },
-    "IRMaGe, Value was not specified": {
+    "Grenoble Institut des Neurosciences": {
         "Address": "IRMaGe - 3T, Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
-        "AlternativeNames": [],
+        "AlternativeNames": [
+            "IRMaGe, Value was not specified",
+            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
+            "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France",
+            "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France"
+        ],
         "City": "La Tronche",
         "Country": "France",
         "Latitude": 45.1988831,
@@ -3792,27 +3789,20 @@
         "Latitude": 30.5866945,
         "Longitude": 114.269286
     },
-    "Yale University - Dunham Lab. Bldg., Hillhouse Ave. 10,New Haven ,Northeast,US,06519": {
+    "Yale University": {
         "Address": "06519, New Haven, South Central Connecticut Planning Region, Connecticut, United States",
         "AlternativeNames": [
-            "Yale_University_-_Dunham_Lab._Bldg., Hillhouse_Ave._10_New_Haven_Northeast_US_06519"
+            "Yale_University_-_Dunham_Lab._Bldg., Hillhouse_Ave._10_New_Haven_Northeast_US_06519",
+            "Yale MRRC, Cedar Street 333, New Haven, Connecticut, US 06510",
+            "Yale University MRRC, Cedar Street 333,New Haven ,Connecticut,US,06510",
+            "Yale_University_MRRC, Cedar_300_New_Haven_CT_US_06519",
+            "Yale_MRRC, Cedar_Street_333_New_Haven_Connecticut_US_06510",
+            "Yale University - Dunham Lab. Bldg., Hillhouse Ave. 10,New Haven ,Northeast,US,06519"
         ],
         "City": "New Haven",
         "Country": "United States",
         "Latitude": 41.2956601,
         "Longitude": -72.9371922
-    },
-    "Yale_MRRC, Cedar_Street_333_New_Haven_Connecticut_US_06510": {
-        "Address": "Harvey Cushing/John Hay Whitney Medical Library, 333, Cedar Street, Dixwell, New Haven, Connecticut, 06510, United States",
-        "AlternativeNames": [
-            "Yale MRRC, Cedar Street 333, New Haven, Connecticut, US 06510",
-            "Yale University MRRC, Cedar Street 333,New Haven ,Connecticut,US,06510",
-            "Yale_University_MRRC, Cedar_300_New_Haven_CT_US_06519"
-        ],
-        "City": "New Haven",
-        "Country": "United States",
-        "Latitude": 41.303002,
-        "Longitude": -72.9332441
     },
     "Yanshan University, Qinhuangdao, Hebei, China": {
         "Address": "秦皇岛市, 河北省, 中国",
@@ -3901,7 +3891,6 @@
             "HUP6",
             "IATM",
             "IM-FUNDACION_FAVALORO",
-            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
             "INPRFM",
             "ITC SB RAS",
             "Institute_of_Psychology_CAS",
