@@ -557,7 +557,8 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
 
     monkeypatch.setattr(_update, "get_info_dataset", fake_get_info_dataset)
     monkeypatch.setattr(_update, "add_derivatives", lambda dataset, *args: dataset)
-    monkeypatch.setattr(_update, "known_derivatives", lambda: [])
+    # not needed for the datasets that are not on OpenNeuro
+    monkeypatch.setattr(_update, "known_derivatives", lambda: pytest.fail("not needed"))
     monkeypatch.setattr(_update, "_check_dataset", lambda dataset_pth: True)
     monkeypatch.setattr(_update, "enable_S3_remote", lambda dataset_pth: None)
     monkeypatch.setattr(_update, "_get_file", lambda ds, filepath: None)

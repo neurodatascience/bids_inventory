@@ -784,7 +784,8 @@ def list_datasets_in_dir(
     if include:
         raw_datasets = [x for x in raw_datasets if x.name in include]
 
-    derivatives = known_derivatives()
+    # the OpenNeuroDerivatives datasets are only derivatives of openneuro datasets
+    derivatives = known_derivatives() if dataset_name_prefix == "ds" else []
 
     known = set(datasets["name"])
     reindex_file = reindex_progress_file(output_file) if reindex else None
