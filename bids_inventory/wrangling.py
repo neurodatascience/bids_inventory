@@ -43,6 +43,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``institution_names``: :obj:`list[str]` Institutions of the dataset,
       as named in the keys of ``bids_inventory/data/institutions.json``.
     - ``countries``: :obj:`list[str]` Countries of these institutions.
+    - ``field_strengths``: :obj:`list[str]` Nominal field strengths of the MRI scanners
+      (``["3T"]``...), ``["unknown"]`` for MRI datasets without MagneticFieldStrength,
+      empty for datasets without MRI data.
     - ``species``: :obj:`list[str]` Species of the participants (for example ``["mus musculus"]``),
       empty if not specified: see :func:`bids_inventory.listing.dataset_species`.
     """
@@ -96,6 +99,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
 
     species = dataset_species()
     df["species"] = df["name"].apply(lambda x: species.get(x, []))
+
+    df["field_strengths"] = df.apply(_field_strengths, axis=1)
 
     institutions = load_institutions()
     known = known_names(institutions)
@@ -226,6 +231,7 @@ class FilterConfig(TypedDict):
     sources: list[str] | None
     sources_and_or: str
     species: list[str] | None
+    field_strength: str | None
 
 
 DEFAULT_CONFIG: FilterConfig = {
@@ -246,10 +252,61 @@ DEFAULT_CONFIG: FilterConfig = {
     "sources": None,
     "sources_and_or": "OR",
     "species": None,
+    "field_strength": None,
 }
 
 # in the species filter: the datasets whose species is not specified (most are about humans)
 NOT_SPECIFIED = "not specified"
+
+# datatypes acquired with an MRI scanner
+MRI_DATATYPES = {"anat", "func", "dwi", "fmap", "perf"}
+# field strength of MRI datasets without MagneticFieldStrength in their sidecars
+UNKNOWN_FIELD_STRENGTH = "unknown"
+# nominal field strengths (in Tesla) of MRI scanners:
+# scanners report values close to them (2.89 for 3T, 6.98 for 7T...)
+NOMINAL_FIELD_STRENGTHS = [
+    0.064,
+    0.35,
+    0.5,
+    1.0,
+    1.5,
+    3.0,
+    4.0,
+    4.7,
+    5.0,
+    7.0,
+    9.4,
+    10.5,
+    11.7,
+    14.0,
+    15.2,
+    17.2,
+]
+
+
+def field_strength_label(value: float) -> str | None:
+    """Return the nominal field strength of a MagneticFieldStrength value ("3T"...).
+
+    Values over 100 are in Gauss (15000 is 1.5T), values under 0.05 are not valid.
+    """
+    if value > 100:
+        value /= 10_000
+    if value < 0.05:
+        return None
+    nominal = min(NOMINAL_FIELD_STRENGTHS, key=lambda x: abs(x - value))
+    if abs(nominal - value) <= 0.05 * nominal:
+        value = nominal
+    return f"{value:g}T"
+
+
+def _field_strengths(row: pd.Series) -> list[str]:
+    """Return the field strengths of a dataset ("unknown" for MRI data without one)."""
+    values = row["field_strength"] if isinstance(row["field_strength"], list) else []
+    labels = {label for value in values if (label := field_strength_label(float(value)))}
+    if not labels and set(row["datatypes"]) & MRI_DATATYPES:
+        return [UNKNOWN_FIELD_STRENGTH]
+    return sorted(labels, key=lambda x: float(x.removesuffix("T")))
+
 
 # text filters: (key of the configuration, column of lists of strings to search)
 TEXT_FILTERS = {
@@ -313,6 +370,8 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     - ``"species"`` : list[str] | None species of the participants (``"homo sapiens"``...),
       ``"not specified"`` for the datasets whose species is not known:
       keeps the datasets whose species are all in the list
+    - ``"field_strength"`` : str | None nominal field strength of the MRI scanners
+      (``"3T"``, ``"7T"``... or ``"unknown"``): keeps the datasets with data at that strength
 
     If ``None`` is passed will default to the DEFAULT_CONFIG.
 
@@ -366,6 +425,10 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     if species is not None:
         mask_species = df["species"].apply(lambda x: set(x or [NOT_SPECIFIED]) <= set(species))
 
+    mask_field_strength = ALL_TRUE
+    if field_strength := config["field_strength"]:
+        mask_field_strength = df["field_strengths"].apply(lambda x: field_strength in x)
+
     datatypes = config["datatypes"]
     mask_datatypes = df["datatypes"].apply(lambda x: len(set(x).intersection(datatypes)) > 0)
     if config["datatypes_and_or"] == "AND":
@@ -383,6 +446,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_datatypes,
             mask_sources,
             mask_species,
+            mask_field_strength,
         ),
         axis=1,
     ).all(axis=1)
