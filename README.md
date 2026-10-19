@@ -245,7 +245,10 @@ bids_inventory institutions apply-matches
 of the datasets of [OpenNeuroDatasets-JSONLD](https://github.com/OpenNeuroDatasets-JSONLD)
 annotated by [Neurobagel](https://neurobagel.org/),
 with the age (in years) and the sex (`female`, `male`, `other`) standardized across datasets
-using the annotations of their `participants.json`:
+using the annotations of their `participants.json`.
+It also has the participants of the datasets of some Neurobagel nodes
+(INDI: ABIDE, ABIDE 2, ADHD-200, CoRR), from the [Neurobagel federation API](https://federate.neurobagel.org/docs),
+named as in the inventory (`CORR_XHCUMS`):
 
 ```python
 from bids_inventory.listing import neurobagel_participants_df
