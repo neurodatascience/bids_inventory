@@ -537,7 +537,14 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
     from bids_inventory.listing import _load_known_datasets
 
     base_dir = tmp_path / "non_openneuro"
-    for folder in ["abide/Caltech", "abide/NYU", "cneuromod/friends", "cneuromod/code"]:
+    for folder in [
+        "abide/Caltech",
+        "abide/NYU",
+        "cneuromod/friends",
+        "cneuromod/code",
+        "dandi/000108",
+        "dandi/not_listed",
+    ]:
         (base_dir / folder).mkdir(parents=True)
     listing = tmp_path / "non_openneuro.jsonl"
     listing.write_text("")
@@ -550,7 +557,8 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
 
     monkeypatch.setattr(_update, "get_info_dataset", fake_get_info_dataset)
     monkeypatch.setattr(_update, "add_derivatives", lambda dataset, *args: dataset)
-    monkeypatch.setattr(_update, "known_derivatives", lambda: [])
+    # not needed for the datasets that are not on OpenNeuro
+    monkeypatch.setattr(_update, "known_derivatives", lambda: pytest.fail("not needed"))
     monkeypatch.setattr(_update, "_check_dataset", lambda dataset_pth: True)
     monkeypatch.setattr(_update, "enable_S3_remote", lambda dataset_pth: None)
     monkeypatch.setattr(_update, "_get_file", lambda ds, filepath: None)
@@ -559,11 +567,19 @@ def test_update_non_openneuro(tmp_path, monkeypatch, caplog):
     monkeypatch.setattr(
         _update, "_load_known_datasets", lambda f: _load_or_empty(_load_known_datasets, f)
     )
+    installs = []
+    monkeypatch.setattr(
+        _update,
+        "install_non_openneuro",
+        lambda base_dir, collections, jobs: installs.append(sorted(collections)),
+    )
 
     _update.update(debug=False, source="non-openneuro")
 
-    # only the cneuromod datasets that are listed are indexed
-    assert indexed == ["ABIDE_Caltech", "ABIDE_NYU", "CNEUROMOD_friends"]
+    # the missing datasets of non_openneuro_datasets.yml are installed first
+    assert installs[0] == sorted(_update.non_openneuro_collections())
+    # only the cneuromod subdatasets included, and the dandi datasets listed, are indexed
+    assert indexed == ["ABIDE_Caltech", "ABIDE_NYU", "CNEUROMOD_friends", "DANDI_000108"]
     assert _load_known_datasets(listing)["name"].tolist() == indexed
     # missing collections are skipped with a warning
     assert "corr not found" in caplog.text
@@ -1232,3 +1248,194 @@ def test_get_task_ids(tmp_path, monkeypatch):
         "rest": ["trm_4c8a834779883"],
     }
     assert _update.get_task_ids(tmp_path, "CogPOID") == {}
+
+
+def test_non_openneuro_collections():
+    """Each collection has a unique prefix and datasets, and a source in the dashboard."""
+    import pandas as pd
+
+    from bids_inventory._update import non_openneuro_collections
+    from bids_inventory.wrangling import _get_source_study
+
+    collections = non_openneuro_collections()
+    prefixes = [settings["prefix"] for settings in collections.values()]
+    assert len(set(prefixes)) == len(prefixes)
+    for collection, settings in collections.items():
+        assert settings["prefix"].endswith("_"), collection
+        assert bool(settings.get("superdataset")) != bool(settings.get("datasets")), collection
+    sources = _get_source_study(pd.DataFrame({"name": [f"{x}dataset" for x in prefixes]}))
+    assert "other" not in sources
+
+
+def test_install_non_openneuro(tmp_path, monkeypatch):
+    """Only the missing datasets are installed, with their root files."""
+    import subprocess
+    from pathlib import Path
+
+    from bids_inventory import _update
+
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command[1:])
+        if command[1] == "install":
+            # datalad install -s <source> <path>
+            (Path(command[-1]) / ".git").mkdir(parents=True)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    root_files = []
+    monkeypatch.setattr(_update.subprocess, "run", fake_run)
+    monkeypatch.setattr(_update, "_get_root_files", lambda path: root_files.append(path.name))
+    (tmp_path / "nemar" / "nm000103" / ".git").mkdir(parents=True)
+
+    _update.install_non_openneuro(
+        tmp_path,
+        {
+            "nemar": {
+                "prefix": "NEMAR_",
+                "datasets": {
+                    "nm000103": "https://x/nm000103.git",
+                    "nm000104": "https://x/nm000104.git",
+                },
+            }
+        },
+    )
+
+    # nm000103 is already installed
+    assert commands == [
+        ["install", "-s", "https://x/nm000104.git", str(tmp_path / "nemar" / "nm000104")]
+    ]
+    assert root_files == ["nm000104"]
+
+
+def test_install_non_openneuro_error(tmp_path, monkeypatch, caplog):
+    """A dataset that cannot be installed is skipped with an error."""
+    import subprocess
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(
+        _update.subprocess,
+        "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 1, "", "[ERROR] Failed to connect to datasets.datalad.org"
+        ),
+    )
+    _update.install_non_openneuro(
+        tmp_path, {"indi": {"prefix": "INDI_", "datasets": {"HypnosisBarrios": "///indi/x"}}}
+    )
+    assert "Could not install ///indi/x: Failed to connect to datasets.datalad.org" in caplog.text
+
+
+def test_update_bids_datatypes(tmp_path, monkeypatch):
+    """The datatypes are read from the BIDS schema, and kept if it cannot be downloaded."""
+    import json
+
+    import requests
+
+    from bids_inventory import _update
+
+    datatypes_file = tmp_path / "bids_datatypes.json"
+    monkeypatch.setattr(_update, "_bids_datatypes_file", lambda: datatypes_file)
+    monkeypatch.setattr(_update, "KNOWN_DATATYPES", ["anat"])
+
+    class Response:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {
+                "bids_version": "1.11.2",
+                "schema_version": "2.0.0",
+                "objects": {
+                    "datatypes": {
+                        "emg": {"value": "emg", "display_name": "Electromyography"},
+                        "anat": {
+                            "value": "anat",
+                            "display_name": "Anatomical Magnetic Resonance Imaging",
+                        },
+                    }
+                },
+            }
+
+    monkeypatch.setattr(_update.requests, "get", lambda url, timeout: Response())
+    _update.update_bids_datatypes()
+
+    saved = json.loads(datatypes_file.read_text())
+    assert saved["bids_version"] == "1.11.2"
+    assert list(saved["datatypes"]) == ["anat", "emg"]
+    assert _update.KNOWN_DATATYPES == ["anat", "emg"]
+
+    def no_network(url, timeout):
+        raise requests.ConnectionError("no network")
+
+    monkeypatch.setattr(_update.requests, "get", no_network)
+    _update.update_bids_datatypes()
+    assert json.loads(datatypes_file.read_text()) == saved
+
+
+def test_known_datatypes():
+    """The official BIDS datatypes, saved from the BIDS schema."""
+    from bids_inventory.listing import KNOWN_DATATYPES
+
+    assert {"anat", "func", "eeg", "emg", "micr", "nirs", "motion"} <= set(KNOWN_DATATYPES)
+
+
+def test_get_physio_recordings(tmp_path):
+    from bids_inventory._update import get_physio_recordings
+
+    func = tmp_path / "sub-01" / "ses-1" / "func"
+    for name in [
+        "sub-01_ses-1_task-visualSearch_recording-eye1_physio.tsv.gz",
+        "sub-01_ses-1_task-visualSearch_recording-eye1_physio.json",
+        "sub-01_ses-1_task-rest_run-1_recording-cardiac_physio.tsv.gz",
+        # no recording entity
+        "sub-01_ses-1_task-rest_run-2_physio.tsv.gz",
+    ]:
+        _touch(func / name)
+
+    assert get_physio_recordings(tmp_path) == ["cardiac", "eye1"]
+
+
+def test_local_non_openneuro_dataset(tmp_path, monkeypatch):
+    from bids_inventory import _update
+
+    (tmp_path / "abide" / "Caltech").mkdir(parents=True)
+    (tmp_path / "abide2" / "Caltech").mkdir(parents=True)
+    monkeypatch.setattr(_update, "config_path", lambda *keys: tmp_path)
+
+    assert _update._local_non_openneuro_dataset("ABIDE_Caltech") == tmp_path / "abide" / "Caltech"
+    assert _update._local_non_openneuro_dataset("ABIDE2_Caltech") == tmp_path / "abide2" / "Caltech"
+    assert _update._local_non_openneuro_dataset("ABIDE_NYU") is None
+    assert _update._local_non_openneuro_dataset("ds000001") is None
+
+
+def test_get_physio_columns(tmp_path, monkeypatch):
+    """From the sidecars of the physio files of the first participant (with inheritance)."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01"])
+    func = tmp_path / "sub-01" / "func"
+    _touch(func / "sub-01_task-rest_physio.tsv.gz")
+    _touch(func / "sub-01_task-rest_physio.json", json.dumps({"Columns": ["cardiac", "trigger"]}))
+    _touch(func / "sub-01_task-nback_physio.tsv.gz")
+    # inherited, and a single column as a string
+    _touch(tmp_path / "task-nback_physio.json", json.dumps({"Columns": "respiratory"}))
+
+    assert _update.get_physio_columns(tmp_path) == ["cardiac", "respiratory", "trigger"]
+
+
+def test_get_physio_columns_first_participant_with_physio(tmp_path, monkeypatch):
+    """The first participant with physio files, and a physio.json at the root."""
+    import json
+
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01", "sub-02"])
+    _touch(tmp_path / "sub-01" / "func" / "sub-01_task-rest_bold.nii.gz")
+    _touch(tmp_path / "sub-02" / "func" / "sub-02_task-rest_physio.tsv.gz")
+    _touch(tmp_path / "physio.json", json.dumps({"Columns": ["cardiac"]}))
+
+    assert _update.get_physio_columns(tmp_path) == ["cardiac"]

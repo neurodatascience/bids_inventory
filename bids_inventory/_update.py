@@ -28,6 +28,7 @@ from bids_inventory.listing import (
     KNOWN_DATATYPES,
     MAX_RUN_DURATION,
     NULLABLE_INT_COLUMNS,
+    _bids_datatypes_file,
     _data_dir,
     _load_known_datasets,
     _non_openneuro_listing,
@@ -405,28 +406,113 @@ def update_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -
         _finish_reindex(datasets, output_file)
 
 
-# Datasets that are not on OpenNeuro:
-# (folder in local_paths.non_openneuro, prefix added to their name, datasets to include)
-NON_OPENNEURO_COLLECTIONS: list[tuple[str, str, list[str] | None]] = [
-    ("abide", "ABIDE_", None),
-    ("abide2", "ABIDE2_", None),
-    ("adhd200", "ADHD200_", None),
-    ("corr", "CORR_", None),
-    (
-        "cneuromod",
-        "CNEUROMOD_",
-        ["anat", "friends", "harrypotter", "hcptrt", "movie10", "shinobi", "shinobi_training"],
-    ),
-]
+# Datasets that are not on OpenNeuro tracked by the inventory, by collection
+NON_OPENNEURO_DATASETS = _data_dir() / "non_openneuro_datasets.yml"
+
+
+def non_openneuro_collections() -> dict[str, dict[str, Any]]:
+    """Return the collections of datasets that are not on OpenNeuro.
+
+    See bids_inventory/data/non_openneuro_datasets.yml.
+    """
+    with open(NON_OPENNEURO_DATASETS) as f:
+        collections: dict[str, dict[str, Any]] = yaml.safe_load(f)
+    return collections
+
+
+def install_non_openneuro(
+    base_dir: Path, collections: dict[str, dict[str, Any]], jobs: int = 1
+) -> None:
+    """Install the datasets of the collections missing from base_dir/<collection>/<dataset>.
+
+    With their root TSV and JSON files (participants.tsv, dataset_description.json...).
+    A dataset that cannot be installed is skipped (with an error).
+    """
+    for collection, settings in collections.items():
+        folder = base_dir / collection
+        if source := settings.get("superdataset"):
+            if _install_dataset(source, folder, get_root_files=False):
+                _install_subdatasets(folder, settings.get("include"), jobs)
+        for name, source in (settings.get("datasets") or {}).items():
+            _install_dataset(source, folder / str(name))
+
+
+def _is_installed(dataset_pth: Path) -> bool:
+    return (dataset_pth / ".git").exists()
+
+
+def _install_dataset(source: str, dataset_pth: Path, get_root_files: bool = True) -> bool:
+    """Install a datalad dataset if it is not installed yet: return whether it is installed."""
+    if _is_installed(dataset_pth):
+        return True
+    dataset_pth.parent.mkdir(parents=True, exist_ok=True)
+    cc_log.info(f"Installing {source} in {dataset_pth}")
+    result = subprocess.run(
+        [_datalad_executable(), "install", "-s", source, str(dataset_pth)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not _is_installed(dataset_pth):
+        cc_log.error(f"Could not install {source}: {_error_reason(result.stdout, result.stderr)}")
+        return False
+    if get_root_files:
+        _get_root_files(dataset_pth)
+    return True
+
+
+def _install_subdatasets(superdataset: Path, include: list[str] | None, jobs: int = 1) -> None:
+    """Install the subdatasets of a superdataset that are not installed yet (only ``include``)."""
+    absent = [
+        Path(record["path"])
+        for record in api.Dataset(superdataset).subdatasets(
+            state="absent", result_renderer="disabled"
+        )
+    ]
+    if include is not None:
+        absent = [x for x in absent if x.name in include]
+    if not absent:
+        return
+    cc_log.info(f"Installing {len(absent)} subdatasets of {superdataset}")
+    result = subprocess.run(
+        [_datalad_executable(), "get", "-n", "-J", str(jobs), "-d", str(superdataset)]
+        + [str(x) for x in absent],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        cc_log.error(
+            f"Could not install some subdatasets of {superdataset}: "
+            f"{_error_reason(result.stdout, result.stderr)}"
+        )
+    for dataset_pth in absent:
+        if _is_installed(dataset_pth):
+            _get_root_files(dataset_pth)
+
+
+def _get_root_files(dataset_pth: Path) -> None:
+    """Get the content of the TSV and JSON files at the root of a dataset."""
+    files = sorted([*dataset_pth.glob("*.tsv"), *dataset_pth.glob("*.json")])
+    if not files:
+        return
+    try:
+        api.Dataset(dataset_pth).get([str(x) for x in files], result_renderer="disabled")
+    except IncompleteResultsError:
+        cc_log.warning(f"Could not get the root files of {dataset_pth}")
 
 
 def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = False) -> None:
     """Update the listing of datasets that are not on OpenNeuro (ABIDE, CoRR...).
 
-    The datasets must be installed in the folder set by ``local_paths.non_openneuro``
-    in the configuration, for example with ``tools/install_extra_datasets.sh``.
+    The datasets of bids_inventory/data/non_openneuro_datasets.yml
+    missing from the folder set by ``local_paths.non_openneuro`` in the configuration
+    are installed first (except with ``debug``), then indexed.
     """
     base_dir = config_path("local_paths", "non_openneuro")
+    collections = non_openneuro_collections()
+    if debug:
+        cc_log.info("Debug mode: the missing datasets are not installed")
+    else:
+        install_non_openneuro(base_dir, collections, jobs=jobs)
 
     datasets_df = _load_known_datasets(_non_openneuro_listing())
     datasets_df = _missing_as_na(datasets_df)
@@ -436,16 +522,21 @@ def update_non_openneuro(debug: bool = True, jobs: int = 1, reindex: bool = Fals
     if debug:
         output_file = Path.cwd() / output_file.name
 
-    for folder, study_prefix, include in NON_OPENNEURO_COLLECTIONS:
-        if not (base_dir / folder).is_dir():
-            cc_log.warning(f"{base_dir / folder} not found: skipping {study_prefix.strip('_')}")
+    for collection, settings in collections.items():
+        folder = base_dir / collection
+        if not folder.is_dir():
+            cc_log.warning(f"{folder} not found: skipping {collection}")
             continue
+        # only the datasets listed (or the subdatasets included) are indexed
+        include = settings.get("include")
+        if "datasets" in settings:
+            include = [str(x) for x in settings["datasets"]]
         datasets = list_datasets_in_dir(
             datasets,
-            base_dir / folder,
+            folder,
             debug=debug,
             dataset_name_prefix="",
-            study_prefix=study_prefix,
+            study_prefix=settings["prefix"],
             include=include,
             jobs=jobs,
             output_file=output_file,
@@ -694,7 +785,8 @@ def list_datasets_in_dir(
     if include:
         raw_datasets = [x for x in raw_datasets if x.name in include]
 
-    derivatives = known_derivatives()
+    # the OpenNeuroDerivatives datasets are only derivatives of openneuro datasets
+    derivatives = known_derivatives() if dataset_name_prefix == "ds" else []
 
     known = set(datasets["name"])
     reindex_file = reindex_progress_file(output_file) if reindex else None
@@ -842,7 +934,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     tasks = None
     if any(
         mod in datatypes
-        for mod in ["func", "eeg", "ieeg", "meg", "beh", "perf", "pet", "motion", "nirs"]
+        for mod in ["func", "eeg", "ieeg", "meg", "beh", "perf", "pet", "motion", "nirs", "emg"]
     ):
         tasks = list_tasks(dataset_pth, sessions=sessions)
         check_task(tasks, datatypes, sessions, dataset_pth)
@@ -856,6 +948,8 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.nb_sessions_tsv = count_sessions_tsv(dataset_pth)
     dataset.nb_scans_tsv = count_scans_tsv(dataset_pth)
     dataset.nb_physio_files = count_physio_files(dataset_pth)
+    dataset.physio_recordings = get_physio_recordings(dataset_pth)
+    dataset.physio_columns = get_physio_columns(dataset_pth)
     dataset.nb_stim_files = count_stim_files(dataset_pth)
 
     dataset.has_phenotype_dir = bool((dataset_pth / "phenotype").exists())
@@ -1216,7 +1310,7 @@ def get_duration(
 
 
 # datatypes whose duration of each run is listed
-DURATION_DATATYPES = ["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"]
+DURATION_DATATYPES = ["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion", "emg"]
 
 # extensions of the files of a run that are not its data file
 _NOT_DATA = {".json", ".vmrk", ".fdt"}
@@ -1278,16 +1372,17 @@ CHANNEL_COUNTS = {
     "eeg": ["EEGChannelCount"],
     "ieeg": ["ECOGChannelCount", "SEEGChannelCount"],
     "meg": ["MEGChannelCount"],
+    "emg": ["EMGChannelCount"],
 }
 
 
 def get_nb_channels(
     dataset_pth: Path, datatypes: list[str], tasks: list[str] | None
 ) -> dict[str, list[int]]:
-    """Get the number of channels of each eeg, ieeg and meg run of the first participant.
+    """Get the number of channels of each eeg, ieeg, meg and emg run of the first participant.
 
     From the JSON sidecars: ``EEGChannelCount``, ``ECOGChannelCount`` + ``SEEGChannelCount``,
-    ``MEGChannelCount``. Runs without them are left out.
+    ``MEGChannelCount``, ``EMGChannelCount``. Runs without them are left out.
     """
     first_sub = list_participants_in_dataset(dataset_pth)[0]
     datatypes = [x for x in datatypes if x in CHANNEL_COUNTS]
@@ -1312,7 +1407,7 @@ def get_nb_channels(
 def _sidecar_duration(dataset_pth: Path, filepath: Path) -> float | None:
     """Return the duration of a run in seconds from its JSON sidecar (None if not there).
 
-    ``RecordingDuration`` for eeg, ieeg, meg, nirs and motion,
+    ``RecordingDuration`` for eeg, ieeg, meg, nirs, motion and emg,
     the sum of the ``FrameDuration`` for pet.
     """
     datatype = filepath.parent.name
@@ -1466,17 +1561,29 @@ FIELDS: dict[str, Any] = {
     "keywords": lambda dataset_pth: get_keywords(dataset_pth),
     "cog_atlas_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogAtlasID"),
     "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
+    "physio_recordings": lambda dataset_pth: get_physio_recordings(dataset_pth),
+    "physio_columns": lambda dataset_pth: get_physio_columns(dataset_pth),
 }
 
 
-def update_fields(fields: list[str], debug: bool = True) -> None:
-    """Get again some fields for the openneuro datasets listed, without indexing everything.
+def update_fields(fields: list[str], debug: bool = True, source: str = "openneuro") -> None:
+    """Get again some fields for the datasets listed, without indexing everything.
 
     Only for the datasets installed locally: the other ones keep their values.
+
+    Parameters
+    ----------
+    source : "openneuro" | "non-openneuro"
+        Which listing to update.
     """
     if unknown := sorted(set(fields) - set(FIELDS)):
         raise ValueError(f"Unknown fields: {unknown}, choose from {sorted(FIELDS)}")
-    output_file = _openneuro_listing()
+    if source == "non-openneuro":
+        output_file = _non_openneuro_listing()
+        local_dataset = _local_non_openneuro_dataset
+    else:
+        output_file = _openneuro_listing()
+        local_dataset = _local_openneuro_dataset
     df = _load_known_datasets(output_file)
     if debug:
         output_file = Path.cwd() / output_file.name
@@ -1492,7 +1599,7 @@ def update_fields(fields: list[str], debug: bool = True) -> None:
                 break
             progress.update(task, advance=1)
             set_current_dataset(name)
-            dataset_pth = _local_openneuro_dataset(name)
+            dataset_pth = local_dataset(name)
             if dataset_pth is None:
                 not_installed.append(name)
                 continue
@@ -1862,6 +1969,66 @@ def count_physio_files(dataset_pth: Path) -> int:
     return len(list(glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")))
 
 
+def get_physio_columns(dataset_pth: Path) -> list[str]:
+    """Return the columns of the physio files of a participant (unique, sorted).
+
+    The first participant with physio files.
+    From the Columns of their JSON sidecars (following the inheritance principle,
+    or a physio.json at the root of the dataset).
+    """
+    columns: set[str] = set()
+    sidecars = set()
+    for participant in list_participants_in_dataset(dataset_pth):
+        files = list(glob_files(dataset_pth, f"{participant}/**/*_physio.tsv.gz"))
+        if not files:
+            continue
+        for filepath in files:
+            if (sidecar := _find_sidecar(dataset_pth, filepath, "physio")) is not None:
+                sidecars.add(sidecar)
+        if not sidecars and (dataset_pth / "physio.json").exists():
+            sidecars.add(dataset_pth / "physio.json")
+        break
+    for sidecar in sorted(sidecars):
+        try:
+            if not sidecar.exists():
+                _get_file(api.Dataset(dataset_pth), sidecar)
+            value = json.loads(sidecar.read_text()).get("Columns")
+        except Exception as e:
+            cc_log.warning(f"Could not read {sidecar.relative_to(dataset_pth)}: {e!r}")
+            continue
+        # a single column can be given as a string
+        values = value if isinstance(value, list) else [value]
+        columns.update(str(x).strip() for x in values if x is not None and str(x).strip())
+    return sorted(columns)
+
+
+def get_physio_recordings(dataset_pth: Path) -> list[str]:
+    """Return the labels of the recordings of the physio files (recording-<label>).
+
+    For example "eye1" for sub-01_task-visualSearch_recording-eye1_physio.tsv.gz.
+    Physio files without recording entity have no label.
+    """
+    labels = {
+        match.group(1)
+        for filepath in glob_files(dataset_pth, "sub-*/**/*physio.tsv.gz")
+        if (match := re.search(r"_recording-([a-zA-Z0-9]+)_", filepath.name))
+    }
+    return sorted(labels)
+
+
+def _local_non_openneuro_dataset(name: str) -> Path | None:
+    """Return where a dataset that is not on OpenNeuro is installed (None if it is not).
+
+    In local_paths.non_openneuro/<collection>/<dataset>: ABIDE_Caltech is in abide/Caltech.
+    """
+    base_dir = config_path("local_paths", "non_openneuro")
+    for collection, settings in non_openneuro_collections().items():
+        if name.startswith(settings["prefix"]):
+            dataset_pth = base_dir / collection / name.removeprefix(settings["prefix"])
+            return dataset_pth if dataset_pth.is_dir() else None
+    return None
+
+
 def _local_openneuro_dataset(name: str) -> Path | None:
     """Return where an openneuro dataset is installed locally (None if it is not).
 
@@ -1893,7 +2060,7 @@ def _last_commit_time(dataset_pth: Path) -> int:
 def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) -> None:
     """Get again the duration of the runs of some datatypes for the openneuro datasets listed.
 
-    And their number of channels for eeg, ieeg and meg.
+    And their number of channels for eeg, ieeg, meg and emg.
     Only for the datasets installed locally: the other ones keep their durations.
     Faster than re-indexing everything, for example after adding a datatype
     whose duration can be read.
@@ -1959,6 +2126,38 @@ def update_durations(datatypes: list[str], debug: bool = True, jobs: int = 1) ->
     save_known_datasets(df.assign(duration=durations, nb_channels=channels), output_file)
 
 
+BIDS_SCHEMA = "https://bids-specification.readthedocs.io/en/stable/schema.json"
+
+
+def update_bids_datatypes() -> None:
+    """Get the official datatypes from the BIDS schema (objects.datatypes).
+
+    Saved in bids_inventory/data/bids_datatypes.json, and used as KNOWN_DATATYPES.
+    If the schema cannot be downloaded, the datatypes saved before are used.
+    """
+    try:
+        response = requests.get(BIDS_SCHEMA, timeout=60)
+        response.raise_for_status()
+        schema = response.json()
+        datatypes = {
+            name: datatype.get("display_name", name)
+            for name, datatype in sorted(schema["objects"]["datatypes"].items())
+        }
+    except (requests.RequestException, ValueError, KeyError) as e:
+        cc_log.warning(f"Could not get the datatypes from the BIDS schema: {e!r}")
+        return
+    content = {
+        "source": BIDS_SCHEMA,
+        "bids_version": schema.get("bids_version"),
+        "schema_version": schema.get("schema_version"),
+        "datatypes": datatypes,
+    }
+    _bids_datatypes_file().write_text(json.dumps(content, indent=4) + "\n")
+    # the list imported by the other modules
+    KNOWN_DATATYPES[:] = sorted(datatypes)
+    cc_log.info(f"BIDS {content['bids_version']} datatypes: {', '.join(KNOWN_DATATYPES)}")
+
+
 def update(
     debug: bool = True,
     jobs: int = 1,
@@ -1976,6 +2175,7 @@ def update(
     source : "openneuro" | "non-openneuro"
         Which listing to update.
     """
+    update_bids_datatypes()
     if source == "non-openneuro":
         update_non_openneuro(debug=debug, jobs=jobs, reindex=reindex)
         return

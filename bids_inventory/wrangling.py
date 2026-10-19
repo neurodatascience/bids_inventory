@@ -8,7 +8,12 @@ import numpy as np
 import pandas as pd
 
 from bids_inventory.institutions import dataset_institutions, known_names, load_institutions
-from bids_inventory.listing import KNOWN_DATATYPES, dataset_species
+from bids_inventory.listing import (
+    KNOWN_DATATYPES,
+    dataset_species,
+    physio_column_types,
+    physio_recording_types,
+)
 from bids_inventory.logger import bi_logger
 
 cc_log = bi_logger()
@@ -33,12 +38,15 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``nb_tasks``: :obj:`int` Total number of unique tasks in the dataset.
     - ``useful_participants_tsv``: :obj:`bool`
     - ``has_physio``: :obj:`bool` ``True`` if the dataset contains any ``*_physio.tsv.gz`` files.
+    - ``physio_types``: :obj:`list[str]` Types of signals of its physio files (cardiac,
+      respiratory, eye tracking...), from their recording labels and the columns of their sidecars.
     - ``has_fmriprep``: :obj:`bool`` ``True`` if the dataset has knwow fmriprep preprocessed derivatives.
     - ``has_freesurfer``: :obj:`bool` ``True`` if the dataset has knwow freesurfer preprocessed derivatives.
     - ``has_mriqc``: :obj:`bool` ``True`` if the dataset has knwow mriqc derivatives.
     - ``source``: Specifies the source of the dataset.
     - ``mean_size``: size per subject in kilobytes
-    - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype.
+    - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype
+      (``phenotype``: if it has a phenotype folder at its root, ``has_phenotype_dir``).
     - ``total_duration``: Total "scanned" duration per participant (combines runs from: ``func``, ``eeg``, ``ieeg``)
     - ``institution_names``: :obj:`list[str]` Institutions of the dataset,
       as named in the keys of ``bids_inventory/data/institutions.json``.
@@ -52,6 +60,12 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     # do not modify the input (for example the cached output of known_datasets_df)
     df = df.copy()
     _detect_duplicate_datasets(df)
+
+    # the phenotype datatype is not in the sub-* folders, but in a folder at the root
+    df["datatypes"] = [
+        sorted({*datatypes, "phenotype"}) if has_phenotype is True else datatypes
+        for datatypes, has_phenotype in zip(df["datatypes"], df["has_phenotype_dir"])
+    ]
 
     df["nb_sessions"] = df["sessions"].apply(lambda x: max(len(x), 1))
 
@@ -94,6 +108,20 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     df["nb_authors"] = df["authors"].apply(lambda x: len(x))
 
     df["has_physio"] = df["nb_physio_files"] > 0
+    # from the recording labels of the physio files, and the columns of their sidecars
+    no_values = [[]] * len(df)
+    df["physio_types"] = [
+        sorted(
+            {
+                *physio_recording_types(labels if isinstance(labels, list) else []),
+                *physio_column_types(columns if isinstance(columns, list) else []),
+            }
+        )
+        for labels, columns in zip(
+            df["physio_recordings"] if "physio_recordings" in df else no_values,
+            df["physio_columns"] if "physio_columns" in df else no_values,
+        )
+    ]
 
     df["total_duration"] = df.apply(_compute_total_duration, axis=1)
 
@@ -146,7 +174,7 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def _missing_duration(row: pd.Series) -> None | bool:
     if not set(row["datatypes"]).intersection(
-        ("pet", "eeg", "ieeg", "meg", "motion", "nirs", "func")
+        ("pet", "eeg", "ieeg", "meg", "motion", "nirs", "func", "emg")
     ):
         return None
     for _, value in row["duration"].items():
@@ -195,22 +223,29 @@ def _detect_duplicate_datasets(df: pd.DataFrame) -> None:
     cc_log.debug(tmp[tmp > 1])
 
 
+# source of the datasets, from the beginning of their name
+# (ABIDE2 before ABIDE: the first matching prefix is used)
+SOURCES = [
+    ("ds", "openneuro"),
+    ("ABIDE2", "abide 2"),
+    ("ABIDE", "abide"),
+    ("ADHD200", "adhd200"),
+    ("CORR", "corr"),
+    ("CNEUROMOD", "neuromod"),
+    ("INDI", "indi"),
+    ("LABS", "datalad labs"),
+    ("STUDYFORREST", "studyforrest"),
+    ("DANDI", "dandi"),
+    ("NEMAR", "nemar"),
+]
+
+
 def _get_source_study(df: pd.DataFrame) -> list[str]:
-    source = []
-    for row in df.iterrows():
-        if row[1]["name"].startswith("ds"):
-            source.append("openneuro")
-        elif row[1]["name"].startswith("ABIDE2"):
-            source.append("abide 2")
-        elif row[1]["name"].startswith("ABIDE"):
-            source.append("abide")
-        elif row[1]["name"].startswith("ADHD200"):
-            source.append("adhd200")
-        elif row[1]["name"].startswith("CORR"):
-            source.append("corr")
-        elif row[1]["name"].startswith("CNEUROMOD"):
-            source.append("neuromod")
-    return source
+    """Return the source of each dataset ("other" for unknown names)."""
+    return [
+        next((source for prefix, source in SOURCES if name.startswith(prefix)), "other")
+        for name in df["name"]
+    ]
 
 
 class FilterConfig(TypedDict):

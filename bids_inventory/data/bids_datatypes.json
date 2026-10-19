@@ -1,0 +1,23 @@
+{
+    "source": "https://bids-specification.readthedocs.io/en/stable/schema.json",
+    "bids_version": "1.11.2",
+    "schema_version": "2.0.0",
+    "datatypes": {
+        "anat": "Anatomical Magnetic Resonance Imaging",
+        "beh": "Behavioral Data",
+        "dwi": "Diffusion-Weighted Imaging",
+        "eeg": "Electroencephalography",
+        "emg": "Electromyography",
+        "fmap": "Field maps",
+        "func": "Task-Based Magnetic Resonance Imaging",
+        "ieeg": "Intracranial electroencephalography",
+        "meg": "Magnetoencephalography",
+        "micr": "Microscopy",
+        "motion": "Motion",
+        "mrs": "Magnetic Resonance Spectroscopy",
+        "nirs": "Near-Infrared Spectroscopy",
+        "perf": "Perfusion imaging",
+        "pet": "Positron Emission Tomography",
+        "phenotype": "Phenotype"
+    }
+}

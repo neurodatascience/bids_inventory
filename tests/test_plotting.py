@@ -156,7 +156,8 @@ def test_channels_histogram(listing):
 
     fig = channels_histogram(listing)
     # the largest number of channels of each dataset
-    assert [list(trace.x) for trace in fig.data] == [[64, 60], [], [306]]
+    # eeg, ieeg, meg, emg
+    assert [list(trace.x) for trace in fig.data] == [[64, 60], [], [306], []]
 
 
 def test_nb_datatypes_histogram(listing):
@@ -164,3 +165,22 @@ def test_nb_datatypes_histogram(listing):
 
     fig = nb_datatypes_histogram(listing)
     assert dict(zip(fig.data[0].x, fig.data[0].y)) == {1: 1, 2: 1, 3: 1}
+
+
+def test_physio_types_histogram():
+    from bids_inventory._plotting import physio_types_histogram
+
+    df = pd.DataFrame(
+        {
+            "has_physio": [True, True, True, False],
+            "physio_types": [["cardiac", "respiratory"], ["cardiac"], [], []],
+        }
+    )
+    fig = physio_types_histogram(df)
+    # the datasets with physio files whose types are not identified are last
+    assert dict(zip(fig.data[0].x, fig.data[0].y)) == {
+        "cardiac": 2,
+        "respiratory": 1,
+        "not identified": 1,
+    }
+    assert list(fig.data[0].x)[-1] == "not identified"

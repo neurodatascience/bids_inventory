@@ -125,7 +125,8 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         "--source",
         help="""
         Which listing to update: datasets on OpenNeuro,
-        or other datasets (ABIDE, ABIDE 2, ADHD-200, CoRR, CNeuroMod)
+        or the other datasets of bids_inventory/data/non_openneuro_datasets.yml
+        (ABIDE, CoRR, CNeuroMod, DANDI, NEMAR...): the missing ones are first
         installed in the folder set by 'local_paths.non_openneuro' in the configuration.
         """,
         choices=["openneuro", "non-openneuro"],
@@ -144,17 +145,17 @@ for example so that the next 'bids_inventory update' indexes them again.""",
         "--durations",
         help="""
         Only get again the duration of the runs of these datatypes
-        (and the number of channels of the eeg, ieeg and meg runs),
+        (and the number of channels of the eeg, ieeg, meg and emg runs),
         for the OpenNeuro datasets already listed and installed locally.
         """,
         nargs="+",
-        choices=["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion"],
+        choices=["func", "pet", "ieeg", "eeg", "meg", "nirs", "motion", "emg"],
     )
     update_parser.add_argument(
         "--fields",
         help="""
         Only get again these fields,
-        for the OpenNeuro datasets already listed and installed locally.
+        for the datasets already listed and installed locally (of the --source listing).
         """,
         nargs="+",
         choices=[
@@ -165,6 +166,8 @@ for example so that the next 'bids_inventory update' indexes them again.""",
             "keywords",
             "cog_atlas_id",
             "cogpo_id",
+            "physio_recordings",
+            "physio_columns",
         ],
     )
     update_parser.add_argument(
@@ -361,7 +364,7 @@ def _run_update(args: Any) -> None:
         if args.durations:
             update_durations(args.durations, debug=args.debug, jobs=args.jobs)
         elif args.fields:
-            update_fields(args.fields, debug=args.debug)
+            update_fields(args.fields, debug=args.debug, source=args.source)
         else:
             update(debug=args.debug, jobs=args.jobs, reindex=args.reindex, source=args.source)
     finally:

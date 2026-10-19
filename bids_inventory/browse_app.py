@@ -54,6 +54,7 @@ def _(bids_inventory_installed):
         neurobagel_female_ratio_vs_participants,
         neurobagel_per_dataset,
         neurobagel_unique_participants,
+        physio_types_histogram,
         plot_dataset_size_vs_time,
         plot_hours_vs_time,
         run_durations_histogram,
@@ -79,6 +80,7 @@ def _(bids_inventory_installed):
     )
 
     return (
+        physio_types_histogram,
         channels_histogram,
         file_formats_histogram,
         nb_datatypes_histogram,
@@ -435,6 +437,12 @@ def _(datatypes_histogram, filtered_df, mo):
 @app.cell
 def _(field_strength_histogram, filtered_df, mo):
     mo.vstack([mo.md("---"), field_strength_histogram(filtered_df)])
+    return
+
+
+@app.cell
+def _(filtered_df, mo, physio_types_histogram):
+    mo.vstack([mo.md("---"), physio_types_histogram(filtered_df)])
     return
 
 

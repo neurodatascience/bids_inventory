@@ -150,3 +150,41 @@ def test_wrangle_data_field_strengths():
     df = wrangle_data(known_datasets_df())
     strengths = {x for values in df["field_strengths"] for x in values}
     assert {"1.5T", "3T", "7T", "unknown"} <= strengths
+
+
+def test_get_source_study():
+    from bids_inventory.wrangling import _get_source_study
+
+    names = [
+        "ds000001",
+        "ABIDE2_x",
+        "ABIDE_x",
+        "INDI_PRIME_nki",
+        "LABS_haxby_life",
+        "NEMAR_nm000103",
+        "foo",
+    ]
+    assert _get_source_study(pd.DataFrame({"name": names})) == [
+        "openneuro",
+        "abide 2",
+        "abide",
+        "indi",
+        "datalad labs",
+        "nemar",
+        "other",
+    ]
+
+
+def test_wrangle_data_phenotype():
+    """Phenotype is a datatype of the datasets with a phenotype folder at their root."""
+    df = wrangle_data(known_datasets_df())
+    assert df["phenotype"].sum() == df["has_phenotype_dir"].eq(True).sum() > 0
+    assert df.loc[df["phenotype"], "datatypes"].apply(lambda x: "phenotype" in x).all()
+
+
+def test_wrangle_data_physio_types():
+    df = wrangle_data(known_datasets_df())
+    types = {x for values in df["physio_types"] for x in values}
+    assert {"cardiac", "respiratory", "eye tracking"} <= types
+    # only the datasets with physio files have types
+    assert not df.loc[~df["has_physio"], "physio_types"].apply(bool).any()

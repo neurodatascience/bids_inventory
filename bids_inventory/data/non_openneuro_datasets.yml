@@ -1,0 +1,91 @@
+---
+# Datasets that are not on OpenNeuro tracked by the inventory, by collection.
+#
+# `bids_inventory update --source non-openneuro` installs the datasets missing
+# from the folder set by 'local_paths.non_openneuro' in the configuration
+# (in <collection>/<dataset>), then indexes them in non_openneuro.jsonl.
+#
+# <collection>:
+#     # added to the names of its datasets in the listing: ABIDE_Caltech
+#     prefix: ABIDE_
+#     # either a datalad dataset whose subdatasets are the datasets of the collection
+#     superdataset: <source>
+#     # optional: only these subdatasets
+#     include: [<subdataset>, ...]
+#     # or the datasets of the collection, one by one
+#     datasets:
+#         <dataset>: <source>
+#
+# Sources: URLs of datalad datasets, or ///<path> for https://datasets.datalad.org/<path>.
+# New datasets can be found with tools/query_datalad_registry.py.
+abide:
+    prefix: ABIDE_
+    superdataset: ///abide/RawDataBIDS
+abide2:
+    prefix: ABIDE2_
+    superdataset: ///abide2/RawData
+adhd200:
+    prefix: ADHD200_
+    superdataset: ///adhd200/RawDataBIDS
+corr:
+    prefix: CORR_
+    superdataset: ///corr/RawDataBIDS
+cneuromod:
+    prefix: CNEUROMOD_
+    superdataset: https://github.com/courtois-neuromod/cneuromod.git
+    include: [anat, friends, harrypotter, hcptrt, movie10, shinobi, shinobi_training]
+indi:
+    prefix: INDI_
+    datasets:
+        HypnosisBarrios: ///indi/HypnosisBarrios/RawData
+        PRIME_mountsinai-P: ///indi/PRIME/mountsinai-P
+        PRIME_mountsinai-S: ///indi/PRIME/mountsinai-S
+        PRIME_newcastle: ///indi/PRIME/newcastle
+        PRIME_nki: ///indi/PRIME/nki
+        PRIME_princeton: ///indi/PRIME/princeton
+        PRIME_rockefeller: ///indi/PRIME/rockefeller
+        PRIME_ucdavis: ///indi/PRIME/ucdavis
+        PRIME_uminn: ///indi/PRIME/uminn
+labs:
+    prefix: LABS_
+    datasets:
+        gobbini_famface: ///labs/gobbini/famface/data
+        haxby_life: ///labs/haxby/life
+        haxby_raiders: ///labs/haxby/raiders
+studyforrest:
+    prefix: STUDYFORREST_
+    datasets:
+        3T_multiresolution_fmri: ///studyforrest/original/3T_multiresolution_fmri
+        7T_multiresolution_fmri: ///studyforrest/original/7T_multiresolution_fmri
+        phase2: ///studyforrest/original/phase2
+# raw datasets of the dandisets (https://dandiarchive.org/)
+# (000724 and 001470 have no sub-* folder: only derivatives and sourcedata)
+dandi:
+    prefix: DANDI_
+    datasets:
+        '000108': https://github.com/dandisets/000108.git
+        '000243': https://github.com/dandisets/000243.git
+        '000874': https://github.com/dandisets/000874.git
+        '001344': https://github.com/dandisets/001344.git
+        '001345': https://github.com/dandisets/001345.git
+        '001346': https://github.com/dandisets/001346.git
+        '001350': https://github.com/dandisets/001350.git
+        '001353': https://github.com/dandisets/001353.git
+        '001436': https://github.com/dandisets/001436.git
+        '001440': https://github.com/dandisets/001440.git
+        '001442': https://github.com/dandisets/001442.git
+        '001449': https://github.com/dandisets/001449.git
+        '001630': https://github.com/dandisets/001630.git
+        '002012': https://github.com/dandisets/002012.git
+        '002017': https://github.com/dandisets/002017.git
+# datasets of NEMAR itself (https://nemar.org/):
+# not the copies of OpenNeuro datasets (github.com/nemarDatasets/on*)
+nemar:
+    prefix: NEMAR_
+    datasets:
+        nm000103: https://github.com/nemarDatasets/nm000103.git
+        nm000104: https://github.com/nemarDatasets/nm000104.git
+        nm000105: https://github.com/nemarDatasets/nm000105.git
+        nm000106: https://github.com/nemarDatasets/nm000106.git
+        nm000107: https://github.com/nemarDatasets/nm000107.git
+        nm000152: https://github.com/nemarDatasets/nm000152.git

@@ -1,0 +1,57 @@
+{
+    "description": "Types of signals of the physio files, from the labels of their recording entity (recording-<label>) and from the Columns of their JSON sidecars. Names are compared in lower case and without their trailing digits (ECG2 is ecg, eye1 is eye); for columns, the words of their names are compared too (Zyg - EMG100C is emg). A name can be of several types (respcardiac). Unknown recording labels are of type 'other', unknown columns (time...) are ignored.",
+    "types": {
+        "cardiac": [
+            "cardiac",
+            "ecg",
+            "ecgbit",
+            "ekg",
+            "heartrate",
+            "hr",
+            "oxibit",
+            "ppg",
+            "pulse",
+            "pulsimetry"
+        ],
+        "respiratory": [
+            "belt",
+            "co",
+            "gas",
+            "o",
+            "rawflow",
+            "resp",
+            "respbit",
+            "respiration",
+            "respiratory",
+            "rsp",
+            "sniff"
+        ],
+        "eye tracking": ["cyclopean", "eye", "eyegaze", "eyetracking"],
+        "electrodermal": ["eda", "gsr", "scr"],
+        "motion": [
+            "acc",
+            "biodex",
+            "imu",
+            "motion",
+            "movement",
+            "xacc",
+            "yacc",
+            "zacc"
+        ],
+        "muscle": ["emg"],
+        "trigger": [
+            "buttonpress",
+            "digital input",
+            "pushbutton",
+            "trigger",
+            "ttl"
+        ],
+        "force": ["grip"]
+    },
+    "combined": {
+        "cardresp": ["cardiac", "respiratory"],
+        "ecgrespscr": ["cardiac", "respiratory", "electrodermal"],
+        "edaresp": ["electrodermal", "respiratory"],
+        "respcardiac": ["cardiac", "respiratory"]
+    }
+}

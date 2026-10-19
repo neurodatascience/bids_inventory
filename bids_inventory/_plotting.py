@@ -92,7 +92,7 @@ def plot_dataset_size_vs_time(df: pd.DataFrame) -> go.Figure:
 
 
 # datatypes whose duration is in the listing
-DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet"]
+DURATION_DATATYPES = ["func", "eeg", "ieeg", "meg", "nirs", "motion", "pet", "emg"]
 
 
 def _runs_duration(runs: Any) -> float:
@@ -445,7 +445,7 @@ def file_formats_histogram(df: pd.DataFrame) -> go.Figure:
     return fig.update_layout(title="File formats of the EEG, iEEG and MEG data", showlegend=False)
 
 
-CHANNEL_DATATYPES = ["eeg", "ieeg", "meg"]
+CHANNEL_DATATYPES = ["eeg", "ieeg", "meg", "emg"]
 
 
 def channels_histogram(df: pd.DataFrame) -> go.Figure:
@@ -494,3 +494,42 @@ def nb_datatypes_histogram(df: pd.DataFrame) -> go.Figure:
         title="Number of datatypes per dataset",
     )
     return fig.update_xaxes(dtick=1)
+
+
+# datasets with physio files whose recording labels and columns are not known
+NO_RECORDING_LABEL = "not identified"
+
+
+def physio_types_histogram(df: pd.DataFrame) -> go.Figure:
+    """Plot the number of datasets with physio files of each type of signal.
+
+    From the recording labels of the physio files and the columns of their sidecars
+    (``physio_types`` column): a dataset with several types is counted for each one.
+    The datasets with physio files whose types are not identified are counted apart.
+    """
+    with_physio = df[df["has_physio"].fillna(False).astype(bool)]
+    types = with_physio["physio_types"].apply(
+        lambda x: x if isinstance(x, list) and x else [NO_RECORDING_LABEL]
+    )
+    counts = types.explode().value_counts()
+    # the most common types first, the datasets without labels last
+    order = [x for x in counts.index if x != NO_RECORDING_LABEL]
+    order += [x for x in counts.index if x == NO_RECORDING_LABEL]
+    counts = counts.loc[order]
+    fig = go.Figure(
+        go.Bar(
+            x=list(counts.index),
+            y=list(counts.values),
+            text=list(counts.values),
+            hovertemplate="%{x}<br>%{y} datasets<extra></extra>",
+        )
+    )
+    return fig.update_layout(
+        title=(
+            f"Types of physiological recordings ({len(with_physio)} datasets with physio files)"
+            "<br><sup>from the recording labels of the physio files and the columns "
+            "of their sidecars: a dataset can have several types</sup>"
+        ),
+        xaxis={"type": "category", "title": {"text": "type of recording"}},
+        yaxis={"title": {"text": "number of datasets"}},
+    )

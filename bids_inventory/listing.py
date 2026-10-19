@@ -2,6 +2,7 @@
 
 import functools
 import json
+import re
 from collections.abc import Iterable
 from math import isnan
 from pathlib import Path
@@ -10,23 +11,70 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-KNOWN_DATATYPES = sorted(
-    [
-        "anat",
-        "dwi",
-        "func",
-        "perf",
-        "fmap",
-        "beh",
-        "meg",
-        "eeg",
-        "ieeg",
-        "pet",
-        "micr",
-        "nirs",
-        "motion",
-    ]
-)
+
+def _bids_datatypes_file() -> Path:
+    # not _data_dir(): defined further down, and needed when the module is imported
+    return Path(__file__).parent / "data" / "bids_datatypes.json"
+
+
+def bids_datatypes() -> dict[str, str]:
+    """Return the BIDS datatypes and their names (from the BIDS schema).
+
+    Saved in bids_inventory/data/bids_datatypes.json by ``bids_inventory update``.
+    """
+    with open(_bids_datatypes_file()) as f:
+        datatypes: dict[str, str] = json.load(f)["datatypes"]
+    return datatypes
+
+
+# the official BIDS datatypes (anat, func, eeg...)
+KNOWN_DATATYPES = sorted(bids_datatypes())
+
+
+@functools.lru_cache(maxsize=1)
+def _physio_recordings() -> dict[str, list[str]]:
+    """Map the (normalized) recording labels of the physio files to their types."""
+    with open(Path(__file__).parent / "data" / "physio_recordings.json") as f:
+        content = json.load(f)
+    types = {label: [kind] for kind, labels in content["types"].items() for label in labels}
+    return {**types, **content["combined"]}
+
+
+def _normalize_physio_name(name: Any) -> str:
+    # ECG2 is ecg, eye1 is eye, CO2 is co
+    return str(name).strip().lower().rstrip("0123456789")
+
+
+def physio_recording_types(labels: Iterable[str]) -> list[str]:
+    """Return the types of signals of physio files from their recording labels.
+
+    For example ["cardiac", "respiratory"] for ["respcardiac"],
+    see bids_inventory/data/physio_recordings.json ("other" for unknown labels).
+    """
+    known = _physio_recordings()
+    types = set()
+    for label in labels:
+        types.update(known.get(_normalize_physio_name(label), ["other"]))
+    return sorted(types)
+
+
+def physio_column_types(columns: Iterable[str]) -> list[str]:
+    """Return the types of signals of physio files from the columns of their sidecars.
+
+    A column is of a type if its name, or one of the words of its name, is known
+    (Zyg - EMG100C is emg): see bids_inventory/data/physio_recordings.json.
+    Unknown columns (time...) are ignored.
+    """
+    known = _physio_recordings()
+    types = set()
+    for column in columns:
+        name = _normalize_physio_name(column)
+        words = [name, *(_normalize_physio_name(x) for x in re.findall(r"[a-z]+[0-9]*", name))]
+        for word in words:
+            if word in known:
+                types.update(known[word])
+                break
+    return sorted(types)
 
 
 @functools.lru_cache(maxsize=1)

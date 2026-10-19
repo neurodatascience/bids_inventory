@@ -4,11 +4,9 @@ Helpers that are not part of the `bids_inventory` command line.
 To update the listing, use `bids_inventory update`,
 and for the institutions `bids_inventory institutions`: see the package README.
 
-- `install_extra_datasets.sh [target_dir]`:
-  installs the datasets that are not on OpenNeuro (ABIDE, ABIDE 2, ADHD-200, CoRR, CNeuroMod)
-  in `target_dir` (default: `./tmp`).
-  Then set `local_paths.non_openneuro` to `target_dir` in your configuration
-  and run `bids_inventory update --source non-openneuro`.
+- `query_datalad_registry.py`:
+  lists the BIDS datasets of the DataLad registry that are not on OpenNeuro and not tracked yet
+  (see `bids_inventory/data/non_openneuro_datasets.yml`).
 - `build_dashboard.sh [output_dir]`:
   builds the dashboard as a static website that runs in the browser (default: `_site`),
   as deployed on GitHub Pages.
