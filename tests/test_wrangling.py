@@ -207,6 +207,7 @@ def test_filter_data_age_sessions(config, expected):
             "datatypes": [["func"]] * 3,
             "ages": [[20.0, 65.0], [30.0], []],
             "nb_sessions": [1, 2, 5],
+            "nb_runs": [1, 1, 1],
         }
     )
     assert filter_data(df, config=config)["name"].tolist() == expected
@@ -217,3 +218,16 @@ def test_wrangle_data_ages():
     df = wrangle_data(known_datasets_df()).set_index("name")
     assert len(df.loc["ds000001", "ages"]) == 16
     assert all(x >= 0 for ages in df["ages"] for x in ages)
+
+
+def test_filter_data_runs():
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3"],
+            "datatypes": [["func"]] * 3,
+            "nb_runs": pd.array([0, 4, None], dtype="Int64"),
+        }
+    )
+    # unknown number of runs: as 0
+    assert filter_data(df, config={"runs": [1, 10]})["name"].tolist() == ["ds2"]
+    assert filter_data(df, config={"runs": [0, 0]})["name"].tolist() == ["ds1", "ds3"]

@@ -88,6 +88,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
         df[f"has_{der}"] = df[der].apply(lambda x: bool(x))
 
     df["nb_tasks"] = df["tasks"].apply(lambda x: len(x))
+    # unknown for the datasets indexed before it was tracked
+    if "nb_runs" not in df:
+        df["nb_runs"] = pd.NA
 
     df["source"] = _get_source_study(df)
 
@@ -275,6 +278,7 @@ class FilterConfig(TypedDict):
     age: list[float] | None
     age_unknown: bool
     sessions: list[int] | None
+    runs: list[int] | None
 
 
 DEFAULT_CONFIG: FilterConfig = {
@@ -299,6 +303,7 @@ DEFAULT_CONFIG: FilterConfig = {
     "age": None,
     "age_unknown": True,
     "sessions": None,
+    "runs": None,
 }
 
 # in the species filter: the datasets whose species is not specified (most are about humans)
@@ -438,6 +443,8 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     - ``"age_unknown"`` : bool keep the datasets without participant ages
       when filtering by age (default: True)
     - ``"sessions"`` : [min, max] | None number of sessions (inclusive)
+    - ``"runs"`` : [min, max] | None number of runs of the first participant,
+      across tasks and datatypes (inclusive)
 
     If ``None`` is passed will default to the DEFAULT_CONFIG.
 
@@ -492,7 +499,9 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
         mask_species = df["species"].apply(lambda x: set(x or [NOT_SPECIFIED]) <= set(species))
 
     mask_age = _age_mask(df, config["age"], config["age_unknown"])
-    mask_sessions = _sessions_mask(df, config["sessions"])
+    mask_sessions = _range_mask(df, "nb_sessions", config["sessions"])
+    # unknown number of runs: as 0
+    mask_runs = _range_mask(df, "nb_runs", config["runs"])
 
     mask_field_strength = ALL_TRUE
     if field_strength := config["field_strength"]:
@@ -518,6 +527,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_field_strength,
             mask_age,
             mask_sessions,
+            mask_runs,
         ),
         axis=1,
     ).all(axis=1)
@@ -544,11 +554,14 @@ def _age_mask(df: pd.DataFrame, age: list[float] | None, age_unknown: bool) -> p
     return df["ages"].apply(in_range)
 
 
-def _sessions_mask(df: pd.DataFrame, sessions: list[int] | None) -> pd.Series:
-    """Keep the datasets whose number of sessions is in the range (inclusive)."""
-    if sessions is None:
+def _range_mask(df: pd.DataFrame, column: str, value_range: list[int] | None) -> pd.Series:
+    """Keep the datasets whose value (number of sessions...) is in the range (inclusive).
+
+    Missing values are counted as 0.
+    """
+    if value_range is None:
         return pd.Series(True, index=df.index)
-    return df["nb_sessions"].between(sessions[0], sessions[1])
+    return df[column].fillna(0).between(value_range[0], value_range[1])
 
 
 def _check_config(config: None | dict[str, Any]) -> FilterConfig:

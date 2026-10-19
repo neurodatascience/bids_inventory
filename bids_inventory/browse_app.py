@@ -139,11 +139,13 @@ def _(
         )
     ]
     MAX_SESSIONS = int(df["nb_sessions"].max())
+    MAX_RUNS = int(df["nb_runs"].fillna(0).max())
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
     return (
         COUNTRIES,
         FIELD_STRENGTHS,
+        MAX_RUNS,
         MAX_SESSIONS,
         SOURCES,
         SPECIES,
@@ -166,6 +168,7 @@ def _(
     COUNTRIES,
     FIELD_STRENGTHS,
     KNOWN_DATATYPES,
+    MAX_RUNS,
     MAX_SESSIONS,
     NOT_SPECIFIED,
     SOURCES,
@@ -213,6 +216,8 @@ def _(
     age_unknown = mo.ui.checkbox(label="keep the datasets without participant ages", value=True)
     min_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=1, label="from")
     max_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=MAX_SESSIONS, label="to")
+    min_runs = mo.ui.number(start=0, stop=MAX_RUNS, value=0, label="from")
+    max_runs = mo.ui.number(start=0, stop=MAX_RUNS, value=MAX_RUNS, label="to")
     sources = checklist(SOURCES)
     sources_and_or = mo.ui.radio(options=["AND", "OR"], value="OR", inline=True)
     fmriprep = true_false_both()
@@ -235,7 +240,9 @@ def _(
         fmriprep,
         institution,
         institution_regex,
+        max_runs,
         max_sessions,
+        min_runs,
         min_sessions,
         mriqc,
         participants,
@@ -261,7 +268,9 @@ def _(
     fmriprep,
     institution,
     institution_regex,
+    max_runs,
     max_sessions,
+    min_runs,
     min_sessions,
     mo,
     mriqc,
@@ -341,6 +350,12 @@ def _(
                         "Keep datasets with this number of sessions",
                         mo.hstack([min_sessions, max_sessions], justify="start"),
                     ),
+                    section(
+                        "runs",
+                        "Keep datasets with this number of runs "
+                        "(of the first participant, across tasks)",
+                        mo.hstack([min_runs, max_runs], justify="start"),
+                    ),
                 ],
                 justify="start",
                 gap=4,
@@ -380,6 +395,7 @@ def _(
 def _(
     KNOWN_DATATYPES,
     SOURCES,
+    MAX_RUNS,
     MAX_SESSIONS,
     SPECIES,
     age,
@@ -395,7 +411,9 @@ def _(
     fmriprep,
     institution,
     institution_regex,
+    max_runs,
     max_sessions,
+    min_runs,
     min_sessions,
     mriqc,
     participants,
@@ -435,6 +453,11 @@ def _(
             None
             if [min_sessions.value, max_sessions.value] == [1, MAX_SESSIONS]
             else [min_sessions.value, max_sessions.value]
+        ),
+        "runs": (
+            None
+            if [min_runs.value, max_runs.value] == [0, MAX_RUNS]
+            else [min_runs.value, max_runs.value]
         ),
     }
     # for example an invalid regular expression: keep no dataset and say why
