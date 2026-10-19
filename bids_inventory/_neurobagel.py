@@ -25,6 +25,13 @@ When these files exist, only the new repositories, those whose participants.json
 had not been updated by Neurobagel yet, and those that failed, are processed:
 the others keep their rows.
 
+The participants of the datasets of some Neurobagel nodes (NODES: for example INDI,
+with ABIDE, ADHD-200, CoRR) are also added, from the Neurobagel federation API
+(https://federate.neurobagel.org/docs): they are fetched again at each run.
+Their datasets are named as in the inventory (CORR_XHCUMS),
+from their repository URL and bids_inventory/data/non_openneuro_datasets.yml.
+The ``source`` column of neurobagel_datasets.tsv says where each dataset comes from.
+
 Downloaded files are cached in tmp/neurobagel_cache, at the root of the repository:
 running it again only downloads what changed.
 
@@ -81,6 +88,15 @@ SEX = {
     "snomed:32570681000036106": "other",
 }
 
+# Neurobagel federation API, and the nodes whose datasets are added
+FEDERATION_API = "https://federate.neurobagel.org"
+NODES = {"INDI": "https://indi.neurobagel.org/node/"}
+# prefixes of the terms in the responses of the Neurobagel API
+TERM_PREFIXES = {
+    "http://purl.bioontology.org/ontology/SNOMEDCT/": "snomed:",
+    "http://neurobagel.org/vocab/": "nb:",
+}
+
 
 def update_neurobagel(
     token: str | None = None,
@@ -114,6 +130,11 @@ def update_neurobagel(
     bi_log.info(f"{len(repos)} repositories in {ORGANIZATION}")
 
     previous_datasets, previous_participants = load_previous()
+    if "source" not in previous_datasets:
+        previous_datasets["source"] = ORGANIZATION
+    from_repos = previous_datasets["source"].isin(["", ORGANIZATION])
+    previous_nodes = previous_datasets[~from_repos]
+    previous_datasets = previous_datasets[from_repos]
     to_process = repos_to_process(repos, previous_datasets, reindex)
     if datasets:
         to_process = [r for r in to_process if r["name"] in set(datasets)]
@@ -128,16 +149,34 @@ def update_neurobagel(
     # and drop those of the repositories that are not in the organization anymore
     processed = {r["name"] for r in to_process}
     kept = {r["name"] for r in repos} - processed
+    node_summaries, node_rows = [], []
+    for node_name, node_url in NODES.items():
+        node_source = f"Neurobagel node: {node_name}"
+        try:
+            summaries_, rows_ = fetch_node(session, node_name, node_url)
+        except (requests.RequestException, ValueError, KeyError) as e:
+            # keep the rows of the previous run
+            bi_log.warning(f"Could not get the datasets of the {node_name} node: {e!r}")
+            previous = previous_nodes[previous_nodes["source"] == node_source]
+            summaries_ = previous.to_dict(orient="records")
+            rows_ = previous_participants[
+                previous_participants["dataset_id"].isin(previous["dataset_id"])
+            ]
+        node_summaries.extend(summaries_)
+        node_rows.append(rows_)
+
     summaries = pd.concat(
         [
             previous_datasets[previous_datasets["dataset_id"].isin(kept)],
-            pd.DataFrame([summary for summary, _ in results]),
+            pd.DataFrame([{**summary, "source": ORGANIZATION} for summary, _ in results]),
+            pd.DataFrame(node_summaries),
         ],
         ignore_index=True,
     )
     frames: list[pd.DataFrame] = [
         previous_participants[previous_participants["dataset_id"].isin(kept)],
         *(rows for _, rows in results if rows is not None and len(rows)),
+        *(rows for rows in node_rows if len(rows)),
     ]
     participants = pd.concat(frames, ignore_index=True)
     summaries = summaries.sort_values("dataset_id", ignore_index=True)
@@ -165,6 +204,126 @@ def update_neurobagel(
         f"(age known for {age.notna().sum()}, sex known for {sex.notna().sum()})"
     )
     bi_log.info(f"Saved to {PARTICIPANTS_FILE} and {DATASETS_FILE}")
+
+
+def fetch_node(
+    session: requests.Session, node_name: str, node_url: str
+) -> tuple[list[dict[str, Any]], pd.DataFrame]:
+    """Return the summaries of the datasets of a Neurobagel node, and their participants.
+
+    From the Neurobagel federation API: the datasets of the node (POST /datasets),
+    then the participants of these datasets (POST /subjects).
+    One row per participant: the age and sex of its phenotypic session.
+    """
+    source = f"Neurobagel node: {node_name}"
+    response = session.post(
+        f"{FEDERATION_API}/datasets", json={"nodes": [{"node_url": node_url}]}, timeout=600
+    )
+    response.raise_for_status()
+    datasets = response.json()["responses"]
+    bi_log.info(f"{len(datasets)} datasets in the {node_name} node")
+    response = session.post(
+        f"{FEDERATION_API}/subjects",
+        json={
+            "nodes": [
+                {"node_url": node_url, "dataset_uuids": [x["dataset_uuid"] for x in datasets]}
+            ]
+        },
+        timeout=1800,
+    )
+    response.raise_for_status()
+    subjects = {x["dataset_uuid"]: x["subject_data"] for x in response.json()["responses"]}
+
+    summaries, frames = [], []
+    for dataset in datasets:
+        dataset_id = inventory_name(dataset.get("repository_url"))
+        summary: dict[str, Any] = {
+            "dataset_id": dataset_id or dataset["dataset_name"],
+            "status": "used",
+            "reason": "",
+            "source": source,
+        }
+        subject_data = subjects.get(dataset["dataset_uuid"])
+        if dataset_id is None:
+            summary.update(status="skipped", reason="not in the inventory")
+        elif not isinstance(subject_data, list):
+            # for example "protected" for the datasets whose records are protected
+            summary.update(status="skipped", reason="participants not available")
+        else:
+            rows = node_participants(dataset_id, subject_data)
+            summary.update(
+                nb_participants=len(rows),
+                nb_age=int(rows["age"].notna().sum()),
+                nb_sex=int(rows["sex"].notna().sum()),
+            )
+            frames.append(rows)
+        summaries.append(summary)
+    participants = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    return summaries, participants
+
+
+def node_participants(dataset_id: str, subject_data: list[dict[str, Any]]) -> pd.DataFrame:
+    """Return the participants of a dataset of a Neurobagel node, with their age and sex.
+
+    From the phenotypic sessions of the subject data of the Neurobagel API.
+    """
+    rows = []
+    for session in subject_data:
+        if not str(session.get("session_type", "")).endswith("PhenotypicSession"):
+            continue
+        sex_raw = _term(session.get("sex"))
+        age = session.get("age")
+        rows.append(
+            {
+                "dataset_id": dataset_id,
+                "participant_id": session.get("sub_id"),
+                "age": float(age) if age is not None else math.nan,
+                "age_raw": "" if age is None else str(age),
+                "age_format": "",
+                "sex": SEX.get(sex_raw),
+                "sex_raw": sex_raw,
+            }
+        )
+    columns = ["dataset_id", "participant_id", "age", "age_raw", "age_format", "sex", "sex_raw"]
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _term(value: Any) -> str:
+    """Return a term of the Neurobagel API with its prefix (snomed:248153007), "" if None."""
+    if value is None:
+        return ""
+    value = str(value)
+    for url, prefix in TERM_PREFIXES.items():
+        value = value.replace(url, prefix)
+    return value
+
+
+def inventory_name(repository_url: str | None) -> str | None:
+    """Return the name in the inventory of a dataset that is not on OpenNeuro (None if none).
+
+    From its repository URL and bids_inventory/data/non_openneuro_datasets.yml:
+    https://datasets.datalad.org/corr/RawDataBIDS/XHCUMS is CORR_XHCUMS.
+    """
+    from bids_inventory._update import non_openneuro_collections
+
+    if not repository_url:
+        return None
+
+    def url(source: str) -> str:
+        source = source.replace("///", "https://datasets.datalad.org/", 1)
+        return source.rstrip("/").removesuffix(".git").rstrip("/").lower()
+
+    repository = url(repository_url)
+    for settings in non_openneuro_collections().values():
+        if superdataset := settings.get("superdataset"):
+            if repository.startswith(f"{url(superdataset)}/"):
+                # the name of the subdataset, with its case
+                name = repository_url.rstrip("/").removesuffix(".git").rstrip("/").split("/")[-1]
+                return f"{settings['prefix']}{name}"
+        for name, source in (settings.get("datasets") or {}).items():
+            if url(str(source)) == repository:
+                return f"{settings['prefix']}{name}"
+    return None
 
 
 def add_subject_counts(datasets: pd.DataFrame) -> pd.DataFrame:

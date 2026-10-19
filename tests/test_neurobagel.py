@@ -151,6 +151,7 @@ def fake_github(tmp_path, monkeypatch):
         return [
             {"name": name, "default_branch": "main", "pushed_at": "2026-01-01T00:00:00Z"}
             for name in repos
+            if name != "node"
         ]
 
     def download(session, url, cache_dir, repo):
@@ -167,6 +168,37 @@ def fake_github(tmp_path, monkeypatch):
     monkeypatch.setattr(_neurobagel, "DATASETS_FILE", tmp_path / "neurobagel_datasets.tsv")
     monkeypatch.setattr(_neurobagel, "PARTICIPANTS_FILE", tmp_path / "neurobagel_participants.tsv")
     monkeypatch.setenv("GITHUB_TOKEN", "fake")
+    # a Neurobagel node with one dataset
+    node_rows = _neurobagel.node_participants(
+        "CORR_XHCUMS",
+        [
+            {
+                "sub_id": "sub-01",
+                "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+                "age": 30.0,
+                "sex": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
+            }
+        ],
+    )
+    node = {"available": True}
+
+    def fake_fetch_node(session, node_name, node_url):
+        if not node["available"]:
+            raise _neurobagel.requests.ConnectionError("node down")
+        summary = {
+            "dataset_id": "CORR_XHCUMS",
+            "status": "used",
+            "reason": "",
+            "source": f"Neurobagel node: {node_name}",
+            "nb_participants": 1,
+            "nb_age": 1,
+            "nb_sex": 1,
+        }
+        return [summary], node_rows
+
+    monkeypatch.setattr(_neurobagel, "fetch_node", fake_fetch_node)
+    monkeypatch.setattr(_neurobagel, "NODES", {"INDI": "https://node"})
+    repos["node"] = node
     return repos, tmp_path
 
 
@@ -186,11 +218,18 @@ def test_cli_neurobagel(fake_github, monkeypatch):
 
     datasets = pd.read_csv(tmp_path / "neurobagel_datasets.tsv", sep="\t", keep_default_na=False)
     participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
-    assert datasets["status"].tolist() == ["used", "skipped"]
-    assert datasets["reason"].tolist() == ["", NOT_ANNOTATED]
+    # the datasets of the Neurobagel nodes are added
+    assert datasets["dataset_id"].tolist() == ["CORR_XHCUMS", "ds000001", "ds000002"]
+    assert datasets["source"].tolist() == [
+        "Neurobagel node: INDI",
+        "OpenNeuroDatasets-JSONLD",
+        "OpenNeuroDatasets-JSONLD",
+    ]
+    assert datasets["status"].tolist() == ["used", "used", "skipped"]
+    assert datasets["reason"].tolist() == ["", "", NOT_ANNOTATED]
     # ds000001 has 16 sub-* folders, but 2 participants in this participants.tsv
-    assert datasets["participants_mismatch"].tolist() == [True, False]
-    assert participants["sex"].tolist() == ["female", "male"]
+    assert datasets["participants_mismatch"].tolist()[1:] == [True, False]
+    assert participants["sex"].tolist() == ["female", "female", "male"]
     assert processed == ["ds000001", "ds000002"]
 
     # ds000002 gets annotated: only it is processed again
@@ -199,7 +238,17 @@ def test_cli_neurobagel(fake_github, monkeypatch):
     cli(["bids_inventory", "neurobagel"])
     assert processed == ["ds000002"]
     participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
-    assert participants["dataset_id"].tolist() == ["ds000001"] * 2 + ["ds000002"] * 2
+    assert (
+        participants["dataset_id"].tolist() == ["CORR_XHCUMS"] + ["ds000001"] * 2 + ["ds000002"] * 2
+    )
+
+    # a node that cannot be reached keeps the rows of the previous run
+    repos["node"]["available"] = False
+    cli(["bids_inventory", "neurobagel"])
+    datasets = pd.read_csv(tmp_path / "neurobagel_datasets.tsv", sep="\t", keep_default_na=False)
+    participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
+    assert datasets["source"].tolist()[0] == "Neurobagel node: INDI"
+    assert participants["dataset_id"].tolist().count("CORR_XHCUMS") == 1
 
     # --reindex processes everything again
     processed.clear()
@@ -254,3 +303,103 @@ def test_add_subject_counts(monkeypatch):
     # ds4 is not in the inventory
     assert pd.isna(datasets["nb_subjects"].tolist()[3])
     assert datasets["participants_mismatch"].tolist() == [False, True, False, False]
+
+
+def test_node_participants():
+    """One row per participant, from its phenotypic session."""
+    sessions = [
+        {
+            "sub_id": "sub-01",
+            "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+            "age": 14.0,
+            "sex": "http://purl.bioontology.org/ontology/SNOMEDCT/248153007",
+        },
+        {"sub_id": "sub-01", "session_type": "http://neurobagel.org/vocab/ImagingSession"},
+        {
+            "sub_id": "sub-02",
+            "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+            "age": None,
+            "sex": None,
+        },
+    ]
+    rows = _neurobagel.node_participants("ABIDE_NYU", sessions)
+    assert rows["participant_id"].tolist() == ["sub-01", "sub-02"]
+    assert rows["age"].tolist()[0] == 14.0 and math.isnan(rows["age"].tolist()[1])
+    assert rows["sex"].tolist()[0] == "male" and pd.isna(rows["sex"].tolist()[1])
+    assert rows["sex_raw"].tolist() == ["snomed:248153007", ""]
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://datasets.datalad.org/corr/RawDataBIDS/XHCUMS", "CORR_XHCUMS"),
+        ("https://datasets.datalad.org/abide2/RawData/KKI_1/", "ABIDE2_KKI_1"),
+        ("https://github.com/nemarDatasets/nm000103.git", "NEMAR_nm000103"),
+        ("https://example.org/not/tracked", None),
+        (None, None),
+    ],
+)
+def test_inventory_name(url, expected):
+    assert _neurobagel.inventory_name(url) == expected
+
+
+def test_fetch_node(monkeypatch):
+    """The datasets of a node, then the participants of these datasets."""
+
+    class Response:
+        def __init__(self, content):
+            self.content = content
+
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return self.content
+
+    datasets = [
+        {
+            "dataset_uuid": "a",
+            "dataset_name": "corr-XHCUMS",
+            "repository_url": "https://datasets.datalad.org/corr/RawDataBIDS/XHCUMS",
+        },
+        {
+            "dataset_uuid": "b",
+            "dataset_name": "Other",
+            "repository_url": "https://example.org/other",
+        },
+        {
+            "dataset_uuid": "c",
+            "dataset_name": "abide-NYU",
+            "repository_url": "https://datasets.datalad.org/abide/RawDataBIDS/NYU",
+        },
+    ]
+    phenotypic = "http://neurobagel.org/vocab/PhenotypicSession"
+    subjects = [
+        {
+            "dataset_uuid": "a",
+            "subject_data": [
+                {"sub_id": "sub-1", "session_type": phenotypic, "age": 20.0, "sex": None}
+            ],
+        },
+        {"dataset_uuid": "b", "subject_data": []},
+        {"dataset_uuid": "c", "subject_data": "protected"},
+    ]
+    posts = []
+
+    class Session:
+        def post(self, url, json, timeout):
+            posts.append((url.rsplit("/", 1)[-1], json))
+            return Response({"responses": datasets if url.endswith("/datasets") else subjects})
+
+    summaries, participants = _neurobagel.fetch_node(Session(), "INDI", "https://node/")
+
+    assert posts[1] == (
+        "subjects",
+        {"nodes": [{"node_url": "https://node/", "dataset_uuids": ["a", "b", "c"]}]},
+    )
+    assert [(x["dataset_id"], x["status"], x["reason"]) for x in summaries] == [
+        ("CORR_XHCUMS", "used", ""),
+        ("Other", "skipped", "not in the inventory"),
+        ("ABIDE_NYU", "skipped", "participants not available"),
+    ]
+    assert participants["participant_id"].tolist() == ["sub-1"]
