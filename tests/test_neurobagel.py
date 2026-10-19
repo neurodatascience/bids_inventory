@@ -188,6 +188,8 @@ def test_cli_neurobagel(fake_github, monkeypatch):
     participants = pd.read_csv(tmp_path / "neurobagel_participants.tsv", sep="\t")
     assert datasets["status"].tolist() == ["used", "skipped"]
     assert datasets["reason"].tolist() == ["", NOT_ANNOTATED]
+    # ds000001 has 16 sub-* folders, but 2 participants in this participants.tsv
+    assert datasets["participants_mismatch"].tolist() == [True, False]
     assert participants["sex"].tolist() == ["female", "male"]
     assert processed == ["ds000001", "ds000002"]
 
@@ -232,3 +234,23 @@ def test_cli_neurobagel_token_from_config(fake_github, tmp_path, monkeypatch):
 
     config.cache_clear()
     assert tokens == ["token_from_file"]
+
+
+def test_add_subject_counts(monkeypatch):
+    """Datasets used with a different number of participants and of sub-* folders are flagged."""
+    listing = pd.DataFrame({"name": ["ds1", "ds2", "ds3"], "nb_subjects": [10, 20, 30]})
+    monkeypatch.setattr(_neurobagel, "known_datasets_df", lambda: listing)
+    datasets = pd.DataFrame(
+        {
+            "dataset_id": ["ds1", "ds2", "ds3", "ds4"],
+            "status": ["used", "used", "skipped", "used"],
+            "nb_participants": ["10", "25", "", "5"],
+        }
+    )
+
+    datasets = _neurobagel.add_subject_counts(datasets)
+
+    assert datasets["nb_subjects"].tolist()[:3] == [10, 20, 30]
+    # ds4 is not in the inventory
+    assert pd.isna(datasets["nb_subjects"].tolist()[3])
+    assert datasets["participants_mismatch"].tolist() == [False, True, False, False]
