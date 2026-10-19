@@ -50,6 +50,13 @@ The institutions are named as in the keys of `bids_inventory/data/institutions.j
 `unknown` for MRI data without `MagneticFieldStrength` in the sidecars:
 `filter_data(df, config={"field_strength": "7T"})`.
 
+`ages` has the ages of the participants of the datasets annotated by Neurobagel
+(from `neurobagel_participants.tsv`):
+`filter_data(df, config={"age": [65, 100], "age_unknown": False})` keeps the datasets
+with at least one participant aged 65 to 100
+(without `"age_unknown": False`, the datasets without participant ages are kept too).
+`filter_data(df, config={"sessions": [2, 10]})` keeps the datasets with 2 to 10 sessions.
+
 To browse the listing in a dashboard (a [marimo](https://marimo.io/) app) in the browser:
 
 ```bash

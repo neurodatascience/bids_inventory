@@ -138,11 +138,13 @@ def _(
             key=lambda x: float(x.removesuffix("T")) if x.endswith("T") else float("inf"),
         )
     ]
+    MAX_SESSIONS = int(df["nb_sessions"].max())
     institutions = load_institutions()
     neurobagel_participants = neurobagel_participants_df()
     return (
         COUNTRIES,
         FIELD_STRENGTHS,
+        MAX_SESSIONS,
         SOURCES,
         SPECIES,
         df,
@@ -160,7 +162,16 @@ def _(mo):
 
 
 @app.cell
-def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECIES, mo):
+def _(
+    COUNTRIES,
+    FIELD_STRENGTHS,
+    KNOWN_DATATYPES,
+    MAX_SESSIONS,
+    NOT_SPECIFIED,
+    SOURCES,
+    SPECIES,
+    mo,
+):
     def checklist(options: list[str]) -> mo.ui.array:
         """Return a list of checkboxes, all checked."""
         return mo.ui.array([mo.ui.checkbox(label=x, value=True) for x in options])
@@ -197,6 +208,11 @@ def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECI
         },
         value=ALL_FIELD_STRENGTHS,
     )
+    # ages of the participants: the full range keeps all the datasets
+    age = mo.ui.range_slider(start=0, stop=100, step=1, value=[0, 100], show_value=True)
+    age_unknown = mo.ui.checkbox(label="keep the datasets without participant ages", value=True)
+    min_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=1, label="from")
+    max_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=MAX_SESSIONS, label="to")
     sources = checklist(SOURCES)
     sources_and_or = mo.ui.radio(options=["AND", "OR"], value="OR", inline=True)
     fmriprep = true_false_both()
@@ -208,6 +224,8 @@ def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECI
         [mo.ui.checkbox(label=x, value=x in {"homo sapiens", NOT_SPECIFIED}) for x in SPECIES]
     )
     return (
+        age,
+        age_unknown,
         author,
         author_regex,
         country,
@@ -217,6 +235,8 @@ def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECI
         fmriprep,
         institution,
         institution_regex,
+        max_sessions,
+        min_sessions,
         mriqc,
         participants,
         physio,
@@ -230,6 +250,8 @@ def _(COUNTRIES, FIELD_STRENGTHS, KNOWN_DATATYPES, NOT_SPECIFIED, SOURCES, SPECI
 
 @app.cell
 def _(
+    age,
+    age_unknown,
     author,
     author_regex,
     country,
@@ -239,6 +261,8 @@ def _(
     fmriprep,
     institution,
     institution_regex,
+    max_sessions,
+    min_sessions,
     mo,
     mriqc,
     participants,
@@ -304,6 +328,23 @@ def _(
                 justify="start",
                 gap=4,
             ),
+            mo.hstack(
+                [
+                    section(
+                        "age",
+                        "Keep datasets with participants of these ages (in years), "
+                        "from the participants.tsv annotated by Neurobagel",
+                        mo.vstack([age, age_unknown]),
+                    ),
+                    section(
+                        "sessions",
+                        "Keep datasets with this number of sessions",
+                        mo.hstack([min_sessions, max_sessions], justify="start"),
+                    ),
+                ],
+                justify="start",
+                gap=4,
+            ),
             section(
                 "sources",
                 "Keep datasets from...",
@@ -339,7 +380,10 @@ def _(
 def _(
     KNOWN_DATATYPES,
     SOURCES,
+    MAX_SESSIONS,
     SPECIES,
+    age,
+    age_unknown,
     author,
     author_regex,
     country,
@@ -351,6 +395,8 @@ def _(
     fmriprep,
     institution,
     institution_regex,
+    max_sessions,
+    min_sessions,
     mriqc,
     participants,
     physio,
@@ -382,6 +428,14 @@ def _(
         "participants": participants.value,
         "species": [x for x, keep in zip(SPECIES, species.value) if keep],
         "field_strength": field_strength.value or None,
+        # the full ranges keep all the datasets
+        "age": None if list(age.value) == [0, 100] else list(age.value),
+        "age_unknown": age_unknown.value,
+        "sessions": (
+            None
+            if [min_sessions.value, max_sessions.value] == [1, MAX_SESSIONS]
+            else [min_sessions.value, max_sessions.value]
+        ),
     }
     # for example an invalid regular expression: keep no dataset and say why
     filter_error = ""

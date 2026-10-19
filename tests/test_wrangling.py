@@ -188,3 +188,32 @@ def test_wrangle_data_physio_types():
     assert {"cardiac", "respiratory", "eye tracking"} <= types
     # only the datasets with physio files have types
     assert not df.loc[~df["has_physio"], "physio_types"].apply(bool).any()
+
+
+@pytest.mark.parametrize(
+    "config, expected",
+    [
+        ({"age": [60, 100]}, ["ds1", "ds3"]),
+        ({"age": [60, 100], "age_unknown": False}, ["ds1"]),
+        ({"age": [0, 10], "age_unknown": False}, []),
+        ({"sessions": [2, 5]}, ["ds2", "ds3"]),
+        ({"sessions": [1, 1]}, ["ds1"]),
+    ],
+)
+def test_filter_data_age_sessions(config, expected):
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3"],
+            "datatypes": [["func"]] * 3,
+            "ages": [[20.0, 65.0], [30.0], []],
+            "nb_sessions": [1, 2, 5],
+        }
+    )
+    assert filter_data(df, config=config)["name"].tolist() == expected
+
+
+def test_wrangle_data_ages():
+    """The ages of the participants of neurobagel_participants.tsv (not the negative ones)."""
+    df = wrangle_data(known_datasets_df()).set_index("name")
+    assert len(df.loc["ds000001", "ages"]) == 16
+    assert all(x >= 0 for ages in df["ages"] for x in ages)
