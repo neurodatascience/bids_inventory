@@ -255,7 +255,10 @@ participants = neurobagel_participants_df()
 
 `bids_inventory/data/neurobagel_datasets.tsv` (`neurobagel_datasets_df()`) lists the repositories:
 used or not, why, the problems found in their annotations (`notes` column),
-and the species of their participants (`species` column).
+the species of their participants (`species` column),
+and their number of participants in the inventory (`nb_subjects`: their number of `sub-*` folders):
+`participants_mismatch` flags the datasets whose `participants.tsv` has a different number of participants
+(`nb_participants`).
 Some datasets are not about humans (mice, rats, sheep...),
 and the dashboard only shows those about humans by default.
 The species comes from the `species` column of `participants.tsv`;

@@ -14,6 +14,9 @@ saved in bids_inventory/data/:
 - neurobagel_participants.tsv: one row per participant (and session) of each dataset
   (dataset_id, participant_id, session_id, age, sex, and their raw values);
 - neurobagel_datasets.tsv: one row per repository, with why it was used or not,
+  its number of participants in participants.tsv (nb_participants)
+  and in the inventory (nb_subjects: its number of sub-* folders),
+  flagged if they differ (participants_mismatch),
   and the species of the participants: from the species column of participants.tsv,
   or from bids_inventory/data/species.tsv for the datasets without one
   (empty if not specified: most datasets are about humans).
@@ -39,7 +42,7 @@ from typing import Any
 import pandas as pd
 import requests
 
-from bids_inventory.listing import _data_dir, _species_file
+from bids_inventory.listing import _data_dir, _species_file, known_datasets_df
 from bids_inventory.logger import bi_logger
 
 bi_log = bi_logger()
@@ -139,7 +142,8 @@ def update_neurobagel(
     participants = pd.concat(frames, ignore_index=True)
     summaries = summaries.sort_values("dataset_id", ignore_index=True)
     summaries = add_species(summaries)
-    for column in ["nb_participants", "nb_age", "nb_sex"]:
+    summaries = add_subject_counts(summaries)
+    for column in ["nb_participants", "nb_age", "nb_sex", "nb_subjects"]:
         if column in summaries:
             summaries[column] = pd.to_numeric(summaries[column]).astype("Int64")
     participants = participants.sort_values("dataset_id", kind="stable", ignore_index=True)
@@ -149,6 +153,11 @@ def update_neurobagel(
 
     used = summaries[summaries["status"] == "used"]
     bi_log.info(summaries["status"].value_counts().to_string())
+    if mismatches := int(summaries["participants_mismatch"].sum()):
+        bi_log.warning(
+            f"{mismatches} datasets have a different number of participants in their "
+            "participants.tsv and of sub-* folders (participants_mismatch)"
+        )
     age = pd.to_numeric(participants["age"], errors="coerce")
     sex = participants["sex"].replace("", None)
     bi_log.info(
@@ -156,6 +165,34 @@ def update_neurobagel(
         f"(age known for {age.notna().sum()}, sex known for {sex.notna().sum()})"
     )
     bi_log.info(f"Saved to {PARTICIPANTS_FILE} and {DATASETS_FILE}")
+
+
+def add_subject_counts(datasets: pd.DataFrame) -> pd.DataFrame:
+    """Add the number of participants of the datasets in the inventory, and flag mismatches.
+
+    ``nb_subjects``: the number of sub-* folders of the dataset (from the inventory).
+    ``participants_mismatch``: True for the datasets used whose participants.tsv
+    has a different number of participants.
+    """
+    datasets = datasets.copy()
+    listing = known_datasets_df()
+    nb_subjects = dict(zip(listing["name"], listing["nb_subjects"]))
+    datasets["nb_subjects"] = pd.to_numeric(
+        datasets["dataset_id"].map(nb_subjects), errors="coerce"
+    ).astype("Int64")
+    # no column if no dataset was used
+    column = "nb_participants"
+    nb_participants = pd.to_numeric(
+        datasets[column] if column in datasets else pd.Series(None, index=datasets.index),
+        errors="coerce",
+    )
+    datasets["participants_mismatch"] = (
+        (datasets["status"] == "used")
+        & nb_participants.notna()
+        & datasets["nb_subjects"].notna()
+        & (nb_participants != datasets["nb_subjects"])
+    ).fillna(False)
+    return datasets
 
 
 def load_previous() -> tuple[pd.DataFrame, pd.DataFrame]:
