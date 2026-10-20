@@ -168,6 +168,7 @@ for example so that the next 'bids_inventory update' indexes them again.""",
             "cogpo_id",
             "physio_recordings",
             "physio_columns",
+            "nb_runs",
         ],
     )
     update_parser.add_argument(

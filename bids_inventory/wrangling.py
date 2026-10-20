@@ -11,6 +11,7 @@ from bids_inventory.institutions import dataset_institutions, known_names, load_
 from bids_inventory.listing import (
     KNOWN_DATATYPES,
     dataset_species,
+    neurobagel_participants_df,
     physio_column_types,
     physio_recording_types,
 )
@@ -51,6 +52,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``institution_names``: :obj:`list[str]` Institutions of the dataset,
       as named in the keys of ``bids_inventory/data/institutions.json``.
     - ``countries``: :obj:`list[str]` Countries of these institutions.
+    - ``ages``: :obj:`list[float]` Ages of its participants (in years),
+      from neurobagel_participants.tsv (empty if not known).
     - ``field_strengths``: :obj:`list[str]` Nominal field strengths of the MRI scanners
       (``["3T"]``...), ``["unknown"]`` for MRI datasets without MagneticFieldStrength,
       empty for datasets without MRI data.
@@ -85,6 +88,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
         df[f"has_{der}"] = df[der].apply(lambda x: bool(x))
 
     df["nb_tasks"] = df["tasks"].apply(lambda x: len(x))
+    # unknown for the datasets indexed before it was tracked
+    if "nb_runs" not in df:
+        df["nb_runs"] = pd.NA
 
     df["source"] = _get_source_study(df)
 
@@ -129,6 +135,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     df["species"] = df["name"].apply(lambda x: species.get(x, []))
 
     df["field_strengths"] = df.apply(_field_strengths, axis=1)
+
+    df["ages"] = _participant_ages(df["name"])
 
     institutions = load_institutions()
     known = known_names(institutions)
@@ -267,6 +275,10 @@ class FilterConfig(TypedDict):
     sources_and_or: str
     species: list[str] | None
     field_strength: str | None
+    age: list[float] | None
+    age_unknown: bool
+    sessions: list[int] | None
+    runs: list[int] | None
 
 
 DEFAULT_CONFIG: FilterConfig = {
@@ -288,6 +300,10 @@ DEFAULT_CONFIG: FilterConfig = {
     "sources_and_or": "OR",
     "species": None,
     "field_strength": None,
+    "age": None,
+    "age_unknown": True,
+    "sessions": None,
+    "runs": None,
 }
 
 # in the species filter: the datasets whose species is not specified (most are about humans)
@@ -332,6 +348,20 @@ def field_strength_label(value: float) -> str | None:
     if abs(nominal - value) <= 0.05 * nominal:
         value = nominal
     return f"{value:g}T"
+
+
+def _participant_ages(names: pd.Series) -> list[list[float]]:
+    """Return the ages of the participants of each dataset (empty if not known).
+
+    From neurobagel_participants.tsv: one age per participant (the first one if there
+    are several sessions), in years (negative ages are left out: not in years).
+    """
+    participants = neurobagel_participants_df()
+    participants = participants[participants["age"] >= 0].drop_duplicates(
+        subset=["dataset_id", "participant_id"]
+    )
+    ages = participants.groupby("dataset_id")["age"].apply(lambda x: sorted(x.tolist()))
+    return [ages.get(name, []) for name in names]
 
 
 def _field_strengths(row: pd.Series) -> list[str]:
@@ -407,6 +437,14 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
       keeps the datasets whose species are all in the list
     - ``"field_strength"`` : str | None nominal field strength of the MRI scanners
       (``"3T"``, ``"7T"``... or ``"unknown"``): keeps the datasets with data at that strength
+    - ``"age"`` : [min, max] | None ages of the participants (in years):
+      keeps the datasets with at least one participant in this range (inclusive)
+      (ages of the participants of neurobagel_participants.tsv)
+    - ``"age_unknown"`` : bool keep the datasets without participant ages
+      when filtering by age (default: True)
+    - ``"sessions"`` : [min, max] | None number of sessions (inclusive)
+    - ``"runs"`` : [min, max] | None number of runs of the first participant,
+      across tasks and datatypes (inclusive)
 
     If ``None`` is passed will default to the DEFAULT_CONFIG.
 
@@ -460,6 +498,11 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     if species is not None:
         mask_species = df["species"].apply(lambda x: set(x or [NOT_SPECIFIED]) <= set(species))
 
+    mask_age = _age_mask(df, config["age"], config["age_unknown"])
+    mask_sessions = _range_mask(df, "nb_sessions", config["sessions"])
+    # unknown number of runs: as 0
+    mask_runs = _range_mask(df, "nb_runs", config["runs"])
+
     mask_field_strength = ALL_TRUE
     if field_strength := config["field_strength"]:
         mask_field_strength = df["field_strengths"].apply(lambda x: field_strength in x)
@@ -482,6 +525,9 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_sources,
             mask_species,
             mask_field_strength,
+            mask_age,
+            mask_sessions,
+            mask_runs,
         ),
         axis=1,
     ).all(axis=1)
@@ -489,6 +535,33 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     filtered_df = df[all_filters]
 
     return filtered_df
+
+
+def _age_mask(df: pd.DataFrame, age: list[float] | None, age_unknown: bool) -> pd.Series:
+    """Keep the datasets with at least one participant in the age range (inclusive).
+
+    And those without participant ages if ``age_unknown``.
+    """
+    if age is None:
+        return pd.Series(True, index=df.index)
+    min_age, max_age = age
+
+    def in_range(ages: Any) -> bool:
+        if not isinstance(ages, list) or not ages:
+            return bool(age_unknown)
+        return any(min_age <= x <= max_age for x in ages)
+
+    return df["ages"].apply(in_range)
+
+
+def _range_mask(df: pd.DataFrame, column: str, value_range: list[int] | None) -> pd.Series:
+    """Keep the datasets whose value (number of sessions...) is in the range (inclusive).
+
+    Missing values are counted as 0.
+    """
+    if value_range is None:
+        return pd.Series(True, index=df.index)
+    return df[column].fillna(0).between(value_range[0], value_range[1])
 
 
 def _check_config(config: None | dict[str, Any]) -> FilterConfig:

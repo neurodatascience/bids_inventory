@@ -1439,3 +1439,28 @@ def test_get_physio_columns_first_participant_with_physio(tmp_path, monkeypatch)
     _touch(tmp_path / "physio.json", json.dumps({"Columns": ["cardiac"]}))
 
     assert _update.get_physio_columns(tmp_path) == ["cardiac"]
+
+
+def test_get_nb_runs(tmp_path, monkeypatch):
+    """The data files with a task entity of the first participant: not their companions."""
+    from bids_inventory import _update
+
+    monkeypatch.setattr(_update, "list_participants_in_dataset", lambda _: ["sub-01", "sub-02"])
+    func = tmp_path / "sub-01" / "ses-1" / "func"
+    for name in [
+        "sub-01_ses-1_task-rest_run-1_bold.nii.gz",
+        "sub-01_ses-1_task-rest_run-1_bold.json",
+        "sub-01_ses-1_task-rest_run-1_sbref.nii.gz",
+        "sub-01_ses-1_task-rest_run-1_physio.tsv.gz",
+        "sub-01_ses-1_task-rest_run-2_bold.nii.gz",
+        # multi-echo: one run
+        "sub-01_ses-1_task-nback_echo-1_bold.nii.gz",
+        "sub-01_ses-1_task-nback_echo-2_bold.nii.gz",
+        "sub-01_ses-1_task-nback_events.tsv",
+    ]:
+        _touch(func / name)
+    _touch(tmp_path / "sub-01" / "ses-1" / "eeg" / "sub-01_ses-1_task-rest_eeg.edf")
+    # not the first participant
+    _touch(tmp_path / "sub-02" / "func" / "sub-02_task-rest_bold.nii.gz")
+
+    assert _update.get_nb_runs(tmp_path) == 4

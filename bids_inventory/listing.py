@@ -197,7 +197,7 @@ def remove_datasets(names: Iterable[str], listing: Path) -> list[str]:
 
 
 # columns of integers that can be missing
-NULLABLE_INT_COLUMNS = ["readme_size", "bidsignore_size"]
+NULLABLE_INT_COLUMNS = ["readme_size", "bidsignore_size", "nb_runs"]
 
 
 def _load_known_datasets(listing: Path) -> pd.DataFrame:
