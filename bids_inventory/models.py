@@ -205,6 +205,12 @@ class BidsDataset(BaseModel):
         default=[],
     )
     keywords: list[str] = _field("Keywords of the dataset_description.json.", default=[])
+    nb_runs: int | None = _field(
+        "Number of runs, across tasks and datatypes: data files with a task entity "
+        "(not events, physio, sbref...), the echoes or parts of a run count once.",
+        FIRST_PARTICIPANT,
+        default=None,
+    )
     cog_atlas_id: dict[str, list[str]] = _field(
         "CogAtlasID of each task (Cognitive Atlas), from the JSON sidecars of its runs.",
         FIRST_PARTICIPANT,

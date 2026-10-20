@@ -171,6 +171,11 @@
             "Format": "list[str]",
             "Assumptions": ""
         },
+        "nb_runs": {
+            "Description": "Number of runs, across tasks and datatypes: data files with a task entity (not events, physio, sbref...), the echoes or parts of a run count once.",
+            "Format": "int",
+            "Assumptions": "Based on data from the first participant only."
+        },
         "cog_atlas_id": {
             "Description": "CogAtlasID of each task (Cognitive Atlas), from the JSON sidecars of its runs.",
             "Format": "dict[str, list[str]]",

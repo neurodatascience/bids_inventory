@@ -967,6 +967,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.keywords = get_keywords(dataset_pth)
     dataset.cog_atlas_id = get_task_ids(dataset_pth, "CogAtlasID")
     dataset.cogpo_id = get_task_ids(dataset_pth, "CogPOID")
+    dataset.nb_runs = get_nb_runs(dataset_pth)
 
     dataset.bids_version = get_bids_version(dataset_pth)
     dataset.readme_size = get_readme_size(dataset_pth)
@@ -1563,6 +1564,7 @@ FIELDS: dict[str, Any] = {
     "cogpo_id": lambda dataset_pth: get_task_ids(dataset_pth, "CogPOID"),
     "physio_recordings": lambda dataset_pth: get_physio_recordings(dataset_pth),
     "physio_columns": lambda dataset_pth: get_physio_columns(dataset_pth),
+    "nb_runs": lambda dataset_pth: get_nb_runs(dataset_pth),
 }
 
 
@@ -1701,6 +1703,33 @@ _NOT_TASK_RUNS = {
     "scans",
     "stim",
 }
+
+
+# suffixes of files with a task entity that are not runs
+_NOT_RUNS = _NOT_TASK_RUNS | {"sbref"}
+
+
+def get_nb_runs(dataset_pth: Path) -> int:
+    """Return the number of runs of the first participant, across tasks and datatypes.
+
+    The data files with a task entity (bold, eeg, meg...), not their companion files
+    (events, physio, sbref...): the echoes or parts of a run (echo-1, part-mag) count once.
+    """
+    participants = list_participants_in_dataset(dataset_pth)
+    if not participants:
+        return 0
+    runs = set()
+    for filepath in glob_files(dataset_pth, f"{participants[0]}/**/{participants[0]}*_task-*"):
+        if filepath.suffix == ".json" or (filepath.is_dir() and filepath.suffix != ".ds"):
+            continue
+        entities, _, rest = filepath.name.rpartition("_")
+        suffix = rest.split(".")[0]
+        if not entities or suffix in _NOT_RUNS:
+            continue
+        # sub-01_task-rest_echo-1_bold.nii.gz and _echo-2_ are the same run
+        entities = re.sub(r"_(echo|part)-[a-zA-Z0-9]+", "", entities)
+        runs.add((filepath.parent.name, entities, suffix))
+    return len(runs)
 
 
 def get_task_ids(dataset_pth: Path, field: str) -> dict[str, list[str]]:
