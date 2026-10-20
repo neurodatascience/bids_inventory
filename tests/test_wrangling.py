@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import pytest
 
@@ -231,3 +233,21 @@ def test_filter_data_runs():
     # unknown number of runs: as 0
     assert filter_data(df, config={"runs": [1, 10]})["name"].tolist() == ["ds2"]
     assert filter_data(df, config={"runs": [0, 0]})["name"].tolist() == ["ds1", "ds3"]
+
+
+def test_wrangle_data_size():
+    """In bytes: raw_size if known, otherwise the size of datalad (binary units)."""
+    from bids_inventory.wrangling import _size_in_bytes
+
+    assert _size_in_bytes("2.0 GB") == 2 * 1024**3
+    assert _size_in_bytes("512.0 B") == 512
+    assert math.isnan(_size_in_bytes("n/a")) and math.isnan(_size_in_bytes(None))
+
+    df = known_datasets_df().head(3).copy()
+    df["size"] = ["1.0 KB", "1.0 KB", None]
+    df["raw_size"] = pd.array([None, 10, None], dtype="Int64")
+    df["nb_subjects"] = [2, 2, 2]
+    wrangled = wrangle_data(df)
+    assert wrangled["size"].tolist()[:2] == [1024.0, 10.0]
+    assert math.isnan(wrangled["size"].tolist()[2])
+    assert wrangled["mean_size"].tolist()[:2] == [512.0, 5.0]
