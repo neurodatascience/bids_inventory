@@ -10,6 +10,71 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 from bids_inventory.listing import KNOWN_DATATYPES
+from bids_inventory.wrangling import SOURCES
+
+# same color for a source in all the figures, whatever the sources shown
+SOURCE_COLORS = dict(
+    zip(
+        [source for _, source in SOURCES] + ["other"],
+        px.colors.qualitative.Plotly + px.colors.qualitative.Dark24,
+    )
+)
+
+
+def _stacked_by_source(
+    rows: pd.DataFrame, x: str, order: list[Any], title: str, x_title: str
+) -> go.Figure:
+    """Plot the number of datasets for each value of ``x``, stacked by source of the datasets.
+
+    ``rows``: one row per dataset and value of ``x``, with a ``source`` column
+    (and ``nb_subjects``: the number of participants is shown on hover).
+    ``order``: the values of ``x`` to show, in this order.
+    """
+    counts = rows.groupby([x, "source"]).size()
+    participants = (
+        rows.groupby([x, "source"])["nb_subjects"].sum() if "nb_subjects" in rows else None
+    )
+    fig = go.Figure()
+    for source, color in SOURCE_COLORS.items():
+        if source not in set(rows["source"]):
+            continue
+        y = [int(counts.get((value, source), 0)) for value in order]
+        hover = f"%{{x}}<br>{source}: %{{y}} datasets"
+        customdata = None
+        if participants is not None:
+            customdata = [int(participants.get((value, source), 0)) for value in order]
+            hover += "<br>%{customdata} participants"
+        fig.add_trace(
+            go.Bar(
+                x=order,
+                y=y,
+                name=source,
+                marker_color=color,
+                customdata=customdata,
+                hovertemplate=f"{hover}<extra></extra>",
+            )
+        )
+    # the total number of datasets above each bar
+    totals = [int(counts.xs(value, level=x).sum()) if value in counts else 0 for value in order]
+    fig.add_trace(
+        go.Scatter(
+            x=order,
+            y=totals,
+            text=totals,
+            mode="text",
+            textposition="top center",
+            showlegend=False,
+            hoverinfo="skip",
+        )
+    )
+    return fig.update_layout(
+        barmode="stack",
+        title=title,
+        legend_title_text="source",
+        xaxis={"type": "category", "title": {"text": x_title}},
+        yaxis={"title": {"text": "number of datasets"}},
+    )
+
 
 LABELS = {
     "nb_subjects": "number of participants",
@@ -48,17 +113,11 @@ def scatter_subject_vs(
 
 
 def histogram_tasks(df: pd.DataFrame) -> go.Figure:
-    tasks = []
-    for x in df.tasks:
-        tasks.extend(x)
-
-    new_df = pd.DataFrame({"tasks": tasks})
-
-    count = new_df.tasks.value_counts()
-    order = [i[0] for i in count.items()]
-    return px.histogram(
-        new_df, x="tasks", category_orders=dict(tasks=order), title="tasks distribution"
-    )
+    """Plot the number of datasets for each task (the most common first), by source."""
+    rows = df[["name", "source", "tasks"]].explode("tasks").dropna(subset=["tasks"])
+    rows = rows.drop_duplicates(subset=["name", "tasks"])
+    order = list(rows["tasks"].value_counts().index)
+    return _stacked_by_source(rows, "tasks", order, "tasks distribution", "task")
 
 
 def plot_dataset_size_vs_time(df: pd.DataFrame) -> go.Figure:
@@ -170,15 +229,11 @@ def plot_hours_vs_time(df: pd.DataFrame, log_y: bool = True) -> go.Figure:
 
 
 def datatypes_histogram(df: pd.DataFrame) -> go.Figure:
-    datatypes_df = df[KNOWN_DATATYPES].sum()
-    fig = px.bar(
-        datatypes_df,
-        labels={"index": "datatype", "value": "count"},
-        hover_name=None,
-        hover_data=None,
-        title="datatypes in datasets",
-    )
-    return fig
+    """Plot the number of datasets with each BIDS datatype, by source."""
+    rows = df[["name", "source", "nb_subjects", "datatypes"]].explode("datatypes")
+    rows = rows[rows["datatypes"].isin(KNOWN_DATATYPES)]
+    order = [x for x in KNOWN_DATATYPES if x in set(rows["datatypes"])]
+    return _stacked_by_source(rows, "datatypes", order, "datatypes in datasets", "datatype")
 
 
 def field_strength_histogram(df: pd.DataFrame) -> go.Figure:
@@ -188,27 +243,21 @@ def field_strength_histogram(df: pd.DataFrame) -> go.Figure:
     A dataset with data at several field strengths is counted for each one.
     """
     rows = (
-        df[["name", "nb_subjects", "field_strengths"]]
+        df[["name", "source", "nb_subjects", "field_strengths"]]
         .explode("field_strengths")
         .dropna(subset=["field_strengths"])
-    )
-    counts = rows.groupby("field_strengths").agg(
-        datasets=("name", "nunique"), participants=("nb_subjects", "sum")
     )
 
     def order(label: str) -> float:
         return float(label.removesuffix("T")) if label.endswith("T") else float("inf")
 
-    counts = counts.loc[sorted(counts.index, key=order)].reset_index()
-    return px.bar(
-        counts,
-        x="field_strengths",
-        y="datasets",
-        hover_data=["participants"],
-        text="datasets",
-        labels={"field_strengths": "MRI field strength", "datasets": "number of datasets"},
-        title="MRI field strength of the datasets",
-    ).update_xaxes(type="category")
+    return _stacked_by_source(
+        rows,
+        "field_strengths",
+        sorted(set(rows["field_strengths"]), key=order),
+        "MRI field strength of the datasets",
+        "MRI field strength",
+    )
 
 
 def institutions_map(locations: pd.DataFrame) -> go.Figure:
@@ -216,8 +265,11 @@ def institutions_map(locations: pd.DataFrame) -> go.Figure:
 
     ``locations``: as returned by ``bids_inventory.institutions.institutions_locations``.
     The size of each marker is the number of datasets of the institution.
+    With a ``source`` column (one row per institution and source of its datasets),
+    the markers are colored by source.
     """
     located = locations.dropna(subset=["latitude", "longitude"])
+    by_source = "source" in located
     return px.scatter_geo(
         located,
         lat="latitude",
@@ -226,6 +278,9 @@ def institutions_map(locations: pd.DataFrame) -> go.Figure:
         hover_data=["address", "count", "nb_subjects"],
         projection="natural earth",
         size="count",
+        color="source" if by_source else None,
+        color_discrete_map=SOURCE_COLORS if by_source else None,
+        category_orders={"source": list(SOURCE_COLORS)} if by_source else None,
         title="institutions",
     )
 
@@ -388,21 +443,16 @@ def version_histogram(df: pd.DataFrame, column: str, name: str) -> go.Figure:
 
     ``column``: column of the listing with the versions (``bids_version``...).
     """
-    versions = df[column].replace("n/a", None).dropna().astype(str)
-    counts = versions.value_counts()
-    counts = counts.loc[sorted(counts.index, key=_version_key)]
-    # go.Bar and not px.bar: there may be no versions at all
-    fig = go.Figure(
-        go.Bar(
-            x=list(counts.index),
-            y=list(counts.values),
-            hovertemplate=f"{name} %{{x}}<br>%{{y}} datasets<extra></extra>",
-        )
-    )
-    return fig.update_layout(
-        title=f"{name} version ({len(versions)} datasets)",
-        xaxis={"type": "category", "title": {"text": f"{name} version"}},
-        yaxis={"title": {"text": "number of datasets"}},
+    rows = df[["name", "source", column]].copy()
+    rows[column] = rows[column].replace("n/a", None)
+    rows = rows.dropna(subset=[column])
+    rows[column] = rows[column].astype(str)
+    return _stacked_by_source(
+        rows,
+        column,
+        sorted(set(rows[column]), key=_version_key),
+        f"{name} version ({len(rows)} datasets)",
+        f"{name} version",
     )
 
 
@@ -484,16 +534,15 @@ def channels_histogram(df: pd.DataFrame) -> go.Figure:
 
 
 def nb_datatypes_histogram(df: pd.DataFrame) -> go.Figure:
-    """Plot the number of datasets for each number of datatypes they have."""
-    counts = df["datatypes"].apply(len).value_counts().sort_index()
-    fig = px.bar(
-        x=counts.index,
-        y=counts.values,
-        text=counts.values,
-        labels={"x": "number of datatypes", "y": "number of datasets"},
-        title="Number of datatypes per dataset",
+    """Plot the number of datasets for each number of datatypes they have, by source."""
+    rows = df[["name", "source"]].assign(nb_datatypes=df["datatypes"].apply(len))
+    return _stacked_by_source(
+        rows,
+        "nb_datatypes",
+        sorted(set(rows["nb_datatypes"])),
+        "Number of datatypes per dataset",
+        "number of datatypes",
     )
-    return fig.update_xaxes(dtick=1)
 
 
 # datasets with physio files whose recording labels and columns are not known
@@ -508,28 +557,22 @@ def physio_types_histogram(df: pd.DataFrame) -> go.Figure:
     The datasets with physio files whose types are not identified are counted apart.
     """
     with_physio = df[df["has_physio"].fillna(False).astype(bool)]
-    types = with_physio["physio_types"].apply(
-        lambda x: x if isinstance(x, list) and x else [NO_RECORDING_LABEL]
+    rows = with_physio[["name", "source"]].assign(
+        physio_types=with_physio["physio_types"].apply(
+            lambda x: x if isinstance(x, list) and x else [NO_RECORDING_LABEL]
+        )
     )
-    counts = types.explode().value_counts()
+    rows = rows.explode("physio_types")
+    counts = rows["physio_types"].value_counts()
     # the most common types first, the datasets without labels last
     order = [x for x in counts.index if x != NO_RECORDING_LABEL]
     order += [x for x in counts.index if x == NO_RECORDING_LABEL]
-    counts = counts.loc[order]
-    fig = go.Figure(
-        go.Bar(
-            x=list(counts.index),
-            y=list(counts.values),
-            text=list(counts.values),
-            hovertemplate="%{x}<br>%{y} datasets<extra></extra>",
-        )
-    )
-    return fig.update_layout(
-        title=(
-            f"Types of physiological recordings ({len(with_physio)} datasets with physio files)"
-            "<br><sup>from the recording labels of the physio files and the columns "
-            "of their sidecars: a dataset can have several types</sup>"
-        ),
-        xaxis={"type": "category", "title": {"text": "type of recording"}},
-        yaxis={"title": {"text": "number of datasets"}},
+    return _stacked_by_source(
+        rows,
+        "physio_types",
+        order,
+        f"Types of physiological recordings ({len(with_physio)} datasets with physio files)"
+        "<br><sup>from the recording labels of the physio files and the columns "
+        "of their sidecars: a dataset can have several types</sup>",
+        "type of recording",
     )
