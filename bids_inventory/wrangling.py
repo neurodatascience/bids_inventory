@@ -100,7 +100,8 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     # otherwise the size of the whole dataset reported by datalad
     total_size = df["size"].apply(_size_in_bytes)
     raw_size = (
-        pd.to_numeric(df["raw_size"], errors="coerce")
+        # floats: raw_size is a nullable integer column
+        pd.to_numeric(df["raw_size"], errors="coerce").astype(float)
         if "raw_size" in df
         else pd.Series(np.nan, index=df.index)
     )
