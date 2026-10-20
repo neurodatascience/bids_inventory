@@ -115,3 +115,17 @@ def test_postal_code(name, expected):
     from bids_inventory.institutions import postal_code
 
     assert postal_code(name) == expected
+
+
+def test_institutions_locations_by_source(institutions):
+    from bids_inventory.institutions import institutions_locations_by_source
+
+    df = pd.DataFrame(
+        {
+            "source": ["openneuro", "openneuro", "abide"],
+            "institutions": [["BBL_-_University_of_Geneva"], ["BBL_-_University_of_Geneva"], []],
+            "nb_subjects": [1, 2, 3],
+        }
+    )
+    locations = institutions_locations_by_source(institutions, df)
+    assert locations[["source", "count", "nb_subjects"]].values.tolist() == [["openneuro", 2, 3]]

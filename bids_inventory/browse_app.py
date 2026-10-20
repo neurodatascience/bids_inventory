@@ -62,11 +62,7 @@ def _(bids_inventory_installed):
         version_histogram,
     )
     from bids_inventory._version import version
-    from bids_inventory.institutions import (
-        count_institutions,
-        institutions_locations,
-        load_institutions,
-    )
+    from bids_inventory.institutions import institutions_locations_by_source, load_institutions
     from bids_inventory.listing import (
         KNOWN_DATATYPES,
         known_datasets_df,
@@ -90,12 +86,11 @@ def _(bids_inventory_installed):
         NOT_SPECIFIED,
         Path,
         contextlib,
-        count_institutions,
         datatypes_histogram,
         field_strength_histogram,
         filter_data,
         histogram_tasks,
-        institutions_locations,
+        institutions_locations_by_source,
         institutions_map,
         known_datasets_df,
         load_institutions,
@@ -619,17 +614,16 @@ def _(channels_histogram, file_formats_histogram, filtered_df, mo):
 
 @app.cell
 def _(
-    count_institutions,
     filtered_df,
     institutions,
-    institutions_locations,
+    institutions_locations_by_source,
     institutions_map,
     mo,
 ):
     mo.vstack(
         [
             mo.md("---"),
-            institutions_map(institutions_locations(institutions, count_institutions(filtered_df))),
+            institutions_map(institutions_locations_by_source(institutions, filtered_df)),
         ]
     )
     return

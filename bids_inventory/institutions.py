@@ -175,6 +175,25 @@ def institutions_locations(
     return pd.DataFrame(rows, columns=COLUMNS)
 
 
+def institutions_locations_by_source(
+    institutions: dict[str, dict[str, Any]], df: pd.DataFrame
+) -> pd.DataFrame:
+    """Return the locations of the institutions of the datasets, for each source of datasets.
+
+    One row per institution and source (``source`` column), as ``institutions_locations``:
+    the number of datasets and subjects of the institution from this source.
+    """
+    frames = [
+        institutions_locations(institutions, count_institutions(datasets)).assign(source=source)
+        for source, datasets in df.groupby("source")
+    ]
+    if not frames:
+        return pd.DataFrame(columns=[*COLUMNS, "source"])
+    locations = pd.concat(frames, ignore_index=True)
+    # integers, also when some sources have no located institutions
+    return locations.astype({"count": int, "nb_subjects": int})
+
+
 def count_institutions(df: pd.DataFrame) -> pd.DataFrame:
     """Count the datasets and subjects of each institution of the inventory."""
     counts: dict[str, dict[str, int]] = {}
