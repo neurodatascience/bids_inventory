@@ -54,19 +54,6 @@ def _stacked_by_source(
                 hovertemplate=f"{hover}<extra></extra>",
             )
         )
-    # the total number of datasets above each bar
-    totals = [int(counts.xs(value, level=x).sum()) if value in counts else 0 for value in order]
-    fig.add_trace(
-        go.Scatter(
-            x=order,
-            y=totals,
-            text=totals,
-            mode="text",
-            textposition="top center",
-            showlegend=False,
-            hoverinfo="skip",
-        )
-    )
     return fig.update_layout(
         barmode="stack",
         title=title,

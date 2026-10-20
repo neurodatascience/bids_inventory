@@ -100,8 +100,6 @@ def test_field_strength_histogram():
         "abide": {"3T": 1, "7T": 0, "10.5T": 0},
     }
     assert fig.layout.barmode == "stack"
-    # the totals above the bars
-    assert list(fig.data[-1].y) == [2, 1, 1]
     # the number of participants on hover
     assert list(fig.data[0].customdata) == [10, 10, 30]
 
@@ -175,7 +173,11 @@ def test_nb_datatypes_histogram(listing):
     from bids_inventory._plotting import nb_datatypes_histogram
 
     fig = nb_datatypes_histogram(listing)
-    assert dict(zip(fig.data[-1].x, fig.data[-1].y)) == {1: 1, 2: 1, 3: 1}
+    totals: dict[int, int] = {}
+    for trace in fig.data:
+        for x, y in zip(trace.x, trace.y):
+            totals[x] = totals.get(x, 0) + y
+    assert totals == {1: 1, 2: 1, 3: 1}
 
 
 def test_physio_types_histogram():
