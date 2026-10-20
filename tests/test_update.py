@@ -1464,3 +1464,35 @@ def test_get_nb_runs(tmp_path, monkeypatch):
     _touch(tmp_path / "sub-02" / "func" / "sub-02_task-rest_bold.nii.gz")
 
     assert _update.get_nb_runs(tmp_path) == 4
+
+
+def test_get_raw_size(tmp_path, monkeypatch):
+    """The annexed files, without the derivatives and sourcedata folders."""
+    import subprocess
+
+    from bids_inventory import _update
+
+    lines = [
+        "100\tsub-01/anat/sub-01_T1w.nii.gz",
+        "20\tsub-01/func/sub-01_task-rest_bold.nii.gz",
+        "1000\tderivatives/fmriprep/sub-01/anat/sub-01_desc-preproc_T1w.nii.gz",
+        "500\tsourcedata/sub-01.zip",
+        # keys without size are not counted
+        "unknown\tsub-01/func/sub-01_task-rest_events.tsv",
+    ]
+    listing = "\n".join(lines)
+    monkeypatch.setattr(
+        _update.subprocess,
+        "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(command, 0, listing, ""),
+    )
+    assert _update.get_raw_size(tmp_path) == 120
+
+    monkeypatch.setattr(
+        _update.subprocess,
+        "run",
+        lambda command, **kwargs: subprocess.CompletedProcess(
+            command, 1, "", "not a git repository"
+        ),
+    )
+    assert _update.get_raw_size(tmp_path) is None

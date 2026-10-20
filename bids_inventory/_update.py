@@ -930,6 +930,7 @@ def get_info_dataset(dataset_pth: Path, study_prefix: str, jobs: int = 1) -> Bid
     dataset.datatypes = datatypes
 
     dataset.size = get_dataset_size(dataset_pth)
+    dataset.raw_size = get_raw_size(dataset_pth)
 
     tasks = None
     if any(
@@ -1565,6 +1566,7 @@ FIELDS: dict[str, Any] = {
     "physio_recordings": lambda dataset_pth: get_physio_recordings(dataset_pth),
     "physio_columns": lambda dataset_pth: get_physio_columns(dataset_pth),
     "nb_runs": lambda dataset_pth: get_nb_runs(dataset_pth),
+    "raw_size": lambda dataset_pth: get_raw_size(dataset_pth),
 }
 
 
@@ -1857,6 +1859,46 @@ def get_dataset_size(dataset_pth: Path) -> str:
         text=True,
     )
     return parse_dataset_size(result.stdout)
+
+
+# folders whose content is not counted in raw_size: not raw BIDS data
+NOT_RAW_FOLDERS = {"derivatives", "sourcedata", "source"}
+
+
+def get_raw_size(dataset_pth: Path) -> int | None:
+    """Return the size in bytes of the annexed files, without derivatives and sourcedata.
+
+    The files of the derivatives, sourcedata (and source) folders at the root of the
+    dataset are not counted: they can be large, and are not standardized.
+    From the size in the git-annex keys of the files of the last commit
+    (``git annex find --branch=HEAD``), even if their content is not downloaded.
+    None if it cannot be read (for example git-annex not initialized).
+    """
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(dataset_pth),
+            "annex",
+            "find",
+            # the files of the last commit, whatever the state of the working tree
+            "--branch=HEAD",
+            "--include=*",
+            "--format=${bytesize}\t${file}\n",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        cc_log.warning(f"Could not list the annexed files: {result.stderr.strip()[:200]}")
+        return None
+    size = 0
+    for line in result.stdout.splitlines():
+        bytesize, _, filepath = line.partition("\t")
+        # keys without size (for example some URL keys) are not counted
+        if bytesize.isdigit() and filepath.split("/")[0] not in NOT_RAW_FOLDERS:
+            size += int(bytesize)
+    return size
 
 
 def parse_dataset_size(status_output: str) -> str:

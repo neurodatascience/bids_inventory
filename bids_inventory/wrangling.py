@@ -45,7 +45,9 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
     - ``has_freesurfer``: :obj:`bool` ``True`` if the dataset has knwow freesurfer preprocessed derivatives.
     - ``has_mriqc``: :obj:`bool` ``True`` if the dataset has knwow mriqc derivatives.
     - ``source``: Specifies the source of the dataset.
-    - ``mean_size``: size per subject in kilobytes
+    - ``size``: size in bytes, without the derivatives and sourcedata folders if known
+      (``raw_size``), otherwise of the whole dataset (as reported by datalad).
+    - ``mean_size``: size per subject in bytes
     - datatype: one column for each BIDS known datatype with ``True`` if this dataset contains that datatype
       (``phenotype``: if it has a phenotype folder at its root, ``has_phenotype_dir``).
     - ``total_duration``: Total "scanned" duration per participant (combines runs from: ``func``, ``eeg``, ``ieeg``)
@@ -94,16 +96,16 @@ def wrangle_data(df: pd.DataFrame) -> pd.DataFrame:
 
     df["source"] = _get_source_study(df)
 
-    # standardize size
-    # convert to kilobytes
-    for unit, exponent in zip(["TB", "GB", "MB", "KB"], [12, 9, 6, 3]):
-        df["size"] = df["size"].apply(
-            lambda x: (
-                float(x.split(" ")[0]) * 10**exponent
-                if isinstance(x, str) and x.endswith(unit)
-                else x
-            )
-        )
+    # in bytes: without the derivatives and sourcedata folders when known (raw_size),
+    # otherwise the size of the whole dataset reported by datalad
+    total_size = df["size"].apply(_size_in_bytes)
+    raw_size = (
+        # floats: raw_size is a nullable integer column
+        pd.to_numeric(df["raw_size"], errors="coerce").astype(float)
+        if "raw_size" in df
+        else pd.Series(np.nan, index=df.index)
+    )
+    df["size"] = raw_size.where(raw_size.notna(), total_size).astype(float)
     df["mean_size"] = df["size"] / df["nb_subjects"]
 
     for datatype in KNOWN_DATATYPES:
@@ -219,6 +221,8 @@ def _detect_missing_duration(df: pd.DataFrame) -> None:
     for datatype in ["func", "ieeg", "eeg", "pet"]:
         mask = df[datatype]
         tmp_df = df[mask]
+        if tmp_df.empty:
+            continue
         cc_log.debug(
             f"Missing some duration for {tmp_df['missing_duration'].sum()} of {datatype} datasets "
             f"({tmp_df['missing_duration'].sum() / len(tmp_df) * 100:0.1f} %)."
@@ -348,6 +352,20 @@ def field_strength_label(value: float) -> str | None:
     if abs(nominal - value) <= 0.05 * nominal:
         value = nominal
     return f"{value:g}T"
+
+
+# units of the sizes reported by datalad: binary (2.2 GB is 2.2 * 1024**3 bytes)
+_SIZE_UNITS = {"B": 1, "KB": 1024, "MB": 1024**2, "GB": 1024**3, "TB": 1024**4, "PB": 1024**5}
+
+
+def _size_in_bytes(size: Any) -> float:
+    """Return a size reported by datalad ("2.2 GB") in bytes (NaN if not known)."""
+    if isinstance(size, (int, float)) and not isinstance(size, bool):
+        return float(size)
+    match = re.fullmatch(r"\s*([0-9.]+)\s*([KMGTP]?B)\s*", str(size))
+    if not match:
+        return np.nan
+    return float(match.group(1)) * _SIZE_UNITS[match.group(2)]
 
 
 def _participant_ages(names: pd.Series) -> list[list[float]]:
