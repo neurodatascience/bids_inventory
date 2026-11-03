@@ -87,14 +87,21 @@ def test_field_strength_histogram():
     df = pd.DataFrame(
         {
             "name": ["ds1", "ds2", "ds3", "ds4"],
+            "source": ["openneuro", "abide", "openneuro", "openneuro"],
             "nb_subjects": [10, 20, 30, 40],
-            "field_strengths": [["3T", "7T"], ["unknown"], ["10.5T"], []],
+            "field_strengths": [["3T", "7T"], ["3T"], ["10.5T"], []],
         }
     )
     fig = field_strength_histogram(df)
-    # sorted by field strength, unknown last; datasets without MRI not counted
-    assert list(fig.data[0].x) == ["3T", "7T", "10.5T", "unknown"]
-    assert list(fig.data[0].y) == [1, 1, 1, 1]
+    # one stacked bar per source; sorted by field strength; datasets without MRI not counted
+    bars = {trace.name: dict(zip(trace.x, trace.y)) for trace in fig.data if trace.type == "bar"}
+    assert bars == {
+        "openneuro": {"3T": 1, "7T": 1, "10.5T": 1},
+        "abide": {"3T": 1, "7T": 0, "10.5T": 0},
+    }
+    assert fig.layout.barmode == "stack"
+    # the number of participants on hover
+    assert list(fig.data[0].customdata) == [10, 10, 30]
 
 
 @pytest.fixture
@@ -102,6 +109,7 @@ def listing():
     return pd.DataFrame(
         {
             "name": ["ds1", "ds2", "ds3"],
+            "source": ["openneuro", "abide", "openneuro"],
             "datatypes": [["anat", "func"], ["eeg"], ["meg", "eeg", "anat"]],
             "duration": [
                 {"func": {"rest": [600.0, None], "nback": None}},
@@ -136,6 +144,7 @@ def test_version_histogram(listing):
     fig = version_histogram(listing, "bids_version", "BIDS")
     # sorted as versions, not as text
     assert list(fig.data[0].x) == ["1.9.0", "1.10.0"]
+    assert [trace.name for trace in fig.data if trace.type == "bar"] == ["openneuro", "abide"]
     assert version_histogram(listing, "mriqc_version", "MRIQC").layout.title.text.startswith(
         "MRIQC version (0 datasets)"
     )
@@ -164,7 +173,11 @@ def test_nb_datatypes_histogram(listing):
     from bids_inventory._plotting import nb_datatypes_histogram
 
     fig = nb_datatypes_histogram(listing)
-    assert dict(zip(fig.data[0].x, fig.data[0].y)) == {1: 1, 2: 1, 3: 1}
+    totals: dict[int, int] = {}
+    for trace in fig.data:
+        for x, y in zip(trace.x, trace.y):
+            totals[x] = totals.get(x, 0) + y
+    assert totals == {1: 1, 2: 1, 3: 1}
 
 
 def test_physio_types_histogram():
@@ -172,6 +185,8 @@ def test_physio_types_histogram():
 
     df = pd.DataFrame(
         {
+            "name": ["ds1", "ds2", "ds3", "ds4"],
+            "source": ["openneuro"] * 4,
             "has_physio": [True, True, True, False],
             "physio_types": [["cardiac", "respiratory"], ["cardiac"], [], []],
         }
@@ -184,3 +199,30 @@ def test_physio_types_histogram():
         "not identified": 1,
     }
     assert list(fig.data[0].x)[-1] == "not identified"
+
+
+def test_source_colors():
+    """Each source has its color, the same in all the figures."""
+    from bids_inventory._plotting import SOURCE_COLORS
+    from bids_inventory.wrangling import SOURCES
+
+    assert set(SOURCE_COLORS) == {source for _, source in SOURCES} | {"other"}
+    assert len(set(SOURCE_COLORS.values())) == len(SOURCE_COLORS)
+
+
+def test_institutions_map_by_source():
+    from bids_inventory._plotting import institutions_map
+
+    locations = pd.DataFrame(
+        {
+            "name": ["A", "A", "B"],
+            "count": [1, 2, 3],
+            "nb_subjects": [10, 20, 30],
+            "address": ["a", "a", "b"],
+            "latitude": [1.0, 1.0, 2.0],
+            "longitude": [1.0, 1.0, 2.0],
+            "source": ["openneuro", "dandi", "openneuro"],
+        }
+    )
+    fig = institutions_map(locations)
+    assert [trace.name for trace in fig.data] == ["openneuro", "dandi"]
