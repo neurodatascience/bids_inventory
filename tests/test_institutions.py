@@ -129,3 +129,11 @@ def test_institutions_locations_by_source(institutions):
     )
     locations = institutions_locations_by_source(institutions, df)
     assert locations[["source", "count", "nb_subjects"]].values.tolist() == [["openneuro", 2, 3]]
+
+
+def test_countries_in_english():
+    """The countries are in English: Nominatim is asked for English names."""
+    countries = {x["Country"] for x in load_institutions().values()} - {""}
+    assert "Germany" in countries
+    # not in another alphabet, nor with accents ("Deutschland", "España"...)
+    assert {x for x in countries if not x.isascii()} <= {"Türkiye"}

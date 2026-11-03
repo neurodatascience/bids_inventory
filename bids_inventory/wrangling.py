@@ -1,6 +1,7 @@
 """Add summary columns to the listing of datasets and filter it."""
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
@@ -267,8 +268,11 @@ class FilterConfig(TypedDict):
     participants: bool | None
     task: str
     task_regex: bool
+    task_exclude: str
+    task_exclude_regex: bool
     institution: str
     institution_regex: bool
+    exclude_no_institution: bool
     country: str
     country_regex: bool
     author: str
@@ -281,6 +285,7 @@ class FilterConfig(TypedDict):
     field_strength: str | None
     age: list[float] | None
     age_unknown: bool
+    subjects: list[int] | None
     sessions: list[int] | None
     runs: list[int] | None
 
@@ -292,8 +297,11 @@ DEFAULT_CONFIG: FilterConfig = {
     "participants": None,
     "task": "",
     "task_regex": False,
+    "task_exclude": "",
+    "task_exclude_regex": False,
     "institution": "",
     "institution_regex": False,
+    "exclude_no_institution": False,
     "country": "",
     "country_regex": False,
     "author": "",
@@ -306,6 +314,7 @@ DEFAULT_CONFIG: FilterConfig = {
     "field_strength": None,
     "age": None,
     "age_unknown": True,
+    "subjects": None,
     "sessions": None,
     "runs": None,
 }
@@ -400,8 +409,12 @@ TEXT_FILTERS = {
 }
 
 
-def _text_mask(values: pd.Series, query: str, regex: bool) -> pd.Series:
-    """Keep the rows where one of the strings of the lists in ``values`` matches ``query``.
+# keys of the configuration that are texts to search (not booleans)
+TEXT_KEYS = {*TEXT_FILTERS, "task_exclude"}
+
+
+def text_matcher(query: str, regex: bool) -> Callable[[str], bool]:
+    """Return a function telling if a string matches ``query``.
 
     Case insensitive: ``query`` is a substring, or a regular expression if ``regex``.
     Raises ``ValueError`` if the regular expression is invalid.
@@ -419,6 +432,16 @@ def _text_mask(values: pd.Series, query: str, regex: bool) -> pd.Series:
         def match(x: str) -> bool:
             return query.lower() in x.lower()
 
+    return match
+
+
+def _text_mask(values: pd.Series, query: str, regex: bool) -> pd.Series:
+    """Keep the rows where one of the strings of the lists in ``values`` matches ``query``.
+
+    Case insensitive: ``query`` is a substring, or a regular expression if ``regex``.
+    Raises ``ValueError`` if the regular expression is invalid.
+    """
+    match = text_matcher(query, regex)
     return values.apply(
         lambda x: any(match(str(v)) for v in x) if isinstance(x, (list, tuple)) else False
     )
@@ -439,9 +462,14 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     - ``"physio"`` : None | bool
     - ``"task"``: str: keeps the datasets with a task containing this text (case insensitive)
     - ``"task_regex"``: bool: ``"task"`` is a regular expression
+    - ``"task_exclude"``: str: leave the tasks containing this text out of the search
+      (case insensitive): keeps the datasets with another task (matching ``"task"`` if any)
+    - ``"task_exclude_regex"``: bool: ``"task_exclude"`` is a regular expression
     - ``"institution"``: str: same for the institutions
       (as named in the keys of ``bids_inventory/data/institutions.json``)
     - ``"institution_regex"``: bool
+    - ``"exclude_no_institution"``: bool: leave out the datasets without a located institution
+      (no institution in their metadata, or none that could be located)
     - ``"country"``: str: same for the countries of the institutions
     - ``"country_regex"``: bool
     - ``"author"``: str: same for the authors
@@ -460,6 +488,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
       (ages of the participants of neurobagel_participants.tsv)
     - ``"age_unknown"`` : bool keep the datasets without participant ages
       when filtering by age (default: True)
+    - ``"subjects"`` : [min, max] | None number of participants (inclusive)
     - ``"sessions"`` : [min, max] | None number of sessions (inclusive)
     - ``"runs"`` : [min, max] | None number of runs of the first participant,
       across tasks and datatypes (inclusive)
@@ -494,6 +523,7 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_text = mask_text & _text_mask(
                 df[column], text_config[key], text_config[f"{key}_regex"]
             )
+    mask_text = mask_text & _task_exclude_mask(df, config)
 
     mask_physio = ALL_TRUE
     if config["physio"] is not None:
@@ -517,9 +547,14 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
         mask_species = df["species"].apply(lambda x: set(x or [NOT_SPECIFIED]) <= set(species))
 
     mask_age = _age_mask(df, config["age"], config["age_unknown"])
+    mask_subjects = _range_mask(df, "nb_subjects", config["subjects"])
     mask_sessions = _range_mask(df, "nb_sessions", config["sessions"])
     # unknown number of runs: as 0
     mask_runs = _range_mask(df, "nb_runs", config["runs"])
+
+    mask_institution = (
+        df["institution_names"].apply(bool) if config["exclude_no_institution"] else ALL_TRUE
+    )
 
     mask_field_strength = ALL_TRUE
     if field_strength := config["field_strength"]:
@@ -543,7 +578,9 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
             mask_sources,
             mask_species,
             mask_field_strength,
+            mask_institution,
             mask_age,
+            mask_subjects,
             mask_sessions,
             mask_runs,
         ),
@@ -553,6 +590,21 @@ def filter_data(df: pd.DataFrame, config: Any = None) -> pd.DataFrame:
     filtered_df = df[all_filters]
 
     return filtered_df
+
+
+def _task_exclude_mask(df: pd.DataFrame, config: FilterConfig) -> pd.Series:
+    """Keep the datasets with a task not matching ``config["task_exclude"]``.
+
+    And matching ``config["task"]`` (an empty one matches any task).
+    Only if ``config["task_exclude"]`` (otherwise keep all the datasets).
+    """
+    if not config["task_exclude"]:
+        return pd.Series(True, index=df.index)
+    excluded = text_matcher(config["task_exclude"], config["task_exclude_regex"])
+    tasks = df["tasks"].apply(
+        lambda x: [t for t in x if not excluded(str(t))] if isinstance(x, list) else []
+    )
+    return _text_mask(tasks, config["task"], config["task_regex"])
 
 
 def _age_mask(df: pd.DataFrame, age: list[float] | None, age_unknown: bool) -> pd.Series:
@@ -594,7 +646,7 @@ def _check_config(config: None | dict[str, Any]) -> FilterConfig:
 
     for key, value in config.items():
         # "true" is a valid text to search
-        if key not in TEXT_FILTERS:
+        if key not in TEXT_KEYS:
             config[key] = booleanify(value)
 
     if isinstance(config["datatypes"], bool):

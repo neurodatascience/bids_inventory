@@ -43,6 +43,7 @@ def _(bids_inventory_installed):
 
     from bids_inventory._plotting import (
         channels_histogram,
+        countries_histogram,
         datatypes_histogram,
         field_strength_histogram,
         file_formats_histogram,
@@ -78,6 +79,7 @@ def _(bids_inventory_installed):
     return (
         physio_types_histogram,
         channels_histogram,
+        countries_histogram,
         file_formats_histogram,
         nb_datatypes_histogram,
         run_durations_histogram,
@@ -133,6 +135,7 @@ def _(
             key=lambda x: float(x.removesuffix("T")) if x.endswith("T") else float("inf"),
         )
     ]
+    MAX_SUBJECTS = int(df["nb_subjects"].max())
     MAX_SESSIONS = int(df["nb_sessions"].max())
     MAX_RUNS = int(df["nb_runs"].fillna(0).max())
     institutions = load_institutions()
@@ -142,6 +145,7 @@ def _(
         FIELD_STRENGTHS,
         MAX_RUNS,
         MAX_SESSIONS,
+        MAX_SUBJECTS,
         SOURCES,
         SPECIES,
         df,
@@ -165,6 +169,7 @@ def _(
     KNOWN_DATATYPES,
     MAX_RUNS,
     MAX_SESSIONS,
+    MAX_SUBJECTS,
     NOT_SPECIFIED,
     SOURCES,
     SPECIES,
@@ -185,8 +190,13 @@ def _(
 
     task = mo.ui.text(value="")
     task_regex = regex_checkbox()
+    task_exclude = mo.ui.text(value="", placeholder="for example: rest")
+    task_exclude_regex = regex_checkbox()
     institution = mo.ui.text(value="", placeholder="for example: McGill")
     institution_regex = regex_checkbox()
+    exclude_no_institution = mo.ui.checkbox(
+        label="exclude the datasets without institution", value=False
+    )
     ALL_COUNTRIES = "all countries"
     country = mo.ui.dropdown(
         options={
@@ -209,6 +219,8 @@ def _(
     # ages of the participants: the full range keeps all the datasets
     age = mo.ui.range_slider(start=0, stop=100, step=1, value=[0, 100], show_value=True)
     age_unknown = mo.ui.checkbox(label="keep the datasets without participant ages", value=True)
+    min_subjects = mo.ui.number(start=1, stop=MAX_SUBJECTS, value=1, label="from")
+    max_subjects = mo.ui.number(start=1, stop=MAX_SUBJECTS, value=MAX_SUBJECTS, label="to")
     min_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=1, label="from")
     max_sessions = mo.ui.number(start=1, stop=MAX_SESSIONS, value=MAX_SESSIONS, label="to")
     min_runs = mo.ui.number(start=0, stop=MAX_RUNS, value=0, label="from")
@@ -231,14 +243,17 @@ def _(
         country,
         datatypes,
         datatypes_and_or,
+        exclude_no_institution,
         field_strength,
         fmriprep,
         institution,
         institution_regex,
         max_runs,
         max_sessions,
+        max_subjects,
         min_runs,
         min_sessions,
+        min_subjects,
         mriqc,
         participants,
         physio,
@@ -246,6 +261,8 @@ def _(
         sources_and_or,
         species,
         task,
+        task_exclude,
+        task_exclude_regex,
         task_regex,
     )
 
@@ -259,14 +276,17 @@ def _(
     country,
     datatypes,
     datatypes_and_or,
+    exclude_no_institution,
     field_strength,
     fmriprep,
     institution,
     institution_regex,
     max_runs,
     max_sessions,
+    max_subjects,
     min_runs,
     min_sessions,
+    min_subjects,
     mo,
     mriqc,
     participants,
@@ -275,6 +295,8 @@ def _(
     sources_and_or,
     species,
     task,
+    task_exclude,
+    task_exclude_regex,
     task_regex,
 ):
     def section(title: str, description: str | None, *elements: object) -> mo.Html:
@@ -297,8 +319,21 @@ def _(
                 [
                     section(
                         "task",
-                        "Keep datasets with a task containing this text (case insensitive)",
-                        mo.hstack([task, task_regex], justify="start"),
+                        "Keep datasets with a task containing this text (case insensitive). "
+                        "Excluding tasks keeps only the datasets with another task.\n\n"
+                        "To exclude the resting state tasks (rest, RestingState, BOLDREST1...) "
+                        "but not forrestgump or presto: "
+                        "`(?-i:^rest|Rest|REST|rest$)` with 'regular expression' ticked "
+                        "(`(?-i:...)` makes it case sensitive).",
+                        mo.vstack(
+                            [
+                                mo.hstack([task, task_regex], justify="start"),
+                                mo.hstack(
+                                    [mo.md("exclude"), task_exclude, task_exclude_regex],
+                                    justify="start",
+                                ),
+                            ]
+                        ),
                     ),
                     section(
                         "author",
@@ -315,7 +350,12 @@ def _(
                         "institution",
                         "Keep datasets from an institution containing this text "
                         "(names as in bids_inventory/data/institutions.json)",
-                        mo.hstack([institution, institution_regex], justify="start"),
+                        mo.vstack(
+                            [
+                                mo.hstack([institution, institution_regex], justify="start"),
+                                exclude_no_institution,
+                            ]
+                        ),
                     ),
                     section(
                         "country",
@@ -339,6 +379,11 @@ def _(
                         "Keep datasets with participants of these ages (in years), "
                         "from the participants.tsv annotated by Neurobagel",
                         mo.vstack([age, age_unknown]),
+                    ),
+                    section(
+                        "number of participants",
+                        "Keep datasets with this number of participants",
+                        mo.hstack([min_subjects, max_subjects], justify="start"),
                     ),
                     section(
                         "sessions",
@@ -392,6 +437,7 @@ def _(
     SOURCES,
     MAX_RUNS,
     MAX_SESSIONS,
+    MAX_SUBJECTS,
     SPECIES,
     age,
     age_unknown,
@@ -401,6 +447,7 @@ def _(
     datatypes,
     datatypes_and_or,
     df,
+    exclude_no_institution,
     field_strength,
     filter_data,
     fmriprep,
@@ -408,8 +455,10 @@ def _(
     institution_regex,
     max_runs,
     max_sessions,
+    max_subjects,
     min_runs,
     min_sessions,
+    min_subjects,
     mriqc,
     participants,
     physio,
@@ -417,6 +466,8 @@ def _(
     sources_and_or,
     species,
     task,
+    task_exclude,
+    task_exclude_regex,
     task_regex,
 ):
     import re
@@ -428,8 +479,11 @@ def _(
         "sources_and_or": sources_and_or.value,
         "task": task.value,
         "task_regex": task_regex.value,
+        "task_exclude": task_exclude.value,
+        "task_exclude_regex": task_exclude_regex.value,
         "institution": institution.value,
         "institution_regex": institution_regex.value,
+        "exclude_no_institution": exclude_no_institution.value,
         # the exact name of the country
         "country": f"^{re.escape(country.value)}$" if country.value else "",
         "country_regex": True,
@@ -444,6 +498,11 @@ def _(
         # the full ranges keep all the datasets
         "age": None if list(age.value) == [0, 100] else list(age.value),
         "age_unknown": age_unknown.value,
+        "subjects": (
+            None
+            if [min_subjects.value, max_subjects.value] == [1, MAX_SUBJECTS]
+            else [min_subjects.value, max_subjects.value]
+        ),
         "sessions": (
             None
             if [min_sessions.value, max_sessions.value] == [1, MAX_SESSIONS]
@@ -558,8 +617,18 @@ def _(filtered_df, mo, scatter_subject_vs, subject_vs):
 
 
 @app.cell
-def _(filtered_df, histogram_tasks, mo):
-    mo.vstack([mo.md("---"), histogram_tasks(filtered_df)])
+def _(filter_error, filtered_df, histogram_tasks, mo, task_exclude, task_exclude_regex):
+    mo.vstack(
+        [
+            mo.md("---"),
+            histogram_tasks(
+                filtered_df,
+                # no dataset to plot if the exclusion is an invalid regular expression
+                exclude="" if filter_error else task_exclude.value,
+                exclude_regex=task_exclude_regex.value,
+            ),
+        ]
+    )
     return
 
 
@@ -613,17 +682,55 @@ def _(channels_histogram, file_formats_histogram, filtered_df, mo):
 
 
 @app.cell
+def _(mo):
+    countries_count = mo.ui.radio(
+        options=["datasets", "participants"], value="datasets", inline=True
+    )
+    return (countries_count,)
+
+
+@app.cell
 def _(
+    countries_count,
+    countries_histogram,
     filtered_df,
     institutions,
     institutions_locations_by_source,
     institutions_map,
     mo,
 ):
+    def _percent(mask) -> str:
+        return f"{mask.sum()} ({mask.mean() * 100:0.1f} %)" if len(mask) else "0"
+
+    # no institution in the metadata of the dataset, or none that could be located
+    _recorded = filtered_df["institutions"].apply(lambda x: isinstance(x, list) and len(x) > 0)
+    _located = filtered_df["institution_names"].apply(bool)
     mo.vstack(
         [
-            mo.md("---"),
-            institutions_map(institutions_locations_by_source(institutions, filtered_df)),
+            mo.md(f"""
+    ---
+
+    ## Institutions of the datasets
+
+    Of the {len(filtered_df)} selected datasets:
+
+    - without recorded institution: {_percent(~_recorded)}
+    - with institutions that could not be located: {_percent(_recorded & ~_located)}
+
+    These datasets are not on the map nor in the histogram.
+    """),
+            mo.hstack(
+                [
+                    institutions_map(institutions_locations_by_source(institutions, filtered_df)),
+                    mo.vstack(
+                        [
+                            countries_histogram(filtered_df, count=countries_count.value),
+                            mo.hstack([countries_count], justify="center"),
+                        ]
+                    ),
+                ],
+                widths="equal",
+            ),
         ]
     )
     return

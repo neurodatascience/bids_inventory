@@ -18,6 +18,7 @@ Results that are only a country or a region are not used.
 Needs the 'institutions' extra.
 """
 
+from functools import partial
 from typing import Any
 
 from geopy.extra.rate_limiter import RateLimiter
@@ -160,7 +161,10 @@ def _names_country(names: list[str]) -> str | None:
 def _geocoder() -> RateLimiter:
     geolocator = Nominatim(user_agent="bids-inventory-institutions", timeout=10)
     # Nominatim usage policy: at most 1 request per second
-    return RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=2)
+    # addresses and countries in English (otherwise in the language of the country)
+    return RateLimiter(
+        partial(geolocator.geocode, language="en"), min_delay_seconds=1, max_retries=2
+    )
 
 
 def _locate(

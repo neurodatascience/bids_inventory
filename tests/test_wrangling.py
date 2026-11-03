@@ -66,11 +66,18 @@ def test_filter_data_species():
     [
         ({"task": "REST"}, ["ds1", "ds2"]),
         ({"task": "^rest$", "task_regex": True}, ["ds1"]),
+        # the excluded tasks are left out of the search
+        ({"task": "rest", "task_exclude": "ing"}, ["ds1"]),
+        ({"task_exclude": "rest"}, ["ds3"]),
+        ({"task_exclude": "^rest$", "task_exclude_regex": True}, ["ds2", "ds3"]),
+        # "true" is a text to exclude, not a boolean
+        ({"task_exclude": "true"}, ["ds1", "ds2", "ds3"]),
         ({"author": "poldrack"}, ["ds1"]),
         ({"author": r"^gau, r", "author_regex": True}, ["ds2"]),
         ({"institution": "mcgill"}, ["ds2"]),
         ({"country": "^(france|canada)$", "country_regex": True}, ["ds1", "ds2"]),
         ({"country": "canada", "author": "poldrack"}, []),
+        ({"exclude_no_institution": True}, ["ds1", "ds2"]),
         # "true" is a text to search, not a boolean
         ({"author": "true"}, []),
     ],
@@ -93,6 +100,8 @@ def test_filter_data_invalid_regex():
     df = wrangle_data(known_datasets_df())
     with pytest.raises(ValueError, match="Invalid regular expression"):
         filter_data(df, config={"author": "(", "author_regex": True})
+    with pytest.raises(ValueError, match="Invalid regular expression"):
+        filter_data(df, config={"task_exclude": "(", "task_exclude_regex": True})
 
 
 def test_wrangle_data_institutions():
@@ -200,14 +209,17 @@ def test_wrangle_data_physio_types():
         ({"age": [0, 10], "age_unknown": False}, []),
         ({"sessions": [2, 5]}, ["ds2", "ds3"]),
         ({"sessions": [1, 1]}, ["ds1"]),
+        ({"subjects": [10, 100]}, ["ds2", "ds3"]),
+        ({"subjects": [1, 5]}, ["ds1"]),
     ],
 )
-def test_filter_data_age_sessions(config, expected):
+def test_filter_data_age_subjects_sessions(config, expected):
     df = pd.DataFrame(
         {
             "name": ["ds1", "ds2", "ds3"],
             "datatypes": [["func"]] * 3,
             "ages": [[20.0, 65.0], [30.0], []],
+            "nb_subjects": [3, 10, 100],
             "nb_sessions": [1, 2, 5],
             "nb_runs": [1, 1, 1],
         }
