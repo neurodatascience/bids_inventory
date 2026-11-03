@@ -104,6 +104,30 @@ def test_field_strength_histogram():
     assert list(fig.data[0].customdata) == [10, 10, 30]
 
 
+@pytest.mark.parametrize(
+    "exclude, exclude_regex, expected",
+    [
+        ("", False, {"rest", "RestingState", "nback"}),
+        ("rest", False, {"nback"}),
+        ("^rest$", True, {"RestingState", "nback"}),
+    ],
+)
+def test_histogram_tasks(exclude, exclude_regex, expected):
+    from bids_inventory._plotting import histogram_tasks
+
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2"],
+            "source": ["openneuro", "openneuro"],
+            "nb_subjects": [10, 20],
+            "tasks": [["rest", "nback"], ["RestingState"]],
+        }
+    )
+    fig = histogram_tasks(df, exclude=exclude, exclude_regex=exclude_regex)
+    tasks = {x for trace in fig.data if trace.type == "bar" for x in trace.x}
+    assert tasks == expected
+
+
 @pytest.fixture
 def listing():
     return pd.DataFrame(
@@ -208,6 +232,40 @@ def test_source_colors():
 
     assert set(SOURCE_COLORS) == {source for _, source in SOURCES} | {"other"}
     assert len(set(SOURCE_COLORS.values())) == len(SOURCE_COLORS)
+
+
+@pytest.mark.parametrize(
+    "count, order, expected",
+    [
+        # the highest first, then alphabetical
+        (
+            "datasets",
+            ["Canada", "France", "Brazil"],
+            {"openneuro": [1, 2, 0], "abide": [1, 0, 1]},
+        ),
+        (
+            "participants",
+            ["Brazil", "Canada", "France"],
+            {"openneuro": [0, 20, 30], "abide": [100, 20, 0]},
+        ),
+    ],
+)
+def test_countries_histogram(count, order, expected):
+    from bids_inventory._plotting import countries_histogram
+
+    df = pd.DataFrame(
+        {
+            "name": ["ds1", "ds2", "ds3", "ds4", "ds5"],
+            "source": ["openneuro", "openneuro", "abide", "abide", "abide"],
+            "nb_subjects": [10, 20, 20, 100, 5],
+            # ds2 is counted for both countries, ds5 has no located institution
+            "countries": [["France"], ["Canada", "France"], ["Canada"], ["Brazil"], []],
+        }
+    )
+    fig = countries_histogram(df, count=count)
+    assert {trace.name: list(trace.x) for trace in fig.data} == dict.fromkeys(expected, order)
+    assert {trace.name: list(trace.y) for trace in fig.data} == expected
+    assert fig.layout.yaxis.title.text == f"number of {count}"
 
 
 def test_institutions_map_by_source():

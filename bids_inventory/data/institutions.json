@@ -46,7 +46,7 @@
             "Aarhus University, Finlandsgade 22, 8200, Aarhus N"
         ],
         "City": "Aarhus",
-        "Country": "Danmark",
+        "Country": "Denmark",
         "Latitude": 56.172021,
         "Longitude": 10.191144
     },
@@ -109,7 +109,7 @@
         "Address": "Via San Leonardo, Arbostella, Salerno, Campania, 84132, Italia",
         "AlternativeNames": [],
         "City": "Salerno",
-        "Country": "Italia",
+        "Country": "Italy",
         "Latitude": 40.6544951,
         "Longitude": 14.8127558
     },
@@ -138,7 +138,7 @@
             "University of Geneva"
         ],
         "City": "Genève",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.1942947,
         "Longitude": 6.1512909
     },
@@ -164,7 +164,7 @@
         "Address": "Haus 19, 44, Leipziger Straße, Magdeburg, Sachsen-Anhalt, 39120, Deutschland",
         "AlternativeNames": [],
         "City": "Magdeburg",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.1012103,
         "Longitude": 11.619966
     },
@@ -177,7 +177,7 @@
             "Xinjiekouwai Street No 19,Beijing,Haidian District,CN,100875"
         ],
         "City": "海淀区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.9531099,
         "Longitude": 116.3650816
     },
@@ -248,7 +248,7 @@
             "Beijing Normal University, Beijing, No 19 Xinjiekou Wai St, Haidian District, Beijing."
         ],
         "City": "西城区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.9597631,
         "Longitude": 116.359724
     },
@@ -258,7 +258,7 @@
             "XYZ University, Beijing, China"
         ],
         "City": "北京市",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.9057136,
         "Longitude": 116.3912972
     },
@@ -266,7 +266,7 @@
         "Address": "北京邮电大学, 杏坛路, 北太平庄街道, 海淀区, 北京市, 100088, 中国",
         "AlternativeNames": [],
         "City": "海淀区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.960227,
         "Longitude": 116.3519331
     },
@@ -277,7 +277,7 @@
             "Beijing_MRI_Center_for_Brain_Research, Datun_road_15_Beijing_Chaoyang_CN_100101"
         ],
         "City": "朝阳区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.0022048,
         "Longitude": 116.3712086
     },
@@ -285,7 +285,7 @@
         "Address": "首都医科大学附属北京天坛医院, 樊羊路, 新村街道, 丰台区, 北京市, 100070, 中国",
         "AlternativeNames": [],
         "City": "丰台区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.8320813,
         "Longitude": 116.3087401
     },
@@ -293,7 +293,7 @@
         "Address": "20, Freiburgstrasse, Mattenhof, Stadtteil III, Bern, Verwaltungskreis Bern-Mittelland, Verwaltungsregion Bern-Mittelland, Bern/Berne, 3010, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Bern",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.9469344,
         "Longitude": 7.4246655
     },
@@ -301,7 +301,7 @@
         "Address": "Avenida Policía Local, Parque Venecia, Torrero-La Paz, Zaragoza, Aragón, 50021, España",
         "AlternativeNames": [],
         "City": "Zaragoza",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 41.6191028,
         "Longitude": -0.8767997
     },
@@ -325,7 +325,7 @@
         "Address": "Universitat de Barcelona, Carrer de Pelai, la Dreta de l'Eixample, l'Eixample, Barcelona, Barcelonès, Barcelona, Catalunya, 08007, España",
         "AlternativeNames": [],
         "City": "Barcelona",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 41.3868614,
         "Longitude": 2.1634792
     },
@@ -340,7 +340,7 @@
             "Scannexus, Oxfordlaan_55_Maastricht_Limburg_NL_6229_EV"
         ],
         "City": "Maastricht",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 50.8317757,
         "Longitude": 5.7153191
     },
@@ -370,7 +370,7 @@
         "Address": "Bruker, Κάλβου Ανδρέα, Συνοικισμός, Χαλάνδρι, Δήμος Χαλανδρίου, Περιφερειακή Ενότητα Βορείου Τομέα Αθηνών, Περιφέρεια Αττικής, Αποκεντρωμένη Διοίκηση Αττικής, 152 63, Ελλάς",
         "AlternativeNames": [],
         "City": "",
-        "Country": "Ελλάς",
+        "Country": "Greece",
         "Latitude": 38.0239613,
         "Longitude": 23.7908939
     },
@@ -477,7 +477,7 @@
         "Address": "千葉大学医学部附属病院, 矢作トンネル, 矢作町, 中央区, 千葉市, 千葉県, 260-0856, 日本",
         "AlternativeNames": [],
         "City": "千葉市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.604199,
         "Longitude": 140.136775
     },
@@ -507,7 +507,7 @@
             "University of Granada, CIMCYC, Paseo de la Cartuja StreetNo,Granada,Granada,ES,18011"
         ],
         "City": "Granada",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 37.1928468,
         "Longitude": -3.6008503
     },
@@ -515,7 +515,7 @@
         "Address": "CIEA, 12, 殿町三丁目, 殿町, 川崎区, 川崎市, 神奈川県, 210-0821, 日本",
         "AlternativeNames": [],
         "City": "川崎市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.5402159,
         "Longitude": 139.7542822
     },
@@ -544,7 +544,7 @@
             "Yiheyuan_Road_5_Beijing_Haidian_CN_100871"
         ],
         "City": "海淀区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.9995451,
         "Longitude": 116.2832118
     },
@@ -609,7 +609,7 @@
             "Medi, Kuepkersweg 74,Oldenburg,District,DE,26129"
         ],
         "City": "Cappeln (Oldenburg)",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.8104892,
         "Longitude": 8.1141402
     },
@@ -617,7 +617,7 @@
         "Address": "钱江新城万豪酒店, 399, 剧院路, 市民中心, 四季青街道, 上城区, 杭州市, 浙江省, 310016, 中国",
         "AlternativeNames": [],
         "City": "上城区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.2482661,
         "Longitude": 120.2131968
     },
@@ -627,7 +627,7 @@
             "Center for Information and Neural Networks, Street StreetNo,Osaka,Osaka,JP,ZIP"
         ],
         "City": "吹田市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 34.8170545,
         "Longitude": 135.5282945
     },
@@ -645,7 +645,7 @@
         "Address": "Centre hospitalier universitaire vaudois, 46, Rue du Bugnon, Lausanne, District de Lausanne, Vaud, 1011, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Lausanne",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.525508,
         "Longitude": 6.6422687
     },
@@ -655,7 +655,7 @@
             "Paul Sabatier Universite, Pavillon Baudot CHU Purpan, BP 25202, 31052 Toulouse Cedex"
         ],
         "City": "Kielce",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 50.8773933,
         "Longitude": 20.647013
     },
@@ -663,7 +663,7 @@
         "Address": "28223, Pozuelo de Alarcón, Comunidad de Madrid, España",
         "AlternativeNames": [],
         "City": "Pozuelo de Alarcón",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 40.432495,
         "Longitude": -3.8165734
     },
@@ -687,7 +687,7 @@
         "Address": "Kraków, województwo małopolskie, Polska",
         "AlternativeNames": [],
         "City": "Kraków",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 50.0619474,
         "Longitude": 19.9368564
     },
@@ -703,7 +703,7 @@
         "Address": "Chalmers Tekniska Högskola, Johannebergsgatan, Lorensberg, Centrum, Göteborg, Göteborgs Stad, Västra Götalands län, 405 30, Sverige",
         "AlternativeNames": [],
         "City": "Göteborg",
-        "Country": "Sverige",
+        "Country": "Sweden",
         "Latitude": 57.6897462,
         "Longitude": 11.9765259
     },
@@ -719,7 +719,7 @@
         "Address": "大屯路, 南沙滩, 奥运村街道, 朝阳区, 北京市, 100191, 中国",
         "AlternativeNames": [],
         "City": "朝阳区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.0001173,
         "Longitude": 116.3649096
     },
@@ -730,7 +730,7 @@
             "Chong_Qing_Southwest_Normal_University_Hospital, Tian_Sheng_2_Chong_Qing_464ed4_Chong_Qing_CN_400715"
         ],
         "City": "北碚区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 29.8228157,
         "Longitude": 106.4203871
     },
@@ -740,7 +740,7 @@
             "CiNet, Yamadaoka_1-4_Suita-shi_Osaka_JP_565-0871"
         ],
         "City": "吹田市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 34.8209154,
         "Longitude": 135.5242456
     },
@@ -793,7 +793,7 @@
         "Address": "대한민국",
         "AlternativeNames": [],
         "City": "",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 36.638392,
         "Longitude": 127.6961188
     },
@@ -803,7 +803,7 @@
             "TIC Sitem Bern, Freiburgstrasse 18,Bern,District,CH,3010"
         ],
         "City": "Bern",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.9473366,
         "Longitude": 7.4253524
     },
@@ -811,7 +811,7 @@
         "Address": "DRCMR, Nordre Hospitalsvej, Bavnebakken, Hvidovre Kommune, Region Hovedstaden, 2650, Danmark",
         "AlternativeNames": [],
         "City": "",
-        "Country": "Danmark",
+        "Country": "Denmark",
         "Latitude": 55.6494633,
         "Longitude": 12.4650789
     },
@@ -849,7 +849,7 @@
             "UZ_Gent, De_Pintelaan_185_Gent_District_BE_9000"
         ],
         "City": "Gent",
-        "Country": "België / Belgique / Belgien",
+        "Country": "Belgium",
         "Latitude": 51.0287849,
         "Longitude": 3.7259093
     },
@@ -865,7 +865,7 @@
         "Address": "Betriebsfeuerwehr USZ, 10, Frauenklinikstrasse, Oberstrass, Kreis 6, Zürich, Bezirk Zürich, Zürich, 8091, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.3788817,
         "Longitude": 8.5506168
     },
@@ -873,7 +873,7 @@
         "Address": "100, Rämistrasse, Hochschulen, Altstadt, Zürich, Bezirk Zürich, Zürich, 8091, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.3782719,
         "Longitude": 8.5512164
     },
@@ -881,7 +881,7 @@
         "Address": "Amsterdam, Noord-Holland, Nederland",
         "AlternativeNames": [],
         "City": "Amsterdam",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 52.3730796,
         "Longitude": 4.8924534
     },
@@ -912,7 +912,7 @@
             "East_China_Normal_University, ZHONG_SHAN_BEI_3663_SHANGHAI_District_CN_200062"
         ],
         "City": "普陀区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 31.2284923,
         "Longitude": 121.4021139
     },
@@ -920,7 +920,7 @@
         "Address": "École Polytechnique Fédérale de Lausanne, Route Cantonale, Quartier Sorge, Ecublens, District de l'Ouest lausannois, Vaud, 1015, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Ecublens",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.5186594,
         "Longitude": 6.5665615
     },
@@ -928,7 +928,7 @@
         "Address": "9, Chemin des Mines, Sécheron, Pâquis, Genève, 1202, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Genève",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.2222467,
         "Longitude": 6.1483461
     },
@@ -938,7 +938,7 @@
             "Social Brain Sciences Lab, ETH Zurich, Zurich, Switzerland"
         ],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.413218,
         "Longitude": 8.5374914
     },
@@ -964,7 +964,7 @@
             "Jena University Hospital, Hans Knoell Str. 2, Floor 3, D-07745 Jena, Germany"
         ],
         "City": "",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 51.1638175,
         "Longitude": 10.4478313
     },
@@ -1016,7 +1016,7 @@
             "PFL, Philosophenweg_3_Jena_Thueringen_DE_07743"
         ],
         "City": "Jena",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 50.9325839,
         "Longitude": 11.5827582
     },
@@ -1026,7 +1026,7 @@
             "FUNDACIO_PASQUAL_MARAGALL"
         ],
         "City": "Barcelona",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 41.3890746,
         "Longitude": 2.1902995
     },
@@ -1034,7 +1034,7 @@
         "Address": "João Pessoa, Paraíba, Região Nordeste, Brasil",
         "AlternativeNames": [],
         "City": "João Pessoa",
-        "Country": "Brasil",
+        "Country": "Brazil",
         "Latitude": -7.1215981,
         "Longitude": -34.882028
     },
@@ -1042,7 +1042,7 @@
         "Address": "Genève, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Genève",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.2017559,
         "Longitude": 6.1466014
     },
@@ -1055,7 +1055,7 @@
             "MPI for Human Development, Lentzallee 94,Berlin,District,DE,14195"
         ],
         "City": "Berlin",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.5277013,
         "Longitude": 13.4043836
     },
@@ -1073,7 +1073,7 @@
             "Scene Grammar Lab, Goethe University Frankfurt"
         ],
         "City": "Frankfurt am Main",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 50.1723275,
         "Longitude": 8.6307298
     },
@@ -1081,15 +1081,28 @@
         "Address": "Stremayrgasse, Münzgraben, Katastralgemeinde Jakomini, Jakomini, Graz, Steiermark, 8010, Österreich",
         "AlternativeNames": [],
         "City": "Graz",
-        "Country": "Österreich",
+        "Country": "Austria",
         "Latitude": 47.0646671,
         "Longitude": 15.451501
+    },
+    "Grenoble Institut des Neurosciences": {
+        "Address": "IRMaGe - 3T, Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
+        "AlternativeNames": [
+            "IRMaGe, Value was not specified",
+            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
+            "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France",
+            "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France"
+        ],
+        "City": "La Tronche",
+        "Country": "France",
+        "Latitude": 45.1988831,
+        "Longitude": 5.7444235
     },
     "HFR_Hopital_Cantonal_Fribourg": {
         "Address": "HFR Fribourg – Hôpital cantonal, 2-6, Chemin des Pensionnats, Platy, Villars-sur-Glâne, District de la Sarine, Fribourg/Freiburg, 1752, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Villars-sur-Glâne",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.8019176,
         "Longitude": 7.1379484
     },
@@ -1118,7 +1131,7 @@
         "Address": "BR, Rodovia Ayrton Senna, Jardim das Olivas, Vila Any, Jardim Presidente Dutra, Guarulhos, São Paulo, Região Sudeste, 07263-400, Brasil",
         "AlternativeNames": [],
         "City": "Guarulhos",
-        "Country": "Brasil",
+        "Country": "Brazil",
         "Latitude": -23.4707746,
         "Longitude": -46.3994827
     },
@@ -1126,7 +1139,7 @@
         "Address": "Haukeland Universitetssjukehus, Jonas Lies vei, Årstad, Bergenhus, Bergen, Vestland, 5021, Norge",
         "AlternativeNames": [],
         "City": "Bergen",
-        "Country": "Norge",
+        "Country": "Norway",
         "Latitude": 60.3735808,
         "Longitude": 5.3590498
     },
@@ -1134,7 +1147,7 @@
         "Address": "האוניברסיטה העברית - גבעת רם, רופין, ירושלים, קרית הממשלה, ירושלים | القدس, נפת ירושלים, מחוז ירושלים, 9432531, ישראל",
         "AlternativeNames": [],
         "City": "ירושלים | القدس",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 31.7729398,
         "Longitude": 35.197995
     },
@@ -1145,7 +1158,7 @@
             "IDM_Hemholtz, Geissweg 3,Tuebingen,District,DE,72076"
         ],
         "City": "Tübingen",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 48.5277394,
         "Longitude": 9.0489311
     },
@@ -1153,7 +1166,7 @@
         "Address": "広島市, 広島県, 日本",
         "AlternativeNames": [],
         "City": "広島市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 34.3917241,
         "Longitude": 132.4517589
     },
@@ -1161,7 +1174,7 @@
         "Address": "一橋大学, 富士見通り, 中二丁目, 中, 国立市, 東京都, 186-0004, 日本",
         "AlternativeNames": [],
         "City": "国立市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.6937953,
         "Longitude": 139.4439284
     },
@@ -1169,7 +1182,7 @@
         "Address": "香港理工大學 Hong Kong Polytechnic University, 暢運道 Cheong Wan Road, 槍會山 Gun Club Hill, 尖沙咀東 East Tsim Sha Tsui, 油尖旺區 Yau Tsim Mong District, 九龍 Kowloon, 香港 Hong Kong, 中国",
         "AlternativeNames": [],
         "City": "香港 Hong Kong",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 22.3027249,
         "Longitude": 114.1780367
     },
@@ -1177,7 +1190,7 @@
         "Address": "Hospital, G349, 念巴细, 浪卡子社区, 浪卡子镇, 浪卡子县 སྣ་དཀར་རྩེ་རྫོང།, 山南市 ལྷོ་ཁ་ས་ཁུལ།, 西藏自治区 བོད་རང་སྐྱོང་ལྗོངས།, 中国",
         "AlternativeNames": [],
         "City": "浪卡子镇",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 28.964778,
         "Longitude": 90.3919532
     },
@@ -1185,7 +1198,7 @@
         "Address": "Calzada México-Xochimilco, GlaxoSmithKline, San Lorenzo Huipulco, Ciudad de México, Tlalpan, Ciudad de México, 14389, México",
         "AlternativeNames": [],
         "City": "Ciudad de México",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 19.2859246,
         "Longitude": -99.1432159
     },
@@ -1212,22 +1225,9 @@
             "INSTITUTO_DE_NEUROBIOLOGIA"
         ],
         "City": "Juriquilla",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 20.7058736,
         "Longitude": -100.4458998
-    },
-    "Grenoble Institut des Neurosciences": {
-        "Address": "IRMaGe - 3T, Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France",
-        "AlternativeNames": [
-            "IRMaGe, Value was not specified",
-            "IMAGERIE CHU GRENOBLE, Unite IRM 3T Recherche",
-            "GIN Grenoble, Grenoble, Auvergne-Rhône-Alpes, France",
-            "Grenoble Institut des Neurosciences (GIN), Chemin Fortuné Ferrini, La Tronche, Grenoble, Isère, Auvergne-Rhône-Alpes, France métropolitaine, 38700, France"
-        ],
-        "City": "La Tronche",
-        "Country": "France",
-        "Latitude": 45.1988831,
-        "Longitude": 5.7444235
     },
     "ISAE-SUPAERO, Toulouse, France": {
         "Address": "Isae-Supaéro, 10, Avenue Marc Pélegrin, L'Ormeau, Pont des Demoiselles / Ormeau/ Montaudran / La Terrasse / Malepère, Toulouse, Haute-Garonne, Occitanie, France métropolitaine, 31055, France",
@@ -1253,7 +1253,7 @@
         "Address": "Bangladesh, Lane 1, কালশী, মিরপুর, ঢাকা, ঢাকা মহানগর, ঢাকা জেলা, ঢাকা বিভাগ, 1216, বাংলাদেশ",
         "AlternativeNames": [],
         "City": "ঢাকা",
-        "Country": "বাংলাদেশ",
+        "Country": "Bangladesh",
         "Latitude": 23.8202931,
         "Longitude": 90.3710408
     },
@@ -1277,7 +1277,7 @@
         "Address": "中国人民解放军信息工程大学, 池南路, 枫杨街道, 中原区, 郑州市, 河南省, 中国",
         "AlternativeNames": [],
         "City": "中原区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 34.8166042,
         "Longitude": 113.5671427
     },
@@ -1319,7 +1319,7 @@
         "Address": "수원시, 경기도, 대한민국",
         "AlternativeNames": [],
         "City": "수원시",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 37.2633325,
         "Longitude": 127.0287472
     },
@@ -1335,7 +1335,7 @@
         "Address": "KWT, 1, Fasanenstraße, Spreestadt Charlottenburg, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10623, Deutschland",
         "AlternativeNames": [],
         "City": "Berlin",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.5115607,
         "Longitude": 13.3304208
     },
@@ -1345,7 +1345,7 @@
             "Universitaetsklinikum Duesseldorf, Institute of Clinical Neuroscience and Medical Psychology, Moorenstrasse 5 40225 Duesseldorf"
         ],
         "City": "Düsseldorf",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 51.1955316,
         "Longitude": 6.7856781
     },
@@ -1361,7 +1361,7 @@
         "Address": "中国科学院心理研究所, 16, 林萃路, 侯庄, 奥运村街道, 朝阳区, 北京市, 100191, 中国",
         "AlternativeNames": [],
         "City": "朝阳区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.0041222,
         "Longitude": 116.3705196
     },
@@ -1369,7 +1369,7 @@
         "Address": "Polska Akademia Nauk, 72, Nowy Świat, Centrum, Śródmieście Północne, Śródmieście, Warszawa, województwo mazowieckie, 00-330, Polska",
         "AlternativeNames": [],
         "City": "Warszawa",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 52.2377936,
         "Longitude": 21.0181978
     },
@@ -1377,7 +1377,7 @@
         "Address": "3, Ludwika Pasteura, Osiedle Grójecka, Stara Ochota, Ochota, Warszawa, województwo mazowieckie, 02-093, Polska",
         "AlternativeNames": [],
         "City": "Warszawa",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 52.2135128,
         "Longitude": 20.9841421
     },
@@ -1423,7 +1423,7 @@
         "Address": "江东南路, 孔雀社区, 白鹤街道, 鄞州区, 宁波市, 浙江省, 315010, 中国",
         "AlternativeNames": [],
         "City": "鄞州区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 29.8615329,
         "Longitude": 121.5517743
     },
@@ -1431,7 +1431,7 @@
         "Address": "江苏师范大学, 101号, 上海路, 铜山街道, 铜山区, 徐州市, 江苏省, 221116, 中国",
         "AlternativeNames": [],
         "City": "铜山区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 34.197485,
         "Longitude": 117.1733057
     },
@@ -1439,7 +1439,7 @@
         "Address": "한국과학기술원, 291, 대학로, 구성동, 온천2동, 유성구, 대전광역시, 34141, 대한민국",
         "AlternativeNames": [],
         "City": "대전광역시",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 36.3703054,
         "Longitude": 127.3620118
     },
@@ -1463,7 +1463,7 @@
         "Address": "Karl-Franzens-Universität Graz, Merangasse, Univiertel, Katastralgemeinde Geidorf, Geidorf, Graz, Steiermark, 8010, Österreich",
         "AlternativeNames": [],
         "City": "Graz",
-        "Country": "Österreich",
+        "Country": "Austria",
         "Latitude": 47.0778573,
         "Longitude": 15.4498491
     },
@@ -1473,7 +1473,7 @@
             "KFU, deleted_by_bidsonym"
         ],
         "City": "Graz",
-        "Country": "Österreich",
+        "Country": "Austria",
         "Latitude": 47.0830388,
         "Longitude": 15.478848
     },
@@ -1484,7 +1484,7 @@
             "University of Mons, Belgium"
         ],
         "City": "Leuven",
-        "Country": "België / Belgique / Belgien",
+        "Country": "Belgium",
         "Latitude": 50.8775987,
         "Longitude": 4.6937047
     },
@@ -1516,7 +1516,7 @@
         "Address": "34, Ismaninger Straße, Lerchenfeld West, Lerchenfeld, Attaching, Freising, Landkreis Freising, Bayern, 85356, Deutschland",
         "AlternativeNames": [],
         "City": "Freising",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 48.3933096,
         "Longitude": 11.7528258
     },
@@ -1528,7 +1528,7 @@
             "Klinikum_rechts_der_Isar, Ismaninger_Strasse_22_Muenchen_Muenchen_DE_81675"
         ],
         "City": "München",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 48.1378387,
         "Longitude": 11.6015956
     },
@@ -1536,7 +1536,7 @@
         "Address": "고려대, 안암로, 종암동, 성북구, 서울특별시, 02465, 대한민국",
         "AlternativeNames": [],
         "City": "서울특별시",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 37.5903784,
         "Longitude": 127.0360133
     },
@@ -1544,7 +1544,7 @@
         "Address": "고려대학교, 세종로, 조치원읍, 세종특별자치시, 30017, 대한민국",
         "AlternativeNames": [],
         "City": "세종특별자치시",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 36.6108894,
         "Longitude": 127.2934174
     },
@@ -1556,7 +1556,7 @@
             "LIN, Brenneckestr._6_Magdeburg_District_DE_39118"
         ],
         "City": "Magdeburg",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.1018484,
         "Longitude": 11.6109962
     },
@@ -1574,7 +1574,7 @@
             "Leibniz Research Centre for Working Environment and Human Factors, Dortmund, Germany"
         ],
         "City": "Dortmund",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 51.4902201,
         "Longitude": 7.4582948
     },
@@ -1594,7 +1594,7 @@
         "Address": "Flughafen Köln/Bonn, 12, Heinrich-Steinmann-Straße, Grengel, Porz, Köln, Nordrhein-Westfalen, 51147, Deutschland",
         "AlternativeNames": [],
         "City": "Köln",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 50.8677818,
         "Longitude": 7.138961
     },
@@ -1620,7 +1620,7 @@
         "Address": "Luleå tekniska universitet, Laboratorievägen, Porsön, Luleå, Luleå kommun, Norrbottens län, 971 87, Sverige",
         "AlternativeNames": [],
         "City": "Luleå",
-        "Country": "Sverige",
+        "Country": "Sweden",
         "Latitude": 65.6182538,
         "Longitude": 22.1380123
     },
@@ -1675,7 +1675,7 @@
         "Address": "92265, Edelsfeld, Landkreis Amberg-Sulzbach, Bayern, Deutschland",
         "AlternativeNames": [],
         "City": "Edelsfeld",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 49.5827148,
         "Longitude": 11.7114161
     },
@@ -1706,7 +1706,7 @@
             "Stephanstrasse 1a,Leipzig,Leipzig,DE,04103"
         ],
         "City": "Leipzig",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 51.3345137,
         "Longitude": 12.3894385
     },
@@ -1767,7 +1767,7 @@
         "Address": "Małopolskie Centrum Biotechnologii, Gronostajowa, Pychowice, Dębniki, Kraków, województwo małopolskie, 30-387, Polska",
         "AlternativeNames": [],
         "City": "Kraków",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 50.0268743,
         "Longitude": 19.9006629
     },
@@ -1775,7 +1775,7 @@
         "Address": "Gronostajowa 7, Aleja Wawelska, Pychowice, Dębniki, Kraków, województwo małopolskie, 30-387, Polska",
         "AlternativeNames": [],
         "City": "Kraków",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 50.0251664,
         "Longitude": 19.901598
     },
@@ -1783,7 +1783,7 @@
         "Address": "Magnetresonanzzentrum, 11, Max-Planck-Ring, Max-Planck-Institut, Schönblick/Winkelwiese, Tübingen, Landkreis Tübingen, Baden-Württemberg, 72076, Deutschland",
         "AlternativeNames": [],
         "City": "Tübingen",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 48.5372009,
         "Longitude": 9.0585444
     },
@@ -1831,7 +1831,7 @@
         "Address": "Trenta, Casali del Manco, Cosenza, Calabria, 87059, Italia",
         "AlternativeNames": [],
         "City": "Trenta",
-        "Country": "Italia",
+        "Country": "Italy",
         "Latitude": 39.285093,
         "Longitude": 16.321395
     },
@@ -1857,7 +1857,7 @@
         "Address": "National Brain Mapping Laboratory(NBML), بزرگراه گمنام, امیرآباد, ناحیه ۴, منطقه ۶ شهر تهران, شهر تهران, بخش مرکزی شهرستان تهران, شهرستان تهران, استان تهران, 14136-93874, ایران",
         "AlternativeNames": [],
         "City": "شهر تهران",
-        "Country": "ایران",
+        "Country": "Iran",
         "Latitude": 35.723901,
         "Longitude": 51.3877515
     },
@@ -1865,7 +1865,7 @@
         "Address": "東寧社區成大宿舍, 東寧路93巷, 大學里, 東區, 後甲, 臺南市, 701, 臺灣",
         "AlternativeNames": [],
         "City": "臺南市",
-        "Country": "臺灣",
+        "Country": "Taiwan",
         "Latitude": 22.99176,
         "Longitude": 120.22278
     },
@@ -1929,7 +1929,7 @@
         "Address": "Templo Cristiano Bethesa, Avenida Niños Héroes, La Palmas, Durango, Municipio de Durango, Durango, 34045, México",
         "AlternativeNames": [],
         "City": "Durango",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 24.0437007,
         "Longitude": -104.697755
     },
@@ -1937,7 +1937,7 @@
         "Address": "105203, район Восточное Измайлово, Москва, Центральный федеральный округ, Россия",
         "AlternativeNames": [],
         "City": "Москва",
-        "Country": "Россия",
+        "Country": "Russia",
         "Latitude": 55.8006687,
         "Longitude": 37.8258662
     },
@@ -1947,7 +1947,7 @@
             "NTU_NCSC, Fanglan Rd. 49,Taipei,Da An,TW,10672"
         ],
         "City": "臺北市",
-        "Country": "臺灣",
+        "Country": "Taiwan",
         "Latitude": 25.0135779,
         "Longitude": 121.5476182
     },
@@ -1965,7 +1965,7 @@
         "Address": "أبو ظبي, أبوظبي, أبو ظبي, الإمارات العربية المتحدة",
         "AlternativeNames": [],
         "City": "أبو ظبي",
-        "Country": "الإمارات العربية المتحدة",
+        "Country": "United Arab Emirates",
         "Latitude": 24.4538352,
         "Longitude": 54.3774014
     },
@@ -1994,7 +1994,7 @@
         "Address": "Πανεπιστημιακό Νοσοκομείο, Πανεπιστημίου, Κάτω Νεοχωρόπουλο, Ιωάννινα, Νεοχωρόπουλο, Δήμος Ιωαννιτών, Περιφερειακή Ενότητα Ιωαννίνων, Περιφέρεια Ηπείρου, Αποκεντρωμένη Διοίκηση Ηπείρου - Δυτικής Μακεδονίας, 455 00, Ελλάς",
         "AlternativeNames": [],
         "City": "Ιωάννινα",
-        "Country": "Ελλάς",
+        "Country": "Greece",
         "Latitude": 39.620555,
         "Longitude": 20.8419004
     },
@@ -2013,7 +2013,7 @@
             "Ziaeian Hospital, Tehran, Iran"
         ],
         "City": "شهر تهران",
-        "Country": "ایران",
+        "Country": "Iran",
         "Latitude": 35.6892523,
         "Longitude": 51.3896004
     },
@@ -2021,7 +2021,7 @@
         "Address": "Высшая школа экономики, 51, бульвар Гагарина, Городские горки, Мотовилихинский район, Пермь, Пермский городской округ, Пермский край, Приволжский федеральный округ, 614070, Россия",
         "AlternativeNames": [],
         "City": "Пермь",
-        "Country": "Россия",
+        "Country": "Russia",
         "Latitude": 58.0107446,
         "Longitude": 56.2819461
     },
@@ -2029,7 +2029,7 @@
         "Address": "Дом, улица Авиаконструктора Миля, район Выхино-Жулебино, Москва, Центральный федеральный округ, 109431, Россия",
         "AlternativeNames": [],
         "City": "Москва",
-        "Country": "Россия",
+        "Country": "Russia",
         "Latitude": 55.6822473,
         "Longitude": 37.8555901
     },
@@ -2037,7 +2037,7 @@
         "Address": "新竹市, 臺灣",
         "AlternativeNames": [],
         "City": "新竹市",
-        "Country": "臺灣",
+        "Country": "Taiwan",
         "Latitude": 24.8066333,
         "Longitude": 120.9686833
     },
@@ -2045,7 +2045,7 @@
         "Address": "02-093, Ochota, Warszawa, województwo mazowieckie, Polska",
         "AlternativeNames": [],
         "City": "Warszawa",
-        "Country": "Polska",
+        "Country": "Poland",
         "Latitude": 52.2132937,
         "Longitude": 20.9827618
     },
@@ -2068,7 +2068,7 @@
             "Universitätsspital Zürich, 8091 Zurich, Switzerland"
         ],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.3777451,
         "Longitude": 8.5514167
     },
@@ -2138,7 +2138,7 @@
         "Address": "44, Leipziger Straße, Magdeburg, Sachsen-Anhalt, 39120, Deutschland",
         "AlternativeNames": [],
         "City": "Magdeburg",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.1015014,
         "Longitude": 11.6194947
     },
@@ -2154,7 +2154,7 @@
         "Address": "空中奇遇索道 Zip-line Adventure, 馬灣 Ma Wan, 荃灣區 Tsuen Wan District, 新界 New Territories, 香港 Hong Kong, 中国",
         "AlternativeNames": [],
         "City": "香港 Hong Kong",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 22.3480482,
         "Longitude": 114.0619016
     },
@@ -2178,7 +2178,7 @@
         "Address": "北京大学（新燕园校区）, 熙和路, 马池口镇, 昌平区, 北京市, 102205, 中国",
         "AlternativeNames": [],
         "City": "昌平区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.1750746,
         "Longitude": 116.1593872
     },
@@ -2194,7 +2194,7 @@
         "Address": "Physikalisch-Technische Bundesanstalt, 2-12, Abbestraße, Spreestadt Charlottenburg, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10587, Deutschland",
         "AlternativeNames": [],
         "City": "Berlin",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.5158656,
         "Longitude": 13.3208302
     },
@@ -2228,7 +2228,7 @@
             "University Hospital of Psychiatry Zurich, Psychiatrische Universitätsklinik Zürich \n Lenggstrasse 31 \n 8032 Zürich \n Switzerland"
         ],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.35317,
         "Longitude": 8.5703856
     },
@@ -2244,7 +2244,7 @@
         "Address": "穴川三丁目, 稲毛区, 千葉市, 千葉県, 263-0024, 日本",
         "AlternativeNames": [],
         "City": "千葉市",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.6365534,
         "Longitude": 140.1102695
     },
@@ -2279,7 +2279,7 @@
             "TTK_AKK, Magyar_Tudosok_Korutja_2_Budapest_HU_1117"
         ],
         "City": "Budapest",
-        "Country": "Magyarország",
+        "Country": "Hungary",
         "Latitude": 47.4743218,
         "Longitude": 19.0593468
     },
@@ -2287,7 +2287,7 @@
         "Address": "Ріг, Покровська міська громада, Покровський район, Донецька область, 85302, Україна",
         "AlternativeNames": [],
         "City": "Ріг",
-        "Country": "Україна",
+        "Country": "Ukraine",
         "Latitude": 48.27212,
         "Longitude": 37.20726
     },
@@ -2303,7 +2303,7 @@
         "Address": "Nederland",
         "AlternativeNames": [],
         "City": "",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 52.2434979,
         "Longitude": 5.6343227
     },
@@ -2311,7 +2311,7 @@
         "Address": "Radboud Universitair Medisch Centrum, 10, Geert Grooteplein Zuid, Heijendaal, Nijmegen-Midden, Nijmegen, Gelderland, Nederland, 6525 GA, Nederland",
         "AlternativeNames": [],
         "City": "Nijmegen",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 51.8227627,
         "Longitude": 5.8622342
     },
@@ -2319,7 +2319,7 @@
         "Address": "Champ de l'Air, 21, Rue du Bugnon, Lausanne, District de Lausanne, Vaud, 1011, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Lausanne",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.5246625,
         "Longitude": 6.6396894
     },
@@ -2327,7 +2327,7 @@
         "Address": "address Gallery, Budapester Straße, City West, Charlottenburg, Charlottenburg-Wilmersdorf, Berlin, 10787, Deutschland",
         "AlternativeNames": [],
         "City": "Berlin",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.5055081,
         "Longitude": 13.3356998
     },
@@ -2335,7 +2335,7 @@
         "Address": "Москва, Центральный федеральный округ, Россия",
         "AlternativeNames": [],
         "City": "Москва",
-        "Country": "Россия",
+        "Country": "Russia",
         "Latitude": 55.7505412,
         "Longitude": 37.6174782
     },
@@ -2351,7 +2351,7 @@
         "Address": "Københavns Hovedbanegård, Bernstorffsgade, Postbyen, Vestervold, Kødbyen, København, Københavns Kommune, Region Hovedstaden, 1570, Danmark",
         "AlternativeNames": [],
         "City": "København",
-        "Country": "Danmark",
+        "Country": "Denmark",
         "Latitude": 55.6724527,
         "Longitude": 12.5653736
     },
@@ -2359,7 +2359,7 @@
         "Address": "Rigshospitalet, Henrik Harpestrengs Vej, De Gamles By, Nørrebro, København, Københavns Kommune, Region Hovedstaden, 1357, Danmark",
         "AlternativeNames": [],
         "City": "København",
-        "Country": "Danmark",
+        "Country": "Denmark",
         "Latitude": 55.6970438,
         "Longitude": 12.565895
     },
@@ -2393,7 +2393,7 @@
         "Address": "Ruhr-Universität Bochum, 150, Universitätsstraße, Querenburg, Bochum-Süd, Bochum, Nordrhein-Westfalen, 44801, Deutschland",
         "AlternativeNames": [],
         "City": "Bochum",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 51.4441576,
         "Longitude": 7.2610046
     },
@@ -2409,7 +2409,7 @@
         "Address": "上海市, 中国",
         "AlternativeNames": [],
         "City": "",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 31.2312707,
         "Longitude": 121.4700152
     },
@@ -2433,7 +2433,7 @@
             "SKKU, Street_StreetNo_City_2c4e04_District_KR_ZIP"
         ],
         "City": "서울특별시",
-        "Country": "대한민국",
+        "Country": "South Korea",
         "Latitude": 37.5870459,
         "Longitude": 126.9906264
     },
@@ -2453,7 +2453,7 @@
             "SUBIC"
         ],
         "City": "Stockholm",
-        "Country": "Sverige",
+        "Country": "Sweden",
         "Latitude": 59.3251172,
         "Longitude": 18.0710935
     },
@@ -2504,7 +2504,7 @@
         "Address": "Schweizerisches Epilepsie-Zentrum, 60, Bleulerstrasse, Weinegg, Kreis 8, Zürich, Bezirk Zürich, Zürich, 8008, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.3483287,
         "Longitude": 8.5691753
     },
@@ -2512,7 +2512,7 @@
         "Address": "ji, 南京市, 江苏省, 中国",
         "AlternativeNames": [],
         "City": "南京市",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 32.5310507,
         "Longitude": 118.6367622
     },
@@ -2520,7 +2520,7 @@
         "Address": "上海外国语大学, 550, 大连西路, 欧阳路街道, 虹口区, 上海市, 200083, 中国",
         "AlternativeNames": [],
         "City": "虹口区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 31.2789206,
         "Longitude": 121.47816
     },
@@ -2528,7 +2528,7 @@
         "Address": "上海第九人民医院, 639, 制造局路, 五里桥, 半淞园路街道, 上海市, 黄浦区, 上海市, 200023, 中国",
         "AlternativeNames": [],
         "City": "上海市",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 31.2047293,
         "Longitude": 121.4815725
     },
@@ -2536,7 +2536,7 @@
         "Address": "四川师大, 菱安路, 狮子山街道, 锦江区, 成都市, 四川省, 610066, 中国",
         "AlternativeNames": [],
         "City": "锦江区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.6119925,
         "Longitude": 104.1138966
     },
@@ -2547,7 +2547,7 @@
             "South China Normal University, Street StreetNo,Guangzhou//558A8D//,District,CN,ZIP"
         ],
         "City": "天河区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 23.1430189,
         "Longitude": 113.3386042
     },
@@ -2555,7 +2555,7 @@
         "Address": "南方医科大学, 云景路, 京溪村, 京溪街道, 白云区, 广州市, 广东省, 510515, 中国",
         "AlternativeNames": [],
         "City": "白云区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 23.1899352,
         "Longitude": 113.3296269
     },
@@ -2563,7 +2563,7 @@
         "Address": "重庆市, 渝中区, 重庆市, 400014, 中国",
         "AlternativeNames": [],
         "City": "重庆市",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 29.5656729,
         "Longitude": 106.5479189
     },
@@ -2573,7 +2573,7 @@
             "Spinoza_Centre, Amsterdam"
         ],
         "City": "Amsterdam",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 52.2921032,
         "Longitude": 4.9569436
     },
@@ -2606,7 +2606,7 @@
             "CIBM Center for Biomedical Imaging, Switzerland"
         ],
         "City": "",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.7985624,
         "Longitude": 8.2319736
     },
@@ -2614,7 +2614,7 @@
         "Address": "ایران",
         "AlternativeNames": [],
         "City": "",
-        "Country": "ایران",
+        "Country": "Iran",
         "Latitude": 32.6475314,
         "Longitude": 54.5643516
     },
@@ -2638,7 +2638,7 @@
         "Address": "Pearse Street, Mansion House A ED, Dublin, County Dublin, Leinster, D02 CP08, Éire / Ireland",
         "AlternativeNames": [],
         "City": "Dublin",
-        "Country": "Éire / Ireland",
+        "Country": "Ireland",
         "Latitude": 53.3433028,
         "Longitude": -6.2451742
     },
@@ -2646,7 +2646,7 @@
         "Address": "בית חולים תל השומר, שדרות אהרון קציר, תל השומר, רמת גן, נפת תל אביב, מחוז תל אביב, 5262657, ישראל",
         "AlternativeNames": [],
         "City": "רמת גן",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 32.0471842,
         "Longitude": 34.8452013
     },
@@ -2654,7 +2654,7 @@
         "Address": "東大裏, 航空研通り, 富ヶ谷二丁目, 富ヶ谷, 渋谷区, 東京都, 151-0063, 日本",
         "AlternativeNames": [],
         "City": "渋谷区",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.6620849,
         "Longitude": 139.6874873
     },
@@ -2662,7 +2662,7 @@
         "Address": "tec de monterrey, 2703, Avenida Revolución, Plaza Revolución, Monterrey, Nuevo León, 64830, México",
         "AlternativeNames": [],
         "City": "Monterrey",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 25.6541009,
         "Longitude": -100.2766009
     },
@@ -2670,7 +2670,7 @@
         "Address": "הטכניון - מכון טכנולוגי לישראל, טיילת חיים רייסקין, קרית הטכניון, רובע רמות נווה שאנן, חיפה, נפת חיפה, מחוז חיפה, 3271319, ישראל",
         "AlternativeNames": [],
         "City": "חיפה",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 32.7768128,
         "Longitude": 35.0225446
     },
@@ -2682,7 +2682,7 @@
             "Technische Universitat Berlin"
         ],
         "City": "Berlin",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 52.512119,
         "Longitude": 13.3270012
     },
@@ -2692,7 +2692,7 @@
             "Tecnológico de Monterrey, Ave. Eugenio Garza Sada 2501 Sur, Col: Tecnológico, Monterrey, N.L., México, 64700."
         ],
         "City": "Monterrey",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 25.6661548,
         "Longitude": -100.3095658
     },
@@ -2700,7 +2700,7 @@
         "Address": "Rectoría del Tecnológico de Monterrey, Zonas peatonales de Distrito TEC, Monterrey, Nuevo León, 64840, México",
         "AlternativeNames": [],
         "City": "Monterrey",
-        "Country": "México",
+        "Country": "Mexico",
         "Latitude": 25.6514534,
         "Longitude": -100.2908463
     },
@@ -2708,7 +2708,7 @@
         "Address": "אוניברסיטת תל אביב, שדרות קק\"ל, תל־אביב–יפו, אפקה, תל־אביב–יפו, נפת תל אביב, מחוז תל אביב, 4704356, ישראל",
         "AlternativeNames": [],
         "City": "תל־אביב–יפו",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 32.1123577,
         "Longitude": 34.8050129
     },
@@ -2732,7 +2732,7 @@
         "Address": "紅磡 Hung Hom, 九龍城區 Kowloon City District, 九龍 Kowloon, 香港 Hong Kong, 中国",
         "AlternativeNames": [],
         "City": "香港 Hong Kong",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 22.3068983,
         "Longitude": 114.1863163
     },
@@ -2764,7 +2764,7 @@
         "Address": "中国南方航空深圳公司, 兴围, 福永街道, 宝安区, 深圳市, 广东省, 518100, 中国",
         "AlternativeNames": [],
         "City": "宝安区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 22.6376738,
         "Longitude": 113.8213747
     },
@@ -2772,7 +2772,7 @@
         "Address": "Universitäres Tierspital, 260, Winterthurerstrasse, Oerlikon, Kreis 11, Zürich, Bezirk Zürich, Zürich, 8057, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.4005023,
         "Longitude": 8.5522151
     },
@@ -2780,7 +2780,7 @@
         "Address": "本郷, 文京区, 東京都, 113-0033, 日本",
         "AlternativeNames": [],
         "City": "文京区",
-        "Country": "日本",
+        "Country": "Japan",
         "Latitude": 35.7077379,
         "Longitude": 139.760167
     },
@@ -2788,7 +2788,7 @@
         "Address": "Trinity College, College Green, Mansion House A Ward 1986, Dublin, County Dublin, Leinster, D02 VR66, Éire / Ireland",
         "AlternativeNames": [],
         "City": "Dublin",
-        "Country": "Éire / Ireland",
+        "Country": "Ireland",
         "Latitude": 53.3444162,
         "Longitude": -6.2589561
     },
@@ -2796,7 +2796,7 @@
         "Address": "北京清华长庚医院, 立汤路, 天通苑北街道, 昌平区, 北京市, 102218, 中国",
         "AlternativeNames": [],
         "City": "昌平区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.0708633,
         "Longitude": 116.408619
     },
@@ -2804,7 +2804,7 @@
         "Address": "清华大学, 30, 双清路, 东升镇, 海淀区, 北京市, 100084, 中国",
         "AlternativeNames": [],
         "City": "海淀区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 40.0022905,
         "Longitude": 116.320963
     },
@@ -2862,7 +2862,7 @@
         "Address": "电子科技大学西区科技园, 合作街道, 高新区, 郫都区, 成都市, 四川省, 中国",
         "AlternativeNames": [],
         "City": "郫都区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.7367729,
         "Longitude": 103.9719267
     },
@@ -2878,7 +2878,7 @@
         "Address": "Radboud UMC, Philips van Leydenlaan, Heijendaal, Nijmegen-Midden, Nijmegen, Gelderland, Nederland, 6525 GH, Nederland",
         "AlternativeNames": [],
         "City": "Nijmegen",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 51.8236356,
         "Longitude": 5.8577001
     },
@@ -2952,7 +2952,7 @@
         "Address": "UB Erlangen-Nürnberg: Teilbibliothek Pädagogik, Philosophie und Psychologie, 1, Bismarckstraße, Innenstadt, Erlangen, Bayern, 91054, Deutschland",
         "AlternativeNames": [],
         "City": "Erlangen",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 49.6009777,
         "Longitude": 11.01576
     },
@@ -2986,7 +2986,7 @@
             "Universidad Autónoma de Madrid, Madrid, Spain"
         ],
         "City": "Madrid",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 40.5453765,
         "Longitude": -3.6949578
     },
@@ -3012,7 +3012,7 @@
         "Address": "Departamento de Geografía, Plaza del Campus Universitario, Leones de Castilla, Hospital, Valladolid, Castilla y León, 47011, España",
         "AlternativeNames": [],
         "City": "Valladolid",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 41.6579525,
         "Longitude": -4.7126038
     },
@@ -3039,7 +3039,7 @@
         "Address": "Spitalul Universitar de Urgență București, 169, Splaiul Independenței, Cișmigiu, Sector 1, București, 050098, România",
         "AlternativeNames": [],
         "City": "București",
-        "Country": "România",
+        "Country": "Romania",
         "Latitude": 44.4361319,
         "Longitude": 26.0720102
     },
@@ -3047,7 +3047,7 @@
         "Address": "Universitätsklinikum Schleswig-Holstein - Campus Kiel, 3 - 6, Arnold-Heller-Straße, Düsternbrook, Kiel, Altenholz, Schleswig-Holstein, 24105, Deutschland",
         "AlternativeNames": [],
         "City": "Kiel",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 54.33049,
         "Longitude": 10.1428842
     },
@@ -3055,7 +3055,7 @@
         "Address": "Zürich, Bezirk Zürich, Zürich, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.3744489,
         "Longitude": 8.5410422
     },
@@ -3066,7 +3066,7 @@
             "University Medical Center Utrecht, Heidelberglaan 100, 3584 CX, Utrecht, The Netherlands"
         ],
         "City": "Utrecht",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 52.0862941,
         "Longitude": 5.1799371
     },
@@ -3074,7 +3074,7 @@
         "Address": "15, Piazza della Vittoria, Borgo Ticino, Pavia, Lombardia, 27100, Italia",
         "AlternativeNames": [],
         "City": "Pavia",
-        "Country": "Italia",
+        "Country": "Italy",
         "Latitude": 45.184799,
         "Longitude": 9.1542472
     },
@@ -3100,7 +3100,7 @@
             "University of Amsterdam, Nieuwe Achtergracht 129B, 1018 WS Amsterdam, The Netherlands"
         ],
         "City": "Amsterdam",
-        "Country": "Nederland",
+        "Country": "Netherlands",
         "Latitude": 52.3633211,
         "Longitude": 4.9109191
     },
@@ -3118,7 +3118,7 @@
         "Address": "Universitat de Barcelona, Gran Via de les Corts Catalanes (lateral muntanya), l'Antiga Esquerra de l'Eixample, l'Eixample, Barcelona, Barcelonès, Barcelona, Catalunya, 08011, España",
         "AlternativeNames": [],
         "City": "Barcelona",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 41.3868614,
         "Longitude": 2.1634792
     },
@@ -3178,7 +3178,7 @@
         "Address": "长春工业大学（北湖校区东区）, 3000, 北远达大街, 北湖街道, 长春北湖科技开发区, 宽城区, 长春市, 吉林省, 130000, 中国",
         "AlternativeNames": [],
         "City": "宽城区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 43.9927702,
         "Longitude": 125.3982582
     },
@@ -3204,7 +3204,7 @@
         "Address": "Københavns Universitet, Fiolstræde, Nørrevold, Indre By, København, Københavns Kommune, Region Hovedstaden, 1172, Danmark",
         "AlternativeNames": [],
         "City": "København",
-        "Country": "Danmark",
+        "Country": "Denmark",
         "Latitude": 55.6801502,
         "Longitude": 12.572327
     },
@@ -3241,7 +3241,7 @@
         "Address": "1700, Fribourg - Freiburg, District de la Sarine, Fribourg/Freiburg, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Fribourg - Freiburg",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 46.8035356,
         "Longitude": 7.1556189
     },
@@ -3249,7 +3249,7 @@
         "Address": "España",
         "AlternativeNames": [],
         "City": "",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 39.3260685,
         "Longitude": -4.8379791
     },
@@ -3259,7 +3259,7 @@
             "University of Granada, Campus de Cartuja, Granada, ES"
         ],
         "City": "Granada",
-        "Country": "España",
+        "Country": "Spain",
         "Latitude": 37.1827211,
         "Longitude": -3.6056278
     },
@@ -3267,7 +3267,7 @@
         "Address": "Πανεπιστήμιο Ιωαννίνων (Άρτα), Άρτα - Κορωνησία, Πλησιοί, Άρτα, Δήμος Αρταίων, Περιφερειακή Ενότητα Άρτας, Περιφέρεια Ηπείρου, Αποκεντρωμένη Διοίκηση Ηπείρου - Δυτικής Μακεδονίας, 471 00, Ελλάς",
         "AlternativeNames": [],
         "City": "Άρτα",
-        "Country": "Ελλάς",
+        "Country": "Greece",
         "Latitude": 39.1215646,
         "Longitude": 20.945778
     },
@@ -3275,7 +3275,7 @@
         "Address": "HEC Liège, 14, Rue Louvrex, Jonfosse, Centre, Liège, Wallonie, 4000, België / Belgique / Belgien",
         "AlternativeNames": [],
         "City": "Liège",
-        "Country": "België / Belgique / Belgien",
+        "Country": "Belgium",
         "Latitude": 50.6368602,
         "Longitude": 5.5624252
     },
@@ -3291,7 +3291,7 @@
         "Address": "澳門大學 Universidade de Macau, 嘉模堂區 Nossa Senhora do Carmo, 氹仔 Taipa, 澳門 Macau, 999078, 中国",
         "AlternativeNames": [],
         "City": "",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 22.1284604,
         "Longitude": 113.5438378
     },
@@ -3319,7 +3319,7 @@
         "Address": "Università degli Studi di Milano, Piazzale Paolo Gorini, Città Studi, Municipio 3, Milano, Rodano, Milano, Lombardia, 20133, Italia",
         "AlternativeNames": [],
         "City": "Milano",
-        "Country": "Italia",
+        "Country": "Italy",
         "Latitude": 45.4757322,
         "Longitude": 9.2282917
     },
@@ -3354,7 +3354,7 @@
         "Address": "V01 - Verwaltung, 114-118, Ammerländer Heerstraße, Haarenfeld, Haarentor, 5. Bezirk, Oldenburg, Niedersachsen, 26129, Deutschland",
         "AlternativeNames": [],
         "City": "Oldenburg",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 53.1489318,
         "Longitude": 8.1820275
     },
@@ -3362,7 +3362,7 @@
         "Address": "Universitetet i Oslo, Sognsvannsveien, Gaustad, Nordre Aker, Oslo, 0349, Norge",
         "AlternativeNames": [],
         "City": "Oslo",
-        "Country": "Norge",
+        "Country": "Norway",
         "Latitude": 59.9414173,
         "Longitude": 10.7227683
     },
@@ -3439,7 +3439,7 @@
         "Address": "Palazzo Cavazzani, Via Giuseppe Verdi, Le Albere, San Giuseppe - Santa Chiara, Sardagna, Trento, Territorio Val d'Adige, Provincia di Trento, Trentino-Alto Adige/Südtirol, 38122, Italia",
         "AlternativeNames": [],
         "City": "Trento",
-        "Country": "Italia",
+        "Country": "Italy",
         "Latitude": 46.0661807,
         "Longitude": 11.1166177
     },
@@ -3447,7 +3447,7 @@
         "Address": "Klimagarten der Universität Tübingen, Sand, Lustnau, Tübingen, Landkreis Tübingen, Baden-Württemberg, 72076, Deutschland",
         "AlternativeNames": [],
         "City": "Tübingen",
-        "Country": "Deutschland",
+        "Country": "Germany",
         "Latitude": 48.5340595,
         "Longitude": 9.0712444
     },
@@ -3507,7 +3507,7 @@
         "Address": "重庆市, 中国",
         "AlternativeNames": [],
         "City": "",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.05518,
         "Longitude": 107.8748712
     },
@@ -3587,7 +3587,7 @@
         "Address": "Universitätsspital Basel, 21, Spitalstrasse, Vorstädte, Grossbasel, Basel, Basel-Stadt, 4031, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Basel",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.5616817,
         "Longitude": 7.5831365
     },
@@ -3595,7 +3595,7 @@
         "Address": "2A, Sensengasse, Michelbeuern, Katastralgemeinde Alsergrund, Alsergrund, Wien, 1090, Österreich",
         "AlternativeNames": [],
         "City": "Wien",
-        "Country": "Österreich",
+        "Country": "Austria",
         "Latitude": 48.2195524,
         "Longitude": 16.3545299
     },
@@ -3619,7 +3619,7 @@
         "Address": "УрФУ, улица Мира, Втузгородок, Кировский район, Екатеринбург, городской округ Екатеринбург, Свердловская область, Уральский федеральный округ, 620062, Россия",
         "AlternativeNames": [],
         "City": "Екатеринбург",
-        "Country": "Россия",
+        "Country": "Russia",
         "Latitude": 56.844127,
         "Longitude": 60.6506087
     },
@@ -3741,7 +3741,7 @@
             "Weizmann_Institute, Street_StreetNo_City_District_IL_ZIP"
         ],
         "City": "רחובות",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 31.9040163,
         "Longitude": 34.8075739
     },
@@ -3753,7 +3753,7 @@
             "Weizmann, Street_StreetNo_Rehovot_FA2669_District_IL_ZIP"
         ],
         "City": "נס ציונה",
-        "Country": "ישראל",
+        "Country": "Israel",
         "Latitude": 31.9120085,
         "Longitude": 34.8025851
     },
@@ -3785,7 +3785,7 @@
         "Address": "武汉协和医院, 1277号, 解放大道, 武汉中央商务区, 新华街道, 江汉区, 武汉市, 湖北省, 430022, 中国",
         "AlternativeNames": [],
         "City": "江汉区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.5866945,
         "Longitude": 114.269286
     },
@@ -3808,7 +3808,7 @@
         "Address": "秦皇岛市, 河北省, 中国",
         "AlternativeNames": [],
         "City": "秦皇岛市",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 39.9367525,
         "Longitude": 119.5942213
     },
@@ -3824,7 +3824,7 @@
         "Address": "Liège - Luik, Tunnel Cinquantenaire - Jubelparktunnel, Bruxelles - Brussel, Brussel-Hoofdstad - Bruxelles-Capitale, Région de Bruxelles-Capitale - Brussels Hoofdstedelijk Gewest, 1040, België / Belgique / Belgien",
         "AlternativeNames": [],
         "City": "Bruxelles - Brussel",
-        "Country": "België / Belgique / Belgien",
+        "Country": "Belgium",
         "Latitude": 50.8404447,
         "Longitude": 4.3928174
     },
@@ -3850,7 +3850,7 @@
         "Address": "浙江大学医学院, 遵义路, 三墩镇, 西湖区, 杭州市, 浙江省, 310058, 中国",
         "AlternativeNames": [],
         "City": "西湖区",
-        "Country": "中国",
+        "Country": "China",
         "Latitude": 30.2984361,
         "Longitude": 120.0787911
     },
@@ -3858,7 +3858,7 @@
         "Address": "8050, Oerlikon, Kreis 11, Zürich, Bezirk Zürich, Zürich, Schweiz/Suisse/Svizzera/Svizra",
         "AlternativeNames": [],
         "City": "Zürich",
-        "Country": "Schweiz/Suisse/Svizzera/Svizra",
+        "Country": "Switzerland",
         "Latitude": 47.4115807,
         "Longitude": 8.5508295
     },

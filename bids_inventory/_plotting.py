@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 from bids_inventory.listing import KNOWN_DATATYPES
-from bids_inventory.wrangling import SOURCES
+from bids_inventory.wrangling import SOURCES, text_matcher
 
 # same color for a source in all the figures, whatever the sources shown
 SOURCE_COLORS = dict(
@@ -22,13 +22,20 @@ SOURCE_COLORS = dict(
 
 
 def _stacked_by_source(
-    rows: pd.DataFrame, x: str, order: list[Any], title: str, x_title: str
+    rows: pd.DataFrame,
+    x: str,
+    order: list[Any],
+    title: str,
+    x_title: str,
+    count: str = "datasets",
 ) -> go.Figure:
     """Plot the number of datasets for each value of ``x``, stacked by source of the datasets.
 
     ``rows``: one row per dataset and value of ``x``, with a ``source`` column
     (and ``nb_subjects``: the number of participants is shown on hover).
     ``order``: the values of ``x`` to show, in this order.
+    ``count``: "datasets", or "participants" to plot the number of participants
+    (and show the number of datasets on hover).
     """
     counts = rows.groupby([x, "source"]).size()
     participants = (
@@ -44,6 +51,9 @@ def _stacked_by_source(
         if participants is not None:
             customdata = [int(participants.get((value, source), 0)) for value in order]
             hover += "<br>%{customdata} participants"
+        if count == "participants":
+            y, customdata = customdata, y
+            hover = f"%{{x}}<br>{source}: %{{y}} participants<br>%{{customdata}} datasets"
         fig.add_trace(
             go.Bar(
                 x=order,
@@ -59,7 +69,7 @@ def _stacked_by_source(
         title=title,
         legend_title_text="source",
         xaxis={"type": "category", "title": {"text": x_title}},
-        yaxis={"title": {"text": "number of datasets"}},
+        yaxis={"title": {"text": f"number of {count}"}},
     )
 
 
@@ -99,10 +109,16 @@ def scatter_subject_vs(
     )
 
 
-def histogram_tasks(df: pd.DataFrame) -> go.Figure:
-    """Plot the number of datasets for each task (the most common first), by source."""
+def histogram_tasks(df: pd.DataFrame, exclude: str = "", exclude_regex: bool = False) -> go.Figure:
+    """Plot the number of datasets for each task (the most common first), by source.
+
+    Without the tasks containing ``exclude`` (case insensitive),
+    a regular expression if ``exclude_regex``.
+    """
     rows = df[["name", "source", "tasks"]].explode("tasks").dropna(subset=["tasks"])
     rows = rows.drop_duplicates(subset=["name", "tasks"])
+    if exclude:
+        rows = rows[~rows["tasks"].astype(str).apply(text_matcher(exclude, exclude_regex))]
     order = list(rows["tasks"].value_counts().index)
     return _stacked_by_source(rows, "tasks", order, "tasks distribution", "task")
 
@@ -244,6 +260,31 @@ def field_strength_histogram(df: pd.DataFrame) -> go.Figure:
         sorted(set(rows["field_strengths"]), key=order),
         "MRI field strength of the datasets",
         "MRI field strength",
+    )
+
+
+def countries_histogram(df: pd.DataFrame, count: str = "datasets") -> go.Figure:
+    """Plot the number of datasets (or participants) for each country, the highest first.
+
+    ``df`` needs the ``countries`` column added by ``wrangle_data``.
+    ``count``: "datasets" or "participants".
+    A dataset from institutions in several countries is counted for each one.
+    """
+    rows = (
+        df[["name", "source", "nb_subjects", "countries"]]
+        .explode("countries")
+        .dropna(subset=["countries"])
+        .drop_duplicates(subset=["name", "countries"])
+    )
+    totals = (
+        rows.groupby("countries")["nb_subjects"].sum()
+        if count == "participants"
+        else rows["countries"].value_counts()
+    )
+    # the highest first, then alphabetical
+    order = sorted(totals.index, key=lambda x: (-totals[x], x))
+    return _stacked_by_source(
+        rows, "countries", order, f"number of {count} per country", "country", count=count
     )
 
 
