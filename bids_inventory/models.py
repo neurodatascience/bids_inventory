@@ -157,6 +157,13 @@ class BidsDataset(BaseModel):
         "So likely to be an overestimation.",
         default=None,
     )
+    raw_size: int | None = _field(
+        "Size in bytes of the annexed files, without the derivatives, sourcedata "
+        "(and source) folders at the root of the dataset.",
+        "From the size in the git-annex keys of the files (git annex find): "
+        "files that are not annexed are not counted.",
+        default=None,
+    )
     license: str | None = _field("Name of the license of the dataset.", default=None)
     authors: list[str] = _field(
         "List of the authors as reported in the dataset_description.json.", default=[]

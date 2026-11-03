@@ -116,6 +116,11 @@
             "Format": "str",
             "Assumptions": "This includes all BIDS invalid files and the content of the derivatives and sourcedata folders. So likely to be an overestimation."
         },
+        "raw_size": {
+            "Description": "Size in bytes of the annexed files, without the derivatives, sourcedata (and source) folders at the root of the dataset.",
+            "Format": "int",
+            "Assumptions": "From the size in the git-annex keys of the files (git annex find): files that are not annexed are not counted."
+        },
         "license": {
             "Description": "Name of the license of the dataset.",
             "Format": "str",
